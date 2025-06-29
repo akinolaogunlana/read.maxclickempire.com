@@ -1,14 +1,134 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-  <title>Welcome to MaxClickEmpire</title>
-  <meta name="description" content="All the latest SEO-optimized guides, strategies, and more.">
-</head>
+  <meta charset="UTF-8" />
+  <title>MaxClickEmpire — Dominate Online, Build Legacy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Unlock real-world digital success with expert guides, actionable answers, and free Google Docs tools to grow online, increase income, and build your digital legacy.">
+  <meta name="keywords" content="Google Docs tools, digital success, grow online, build income, expert guides, AI, crypto, SEO, MaxClickEmpire">
+  <link rel="canonical" href="https://read.maxclickempire.com/" />
+  <link rel="icon" href="/assets/favicon.png" type="image/png" />  <!-- Open Graph -->  <meta property="og:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
+  <meta property="og:description" content="Real-world answers, expert strategies, and free tools to grow online and succeed in business and career." />
+  <meta property="og:url" content="https://read.maxclickempire.com/" />
+  <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
+  <meta property="og:type" content="website" />  <!-- Twitter -->  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
+  <meta name="twitter:description" content="Expert digital strategies and free Google Docs tools to grow online, boost income, and build your digital future." />
+  <meta name="twitter:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />  <!-- JSON-LD Structured Data -->  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MaxClickEmpire",
+    "url": "https://read.maxclickempire.com",
+    "description": "Unlock real-world digital success with expert guides, actionable answers, and free Google Docs tools to grow online, increase income, and build your digital legacy.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "MaxClickEmpire"
+    }
+  }
+  </script>  <!-- Analytics -->  <script defer data-domain="read.maxclickempire.com" src="https://plausible.io/js/plausible.js"></script>  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f9f9f9;
+      color: #222;
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 0.5rem;
+    }
+    p.subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+    ul#post-list {
+      list-style: none;
+      padding: 0;
+    }
+    ul#post-list li {
+      margin-bottom: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    ul#post-list li a {
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      color: #0066cc;
+    }
+    ul#post-list li a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      margin-top: 4rem;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #777;
+      padding-top: 1rem;
+      border-top: 1px solid #ddd;
+    }
+    .search-input {
+      padding: 0.8rem;
+      width: 100%;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style></head>
 <body>
-  <h1>🚀 MaxClickEmpire: SEO Publishing Hub</h1>
-  <ul>
-    <li><a href="posts/ai-strategy.html">AI Strategy Guide</a></li>
-    <li><a href="posts/crypto-trading.html">Crypto Trading Strategy</a></li>
-  </ul>
-</body>
-          </html>
+  <h1>🧠 MaxClickEmpire</h1>
+  <p class="subtitle">Strategic articles on AI, Crypto, SEO & Influence — powered by GitHub, designed for domination.</p>  <input class="search-input" type="text" id="search" placeholder="Search articles..." />
+  <ul id="post-list">
+    <li>Loading latest posts…</li>
+  </ul>  <footer>
+    <p>© 2025 MaxClickEmpire. All rights reserved.</p>
+    <p>Published from GitHub. Owned by you. Built to outlive algorithms.</p>
+  </footer>  <script>
+    const repo = "maxclickempire/read.maxclickempire.com";
+    const branch = "main";
+    const folder = "posts";
+
+    async function loadPosts() {
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}?ref=${branch}`);
+      const data = await res.json();
+      const list = document.getElementById("post-list");
+      const search = document.getElementById("search");
+
+      list.innerHTML = "";
+
+      const posts = data.filter(file => file.name.endsWith(".html")).map(file => {
+        const slug = file.name.replace(".html", "");
+        const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        const tags = slug.split("-").slice(0, 2).join(" ");
+        return { title, url: `/${folder}/${file.name}`, tags };
+      });
+
+      function render(filtered = posts) {
+        list.innerHTML = "";
+        if (filtered.length === 0) {
+          list.innerHTML = "<li>No matching posts found.</li>";
+          return;
+        }
+        filtered.forEach(post => {
+          const item = document.createElement("li");
+          item.innerHTML = `<a href="${post.url}">${post.title}</a>`;
+          list.appendChild(item);
+        });
+      }
+
+      search.addEventListener("input", () => {
+        const query = search.value.toLowerCase();
+        render(posts.filter(post => post.title.toLowerCase().includes(query)));
+      });
+
+      render();
+    }
+
+    loadPosts();
+  </script></body>
+  </html>
