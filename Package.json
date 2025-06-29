@@ -1,0 +1,15 @@
+{
+  "name": "maxclickempire-seo-automation",
+  "version": "1.0.0",
+  "description": "Auto-generate sitemap.xml, rss.xml, and robots.txt for MaxClickEmpire GitHub Pages",
+  "main": "seo-ecosystem-generator.js",
+  "scripts": {
+    "start": "node seo-ecosystem-generator.js"
+  },
+  "author": "Ogunlana Akinola Okikiola",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "xmlbuilder2": "^3.0.2"
+  }
+}
