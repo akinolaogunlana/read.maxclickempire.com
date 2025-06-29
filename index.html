@@ -26,43 +26,79 @@
     }
   }
   </script>  <!-- Analytics -->  <script defer data-domain="read.maxclickempire.com" src="https://plausible.io/js/plausible.js"></script>  <style>
+    :root {
+      --primary: #0a0a23;
+      --accent: #0f62fe;
+      --light: #f4f4f4;
+      --dark: #1c1c1c;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f9f9f9;
-      color: #222;
-      max-width: 900px;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--primary);
+      max-width: 960px;
       margin: auto;
       padding: 2rem;
     }
+
     h1 {
-      font-size: 2.4rem;
+      font-size: 2.8rem;
+      font-weight: 800;
       margin-bottom: 0.5rem;
+      color: var(--accent);
     }
+
     p.subtitle {
-      font-size: 1.2rem;
-      color: #555;
+      font-size: 1.25rem;
+      color: #444;
       margin-bottom: 2rem;
     }
+
+    .search-input {
+      padding: 1rem;
+      width: 100%;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
     ul#post-list {
       list-style: none;
       padding: 0;
+      display: grid;
+      gap: 1.5rem;
     }
+
     ul#post-list li {
-      margin-bottom: 1rem;
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
     }
+
+    ul#post-list li:hover {
+      transform: translateY(-4px);
+    }
+
     ul#post-list li a {
-      font-weight: 600;
-      font-size: 1.1rem;
+      font-weight: 700;
+      font-size: 1.15rem;
       text-decoration: none;
-      color: #0066cc;
+      color: var(--accent);
     }
+
     ul#post-list li a:hover {
       text-decoration: underline;
     }
+
     footer {
       margin-top: 4rem;
       font-size: 0.85rem;
@@ -70,14 +106,6 @@
       color: #777;
       padding-top: 1rem;
       border-top: 1px solid #ddd;
-    }
-    .search-input {
-      padding: 0.8rem;
-      width: 100%;
-      font-size: 1rem;
-      margin-bottom: 2rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
     }
   </style></head>
 <body>
@@ -131,4 +159,4 @@
 
     loadPosts();
   </script></body>
-  </html>
+</html>
