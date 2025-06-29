@@ -3,23 +3,23 @@
   <meta charset="UTF-8" />
   <title>MaxClickEmpire — Dominate Online, Build Legacy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Unlock real-world digital success with expert guides, actionable answers, and free Google Docs tools to grow online, increase income, and build your digital legacy.">
-  <meta name="keywords" content="Google Docs tools, digital success, grow online, build income, expert guides, AI, crypto, SEO, MaxClickEmpire">
+  <meta name="description" content="Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online, boost income, and build your digital legacy. Unlock real-world digital success with expert guides, powerful answers, and free Google Docs templates to win in business, career, and online growth.">
+  <meta name="keywords" content="Google Docs tools, digital success, grow online, build income, expert guides, AI, crypto, SEO, MaxClickEmpire, free templates">
   <link rel="canonical" href="https://read.maxclickempire.com/" />
   <link rel="icon" href="/assets/favicon.png" type="image/png" />  <!-- Open Graph -->  <meta property="og:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
-  <meta property="og:description" content="Real-world answers, expert strategies, and free tools to grow online and succeed in business and career." />
+  <meta property="og:description" content="Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online, boost income, and build your digital legacy. Unlock real-world digital success with expert guides, powerful answers, and free Google Docs templates to win in business, career, and online growth." />
   <meta property="og:url" content="https://read.maxclickempire.com/" />
   <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
   <meta property="og:type" content="website" />  <!-- Twitter -->  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
-  <meta name="twitter:description" content="Expert digital strategies and free Google Docs tools to grow online, boost income, and build your digital future." />
+  <meta name="twitter:description" content="Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online, boost income, and build your digital legacy. Unlock real-world digital success with expert guides, powerful answers, and free Google Docs templates to win in business, career, and online growth." />
   <meta name="twitter:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />  <!-- JSON-LD Structured Data -->  <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "MaxClickEmpire",
     "url": "https://read.maxclickempire.com",
-    "description": "Unlock real-world digital success with expert guides, actionable answers, and free Google Docs tools to grow online, increase income, and build your digital legacy.",
+    "description": "Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online, boost income, and build your digital legacy. Unlock real-world digital success with expert guides, powerful answers, and free Google Docs templates to win in business, career, and online growth.",
     "publisher": {
       "@type": "Organization",
       "name": "MaxClickEmpire"
@@ -99,6 +99,12 @@
       text-decoration: underline;
     }
 
+    ul#post-list li p {
+      font-size: 0.95rem;
+      margin-top: 0.35rem;
+      color: #555;
+    }
+
     footer {
       margin-top: 4rem;
       font-size: 0.85rem;
@@ -110,14 +116,14 @@
   </style></head>
 <body>
   <h1>🧠 MaxClickEmpire</h1>
-  <p class="subtitle">Strategic articles on AI, Crypto, SEO & Influence — powered by GitHub, designed for domination.</p>  <input class="search-input" type="text" id="search" placeholder="Search articles..." />
+  <p class="subtitle">Strategic guides, expert answers, and free Google Docs tools — dominate online, earn more, and build your legacy.</p>  <input class="search-input" type="text" id="search" placeholder="Search articles..." />
   <ul id="post-list">
     <li>Loading latest posts…</li>
   </ul>  <footer>
     <p>© 2025 MaxClickEmpire. All rights reserved.</p>
     <p>Published from GitHub. Owned by you. Built to outlive algorithms.</p>
   </footer>  <script>
-    const repo = "maxclickempire/read.maxclickempire.com";
+    const repo = "akinolaogunlana/read.maxclickempire.com";
     const branch = "main";
     const folder = "posts";
 
@@ -130,10 +136,11 @@
       list.innerHTML = "";
 
       const posts = data.filter(file => file.name.endsWith(".html")).map(file => {
-        const slug = file.name.replace(".html", "");
+        const slug = file.name.replace(".html", "").toLowerCase();
         const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        const tags = slug.split("-").slice(0, 2).join(" ");
-        return { title, url: `/${folder}/${file.name}`, tags };
+        const description = `Expert insights on ${title}. Real-world advice and tools.`;
+        const url = `/${folder}/${file.name}`;
+        return { title, url, description };
       });
 
       function render(filtered = posts) {
@@ -144,7 +151,10 @@
         }
         filtered.forEach(post => {
           const item = document.createElement("li");
-          item.innerHTML = `<a href="${post.url}">${post.title}</a>`;
+          item.innerHTML = `
+            <a href="${post.url}">${post.title}</a>
+            <p>${post.description}</p>
+          `;
           list.appendChild(item);
         });
       }
@@ -159,4 +169,4 @@
 
     loadPosts();
   </script></body>
-</html>
+  </html>
