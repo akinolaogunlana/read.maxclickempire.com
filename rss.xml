@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>MaxClickEmpire</title>
+    <link>https://read.maxclickempire.com</link>
+    <description>Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online.</description>
+    <language>en-us</language>
+    <lastBuildDate>{{LAST_BUILD_DATE}}</lastBuildDate>
+
+    {{POST_ITEMS}}
+
+  </channel>
+</rss>
