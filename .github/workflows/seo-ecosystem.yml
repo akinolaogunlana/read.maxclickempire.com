@@ -9,29 +9,22 @@ jobs:
   generate-seo-files:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/..
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Show working directory (for debug)
-        run: pwd
-
-      - name: List files (for debug)
-        run: ls -la
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: npm install
+        working-directory: ${{ github.workspace }}
+
       - name: Run SEO generator
-        run: |
-          npm install
-          node seo-ecosystem-generator.js
+        run: node seo-ecosystem-generator.js
+        working-directory: ${{ github.workspace }}
 
       - name: Commit and push SEO files
         run: |
@@ -40,3 +33,4 @@ jobs:
           git add sitemap.xml rss.xml robots.txt
           git commit -m "🔄 Auto-regenerated SEO files"
           git push
+        working-directory: ${{ github.workspace }}
