@@ -1,8 +1,12 @@
 // ✅ SEO Ecosystem Generator Script v1.0 — MaxClickEmpire
 // Scans your /posts directory and builds sitemap.xml, rss.xml, and robots.txt
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const siteUrl = "https://read.maxclickempire.com";
 const postsDir = path.join(__dirname, "posts");
@@ -49,6 +53,7 @@ const rss = `<?xml version="1.0" encoding="UTF-8"?>
   <title>MaxClickEmpire RSS Feed</title>
   <link>${siteUrl}</link>
   <description>Stay updated with MaxClickEmpire's latest guides and strategies.</description>
+  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
   ${rssItems}
 </channel>
 </rss>`;
