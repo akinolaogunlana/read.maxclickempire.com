@@ -9,24 +9,20 @@ jobs:
   generate-seo-files:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: read.maxclickempire.com
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+      - name: Set working directory
+        run: echo "Working in read.maxclickempire.com"
 
       - name: Install dependencies
         run: npm install
+        working-directory: read.maxclickempire.com
 
       - name: Run SEO generator
         run: node seo-ecosystem-generator.js
+        working-directory: read.maxclickempire.com
 
       - name: Commit and push SEO files
         run: |
@@ -35,3 +31,4 @@ jobs:
           git add sitemap.xml rss.xml robots.txt
           git commit -m "🔄 Auto-regenerated SEO files"
           git push
+        working-directory: read.maxclickempire.com
