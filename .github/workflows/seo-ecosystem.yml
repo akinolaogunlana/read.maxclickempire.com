@@ -9,9 +9,19 @@ jobs:
   generate-seo-files:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/..
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Show working directory (for debug)
+        run: pwd
+
+      - name: List files (for debug)
+        run: ls -la
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -19,13 +29,11 @@ jobs:
           node-version: '20'
 
       - name: Run SEO generator
-        working-directory: ./  # ✅ set working directory to the repo root
         run: |
           npm install
           node seo-ecosystem-generator.js
 
       - name: Commit and push SEO files
-        working-directory: ./  # ✅ same here
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
