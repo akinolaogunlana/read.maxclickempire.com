@@ -3,11 +3,15 @@ name: SEO Ecosystem Generator
 on:
   push:
     paths:
-      - 'posts/**.html'
+      - 'read.maxclickempire.com/posts/**.html'
 
 jobs:
   generate-seo-files:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: read.maxclickempire.com
 
     steps:
       - name: Checkout repository
@@ -20,11 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ${{ github.workspace }}
 
       - name: Run SEO generator
         run: node seo-ecosystem-generator.js
-        working-directory: ${{ github.workspace }}
 
       - name: Commit and push SEO files
         run: |
@@ -33,4 +35,3 @@ jobs:
           git add sitemap.xml rss.xml robots.txt
           git commit -m "🔄 Auto-regenerated SEO files"
           git push
-        working-directory: ${{ github.workspace }}
