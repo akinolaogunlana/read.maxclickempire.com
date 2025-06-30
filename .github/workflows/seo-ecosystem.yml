@@ -18,19 +18,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: 🧠 Install Dependencies
-        run: npm install
+      - name: 📦 Install dependencies
         working-directory: read.maxclickempire.com
+        run: npm install
 
       - name: 🚀 Run SEO Generator
-        run: node seo-ecosystem-generator.js
         working-directory: read.maxclickempire.com
+        run: node seo-ecosystem-generator.js
 
       - name: 🔄 Commit and Push SEO Files
+        working-directory: read.maxclickempire.com
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add sitemap.xml rss.xml robots.txt || true
           git commit -m "🔁 Auto-updated SEO files" || echo "No changes"
           git push || echo "No push needed"
-        working-directory: read.maxclickempire.com
