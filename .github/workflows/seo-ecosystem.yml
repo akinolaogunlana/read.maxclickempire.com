@@ -3,7 +3,9 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'read.maxclickempire.com/posts/**.html'
+      - 'posts/**.html'     # Adjust to your actual HTML posts folder
+      - 'seo-ecosystem-generator.js'
+      - 'submit-to-indexing-api.js'
   workflow_dispatch:
 
 jobs:
@@ -19,64 +21,58 @@ jobs:
         with:
           node-version: 20
 
-      - name: 🧠 Auto-Detect & Install Dependencies
-        working-directory: read.maxclickempire.com
+      - name: 🧠 Auto Init + Install xmlbuilder2
         run: |
           if [ ! -f package.json ]; then
+            echo "⚙️ No package.json found, initializing..."
             npm init -y
-            npm install xmlbuilder2 chalk jsdom
-          else
-            npm install
           fi
+          npm install xmlbuilder2 --save
 
-      - name: 🔐 Decode Google Service Account Key
-        run: echo "${{ secrets.GOOGLE_CREDENTIALS_BASE64 }}" | base64 -d > read.maxclickempire.com/credentials.json
+      - name: 🔐 Decode Google Indexing Credentials
+        run: echo "${{ secrets.GOOGLE_CREDENTIALS_BASE64 }}" | base64 -d > credentials.json
 
-      - name: ⚙️ Generate SEO Ecosystem (Sitemap, RSS, Robots.txt, TOC, Keywords, Internal Links)
-        working-directory: read.maxclickempire.com
+      - name: ⚙️ Run SEO Ecosystem Generator
         run: node seo-ecosystem-generator.js
 
-      - name: 📤 Submit Updated URLs to Google Indexing API
-        working-directory: read.maxclickempire.com
+      - name: 🚀 Submit URLs to Google Indexing API
         run: node submit-to-indexing-api.js
 
-      - name: 🌐 Ping Google, Bing, Yandex for Sitemap Submission
+      - name: 🌐 Ping Search Engines
         run: |
           curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
           curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=YOUR_INDEXNOW_KEY" || true
+          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=YOUR_INDEXNOW_KEY"
 
-      - name: 🔄 Commit & Push SEO Files
-        working-directory: read.maxclickempire.com
+      - name: 🔄 Commit SEO & Sitemap Updates
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add sitemap.xml rss.xml robots.txt keyword-density-report.txt || true
-          git commit -m "♻️ Auto SEO Update: Sitemap + Internal Links + Keywords" || echo "No changes"
-          git push || echo "No push needed"
+          git config --global user.name "maxclick-seo-bot"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git add sitemap.xml rss.xml robots.txt || true
+          git commit -m "♻️ Auto SEO & Ping Update" || echo "No changes"
+          git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./read.maxclickempire.com
+          publish_dir: ./  # root of your repo
 
-      - name: ✉️ Send Email Notification (Optional)
+      - name: ✉️ Optional Email Notification
+        if: always()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "✅ MaxClickEmpire SEO Automation Completed"
+          subject: "✅ MaxClickEmpire SEO Update Completed"
           to: your@email.com
           from: MaxClickEmpire Bot <your@email.com>
           body: |
-            🔥 SEO Automation Summary:
-            • Injected advanced SEO script into all posts
-            • Sitemap, RSS, Robots.txt auto-generated
-            • Table of Contents + Internal links auto-generated
-            • Keyword density report created
-            • URLs submitted to Google Indexing API
-            • Sitemap pinged to Google, Bing, Yandex
-            • Site deployed to GitHub Pages
+            🚀 SEO automation complete:
+            - Injected SEO schema + meta + TOC
+            - Sitemap + RSS generated
+            - Google/Bing/Yandex pinged
+            - URLs submitted to Google Indexing API
+            - GitHub Pages deployed ✅
