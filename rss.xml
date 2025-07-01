@@ -1,13 +1,25 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
   <channel>
-    <title>MaxClickEmpire</title>
+    <title>MaxClickEmpire Feed</title>
     <link>https://read.maxclickempire.com</link>
-    <description>Maximize your impact with real-world answers, expert guides, and free Google Docs tools to dominate online.</description>
+    <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description>
     <language>en-us</language>
-    <lastBuildDate>{{LAST_BUILD_DATE}}</lastBuildDate>
+    
+  <item>
+    <title>Free-Lesson-Plan-Templates</title>
+    <link>https://read.maxclickempire.com/posts/Free-Lesson-Plan-Templates.html</link>
+    <description><![CDATA[for meta tag use only – Discover free, customizable Google Docs lesson plan templates that save teachers time and elevate classroom planning.]]></description>
+    <pubDate>Tue, 01 Jul 2025 21:04:54 GMT</pubDate>
+    <guid>https://read.maxclickempire.com/posts/Free-Lesson-Plan-Templates.html</guid>
+  </item>
 
-    {{POST_ITEMS}}
+  <item>
+    <title>Google-Docs-Student-Planner-Template</title>
+    <link>https://read.maxclickempire.com/posts/Google-Docs-Student-Planner-Template.html</link>
+    <description><![CDATA[]]></description>
+    <pubDate>Tue, 01 Jul 2025 21:04:54 GMT</pubDate>
+    <guid>https://read.maxclickempire.com/posts/Google-Docs-Student-Planner-Template.html</guid>
+  </item>
 
   </channel>
 </rss>
