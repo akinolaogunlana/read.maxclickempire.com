@@ -1,96 +1,93 @@
 const fs = require("fs");
 const path = require("path");
-const builder = require("xmlbuilder2");
+const { create } = require("xmlbuilder2");
 
+const siteUrl = "https://read.maxclickempire.com";
+const postsDir = path.join(__dirname, "posts");
+const sitemapFile = path.join(__dirname, "sitemap.xml");
+const rssFile = path.join(__dirname, "rss.xml");
 
-// === Config
-const siteURL = "https://read.maxclickempire.com";
-const authorName = "MaxClickEmpire";
-const postsDir = path.join("read.maxclickempire.com", "posts");
-const sitemapFile = path.join("read.maxclickempire.com", "sitemap.xml");
-const rssFile = path.join("read.maxclickempire.com", "rss.xml");
-const enhancerScriptTag = `<script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>`;
+// === 🔍 Gather Posts
+const posts = fs
+  .readdirSync(postsDir)
+  .filter(file => file.endsWith(".html"))
+  .map(file => {
+    const content = fs.readFileSync(path.join(postsDir, file), "utf8");
+    const title = (content.match(/<title>(.*?)<\/title>/) || [])[1] || file.replace(".html", "");
+    const description = (content.match(/<meta name="description" content="(.*?)"/) || [])[1] || "";
+    const published = (content.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
+    const url = `${siteUrl}/posts/${file}`;
+    const slug = file.replace(".html", "");
+    return { title, description, url, published, slug };
+  });
 
-// === Utilities
-function getTitleFromSlug(slug) {
-  return slug
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, l => l.toUpperCase());
-}
+// === 🌐 Inject SEO Enhancer
+const enhancerScript = `<script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>`;
+posts.forEach(post => {
+  const filePath = path.join(postsDir, `${post.slug}.html`);
+  let html = fs.readFileSync(filePath, "utf8");
 
-function generateMeta(slug, html) {
-  const title = getTitleFromSlug(slug);
-  const descriptionMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
-  const description = descriptionMatch ? descriptionMatch[1] : `Read expert insight on ${title} at MaxClickEmpire.`;
-  const imageMatch = html.match(/<img.*?src=["'](.*?)["']/);
-  const image = imageMatch ? imageMatch[1] : `${siteURL}/assets/cover.jpg`;
-  const date = new Date().toISOString();
-
-  return { title, description, image, published: date };
-}
-
-// === Main Process
-const files = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
-const urls = [];
-const rssItems = [];
-
-files.forEach(file => {
-  const filePath = path.join(postsDir, file);
-  const html = fs.readFileSync(filePath, "utf8");
-  const slug = file.replace(".html", "");
-  const meta = generateMeta(slug, html);
-  const postURL = `${siteURL}/posts/${file}`;
-
-  // Inject enhancer script if missing
   if (!html.includes("seo-enhancer.js")) {
-    const updatedHtml = html.replace("</body>", `${enhancerScriptTag}\n</body>`);
-    fs.writeFileSync(filePath, updatedHtml, "utf8");
+    html = html.replace("</body>", `${enhancerScript}\n</body>`);
+    fs.writeFileSync(filePath, html, "utf8");
+    console.log(`✅ Injected SEO Enhancer into ${post.slug}.html`);
   }
-
-  // === Sitemap URL entry
-  urls.push({
-    loc: postURL,
-    lastmod: meta.published
-  });
-
-  // === RSS Feed item
-  rssItems.push({
-    title: meta.title,
-    link: postURL,
-    description: meta.description,
-    pubDate: new Date(meta.published).toUTCString()
-  });
 });
 
-// === Generate Sitemap XML
-const sitemap = builder
-  .create({ version: "1.0", encoding: "UTF-8" })
+// === 🗺️ Generate Sitemap
+const sitemap = create({ version: "1.0" })
   .ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
 
-urls.forEach(u => {
-  sitemap.ele("url").ele("loc").txt(u.loc).up().ele("lastmod").txt(u.lastmod);
+posts.forEach(post => {
+  sitemap.ele("url")
+    .ele("loc").txt(post.url).up()
+    .ele("lastmod").txt(post.published).up()
+    .ele("changefreq").txt("weekly").up()
+    .ele("priority").txt("0.8").up()
+    .up();
 });
 
-fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }));
+fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
+console.log("✅ sitemap.xml generated");
 
-// === Generate RSS XML
-const rss = builder
-  .create({ version: "1.0", encoding: "UTF-8" })
-  .ele("rss", { version: "2.0" })
-  .ele("channel");
+// === 📡 Generate RSS
+const rssItems = posts.map(post => `
+  <item>
+    <title>${post.title}</title>
+    <link>${post.url}</link>
+    <description><![CDATA[${post.description}]]></description>
+    <pubDate>${new Date(post.published).toUTCString()}</pubDate>
+    <guid>${post.url}</guid>
+  </item>
+`).join("");
 
-rss.ele("title").txt("MaxClickEmpire Feed");
-rss.ele("link").txt(siteURL);
-rss.ele("description").txt("Latest digital growth guides and tools from MaxClickEmpire");
+const rssFeed = `
+<rss version="2.0">
+  <channel>
+    <title>MaxClickEmpire Feed</title>
+    <link>${siteUrl}</link>
+    <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description>
+    <language>en-us</language>
+    ${rssItems}
+  </channel>
+</rss>
+`;
 
-rssItems.forEach(item => {
-  const entry = rss.ele("item");
-  entry.ele("title").txt(item.title);
-  entry.ele("link").txt(item.link);
-  entry.ele("description").txt(item.description);
-  entry.ele("pubDate").txt(item.pubDate);
+fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
+console.log("✅ rss.xml generated");
+
+// === 🧠 Inject Metadata Map (optional)
+const metadata = {};
+posts.forEach(post => {
+  metadata[post.slug] = {
+    title: post.title,
+    description: post.description,
+    image: `${siteUrl}/assets/og-image.jpg`,
+    published: post.published
+  };
 });
+const metadataJS = `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`;
 
-fs.writeFileSync(rssFile, rss.end({ prettyPrint: true }));
-
-console.log("✅ SEO metadata injected, enhancer added, sitemap.xml + rss.xml generated.");
+const metaScriptPath = path.join(postsDir, "post-meta.js");
+fs.writeFileSync(metaScriptPath, metadataJS, "utf8");
+console.log("✅ post-meta.js generated");
