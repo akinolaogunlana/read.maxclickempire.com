@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'posts/**.html'     # Adjust to your actual HTML posts folder
-      - 'seo-ecosystem-generator.js'
+      - 'seo-ecosystem-generator.cjs'
       - 'submit-to-indexing-api.js'
   workflow_dispatch:
 
