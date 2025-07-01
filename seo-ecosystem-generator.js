@@ -1,33 +1,29 @@
-// ✅ Supreme SEO Ecosystem Generator by MaxClickEmpire import fs from 'fs'; import path from 'path'; import { create } from 'xmlbuilder2';
+// ✅ Supreme SEO Ecosystem Generator for MaxClickEmpire // Automatically injects SEO enhancer, sitemaps, meta tags, and internal links.
 
-// ===================== CONFIG ===================== const siteUrl = 'https://read.maxclickempire.com'; const postsDir = path.join(process.cwd(), 'posts'); const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith('.html')); const today = new Date().toISOString();
+import fs from 'fs'; import path from 'path';
 
-const enhancerScriptTag = <script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>;
+const postsDir = path.join("read.maxclickempire.com", "posts"); const sitemapFile = path.join("read.maxclickempire.com", "sitemap.xml"); const rssFile = path.join("read.maxclickempire.com", "rss.xml"); const enhancerScriptTag = <script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>;
 
-// ===================== UTILS ===================== function extractMeta(filePath) { const content = fs.readFileSync(filePath, 'utf-8'); const title = content.match(/<title>(.?)</title>/i)?.[1] || 'Untitled'; const desc = content.match(/<meta name="description" content="(.?)"/i)?.[1] || 'No description.'; return { title, desc, content }; }
+const baseUrl = "https://read.maxclickempire.com";
 
-function calculateKeywordDensity(content) { const text = content.replace(/<[^>]+>/g, '').toLowerCase(); const words = text.match(/\b\w+\b/g) || []; const freq = {}; words.forEach(word => { freq[word] = (freq[word] || 0) + 1; }); const total = words.length; const density = Object.entries(freq) .sort((a, b) => b[1] - a[1]) .slice(0, 10) .map(([word, count]) => ${word}: ${(count / total * 100).toFixed(2)}%); return density; }
+const posts = fs.readdirSync(postsDir).filter(file => file.endsWith(".html")); const urls = []; const rssItems = [];
 
-function suggestInternalLinks(content, keywords) { const keywordMap = { "Google Docs": "/posts/google-docs-template-guide.html", "SEO tools": "/posts/best-seo-tools.html", "affiliate marketing": "/posts/affiliate-marketing-for-beginners.html", "AI tools": "/posts/ai-tools-for-creators.html" }; let updatedContent = content; keywords.forEach(keyword => { const cleanKeyword = keyword.split(':')[0]; if (keywordMap[cleanKeyword]) { const link = <a href="${keywordMap[cleanKeyword]}" title="Learn more about ${cleanKeyword}">${cleanKeyword}</a>; const regex = new RegExp((?<!href=")\b(${cleanKeyword})\b, 'i'); updatedContent = updatedContent.replace(regex, link); } }); return updatedContent; }
+for (const file of posts) { const filePath = path.join(postsDir, file); let html = fs.readFileSync(filePath, "utf-8");
 
-// ===================== SITEMAP ===================== const sitemap = create({ version: '1.0', encoding: 'UTF-8' }) .ele('urlset', { xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
+// === Inject SEO Enhancer Script if not present if (!html.includes("seo-enhancer.js")) { html = html.replace('</body>', ${enhancerScriptTag}</body>); }
 
-postFiles.forEach(file => { const fullUrl = ${siteUrl}/posts/${file}; sitemap.ele('url') .ele('loc').txt(fullUrl).up() .ele('lastmod').txt(today).up() .ele('changefreq').txt('weekly').up() .ele('priority').txt('0.8').up() .up(); }); fs.writeFileSync('sitemap.xml', sitemap.end({ prettyPrint: true })); console.log('✅ sitemap.xml created');
+// === Collect metadata for sitemap and RSS const slug = file.replace(".html", ""); const url = ${baseUrl}/posts/${file}; const titleMatch = html.match(/<title>(.*?)</title>/i); const descMatch = html.match(/<meta name=["']description["'] content="'["']/i); const pubDate = new Date().toISOString();
 
-// ===================== RSS ===================== const rss = create({ version: '1.0', encoding: 'UTF-8' }) .ele('rss', { version: '2.0' }) .ele('channel') .ele('title').txt('MaxClickEmpire RSS Feed').up() .ele('link').txt(siteUrl).up() .ele('description').txt('News, templates, and tools to dominate online.').up();
+urls.push(<url><loc>${url}</loc><lastmod>${pubDate}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>);
 
-postFiles.forEach(file => { const filePath = path.join(postsDir, file); const { title, desc } = extractMeta(filePath); const url = ${siteUrl}/posts/${file}; rss.ele('item') .ele('title').txt(title).up() .ele('link').txt(url).up() .ele('guid').txt(url).up() .ele('description').txt(desc).up() .ele('pubDate').txt(new Date().toUTCString()).up() .up(); }); fs.writeFileSync('rss.xml', rss.end({ prettyPrint: true })); console.log('✅ rss.xml created');
+rssItems.push(<item> <title>${titleMatch?.[1] || slug}</title> <link>${url}</link> <description>${descMatch?.[1] || "Read expert insights and tools on MaxClickEmpire."}</description> <pubDate>${pubDate}</pubDate> <guid>${url}</guid> </item>);
 
-// ===================== ROBOTS.TXT ===================== const robots = User-agent: * Allow: / Sitemap: ${siteUrl}/sitemap.xml Crawl-delay: 5.trim(); fs.writeFileSync('robots.txt', robots); console.log('✅ robots.txt created');
+fs.writeFileSync(filePath, html, "utf-8"); }
 
-// ===================== SEO SCRIPT INJECTION + KEYWORD ANALYSIS ===================== postFiles.forEach(file => { const filePath = path.join(postsDir, file); let content = fs.readFileSync(filePath, 'utf-8'); const { content: cleanContent } = extractMeta(filePath);
+// === Write sitemap.xml const sitemap = <?xml version="1.0" encoding="UTF-8"?> <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> ${urls.join("\n")}  </urlset>; fs.writeFileSync(sitemapFile, sitemap.trim(), "utf-8");
 
-// Keyword density const topKeywords = calculateKeywordDensity(cleanContent); console.log(📈 Keyword Density (${file}):, topKeywords);
+// === Write rss.xml const rss = <?xml version="1.0" encoding="UTF-8"?> <rss version="2.0"> <channel> <title>MaxClickEmpire RSS Feed</title> <link>${baseUrl}</link> <description>Strategic articles and tools from MaxClickEmpire</description> ${rssItems.join("\n")}  </channel> </rss>; fs.writeFileSync(rssFile, rss.trim(), "utf-8");
 
-// Internal link suggestion content = suggestInternalLinks(content, topKeywords);
-
-// SEO script injection if (!content.includes('seo-enhancer.js')) { content = content.includes('</body>') ? content.replace('</body>', ${enhancerScriptTag}\n</body>) : ${content}\n${enhancerScriptTag}; }
-
-fs.writeFileSync(filePath, content); console.log(🔁 SEO processed: ${file}); });
+console.log("✅ SEO Ecosystem Generation Complete: Injected enhancer, updated sitemap and RSS.");
 
   
