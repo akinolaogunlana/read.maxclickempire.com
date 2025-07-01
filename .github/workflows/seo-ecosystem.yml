@@ -3,9 +3,8 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'posts/**.html'     # Adjust to your actual HTML posts folder
+      - 'posts/**.html'
       - 'seo-ecosystem-generator.cjs'
-      - 'submit-to-indexing-api.js'
   workflow_dispatch:
 
 jobs:
@@ -21,7 +20,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: 🧠 Auto Init + Install xmlbuilder2
+      - name: 📦 Install Dependencies
         run: |
           if [ ! -f package.json ]; then
             echo "⚙️ No package.json found, initializing..."
@@ -29,27 +28,21 @@ jobs:
           fi
           npm install xmlbuilder2 --save
 
-      - name: 🔐 Decode Google Indexing Credentials
-        run: echo "${{ secrets.GOOGLE_CREDENTIALS_BASE64 }}" | base64 -d > credentials.json
-
       - name: ⚙️ Run SEO Ecosystem Generator
         run: node seo-ecosystem-generator.cjs
-
-      - name: 🚀 Submit URLs to Google Indexing API
-        run: node submit-to-indexing-api.js
 
       - name: 🌐 Ping Search Engines
         run: |
           curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
           curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=YOUR_INDEXNOW_KEY"
+          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=9b1fb73319b04fb3abb5ed09be53d65e"
 
-      - name: 🔄 Commit SEO & Sitemap Updates
+      - name: 🔄 Commit SEO, Sitemap, and Metadata
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt || true
-          git commit -m "♻️ Auto SEO & Ping Update" || echo "No changes"
+          git add sitemap.xml rss.xml robots.txt posts/post-meta.js || true
+          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes"
           git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
@@ -70,9 +63,9 @@ jobs:
           to: your@email.com
           from: MaxClickEmpire Bot <your@email.com>
           body: |
-            🚀 SEO automation complete:
-            - Injected SEO schema + meta + TOC
+            🚀 SEO Automation Summary:
+            - SEO tags injected
             - Sitemap + RSS generated
-            - Google/Bing/Yandex pinged
-            - URLs submitted to Google Indexing API
-            - GitHub Pages deployed ✅
+            - Metadata map created
+            - Search engines pinged
+            - GitHub Pages deployed
