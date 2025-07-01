@@ -1,29 +1,95 @@
-// ✅ Supreme SEO Ecosystem Generator for MaxClickEmpire // Automatically injects SEO enhancer, sitemaps, meta tags, and internal links.
+const fs = require("fs");
+const path = require("path");
+const builder = require("xmlbuilder2");
 
-import fs from 'fs'; import path from 'path';
+// === Config
+const siteURL = "https://read.maxclickempire.com";
+const authorName = "MaxClickEmpire";
+const postsDir = path.join("read.maxclickempire.com", "posts");
+const sitemapFile = path.join("read.maxclickempire.com", "sitemap.xml");
+const rssFile = path.join("read.maxclickempire.com", "rss.xml");
+const enhancerScriptTag = `<script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>`;
 
-const postsDir = path.join("read.maxclickempire.com", "posts"); const sitemapFile = path.join("read.maxclickempire.com", "sitemap.xml"); const rssFile = path.join("read.maxclickempire.com", "rss.xml"); const enhancerScriptTag = <script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>;
+// === Utilities
+function getTitleFromSlug(slug) {
+  return slug
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
 
-const baseUrl = "https://read.maxclickempire.com";
+function generateMeta(slug, html) {
+  const title = getTitleFromSlug(slug);
+  const descriptionMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
+  const description = descriptionMatch ? descriptionMatch[1] : `Read expert insight on ${title} at MaxClickEmpire.`;
+  const imageMatch = html.match(/<img.*?src=["'](.*?)["']/);
+  const image = imageMatch ? imageMatch[1] : `${siteURL}/assets/cover.jpg`;
+  const date = new Date().toISOString();
 
-const posts = fs.readdirSync(postsDir).filter(file => file.endsWith(".html")); const urls = []; const rssItems = [];
+  return { title, description, image, published: date };
+}
 
-for (const file of posts) { const filePath = path.join(postsDir, file); let html = fs.readFileSync(filePath, "utf-8");
+// === Main Process
+const files = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+const urls = [];
+const rssItems = [];
 
-// === Inject SEO Enhancer Script if not present if (!html.includes("seo-enhancer.js")) { html = html.replace('</body>', ${enhancerScriptTag}</body>); }
+files.forEach(file => {
+  const filePath = path.join(postsDir, file);
+  const html = fs.readFileSync(filePath, "utf8");
+  const slug = file.replace(".html", "");
+  const meta = generateMeta(slug, html);
+  const postURL = `${siteURL}/posts/${file}`;
 
-// === Collect metadata for sitemap and RSS const slug = file.replace(".html", ""); const url = ${baseUrl}/posts/${file}; const titleMatch = html.match(/<title>(.*?)</title>/i); const descMatch = html.match(/<meta name=["']description["'] content="'["']/i); const pubDate = new Date().toISOString();
+  // Inject enhancer script if missing
+  if (!html.includes("seo-enhancer.js")) {
+    const updatedHtml = html.replace("</body>", `${enhancerScriptTag}\n</body>`);
+    fs.writeFileSync(filePath, updatedHtml, "utf8");
+  }
 
-urls.push(<url><loc>${url}</loc><lastmod>${pubDate}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>);
+  // === Sitemap URL entry
+  urls.push({
+    loc: postURL,
+    lastmod: meta.published
+  });
 
-rssItems.push(<item> <title>${titleMatch?.[1] || slug}</title> <link>${url}</link> <description>${descMatch?.[1] || "Read expert insights and tools on MaxClickEmpire."}</description> <pubDate>${pubDate}</pubDate> <guid>${url}</guid> </item>);
+  // === RSS Feed item
+  rssItems.push({
+    title: meta.title,
+    link: postURL,
+    description: meta.description,
+    pubDate: new Date(meta.published).toUTCString()
+  });
+});
 
-fs.writeFileSync(filePath, html, "utf-8"); }
+// === Generate Sitemap XML
+const sitemap = builder
+  .create({ version: "1.0", encoding: "UTF-8" })
+  .ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
 
-// === Write sitemap.xml const sitemap = <?xml version="1.0" encoding="UTF-8"?> <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> ${urls.join("\n")}  </urlset>; fs.writeFileSync(sitemapFile, sitemap.trim(), "utf-8");
+urls.forEach(u => {
+  sitemap.ele("url").ele("loc").txt(u.loc).up().ele("lastmod").txt(u.lastmod);
+});
 
-// === Write rss.xml const rss = <?xml version="1.0" encoding="UTF-8"?> <rss version="2.0"> <channel> <title>MaxClickEmpire RSS Feed</title> <link>${baseUrl}</link> <description>Strategic articles and tools from MaxClickEmpire</description> ${rssItems.join("\n")}  </channel> </rss>; fs.writeFileSync(rssFile, rss.trim(), "utf-8");
+fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }));
 
-console.log("✅ SEO Ecosystem Generation Complete: Injected enhancer, updated sitemap and RSS.");
+// === Generate RSS XML
+const rss = builder
+  .create({ version: "1.0", encoding: "UTF-8" })
+  .ele("rss", { version: "2.0" })
+  .ele("channel");
 
-  
+rss.ele("title").txt("MaxClickEmpire Feed");
+rss.ele("link").txt(siteURL);
+rss.ele("description").txt("Latest digital growth guides and tools from MaxClickEmpire");
+
+rssItems.forEach(item => {
+  const entry = rss.ele("item");
+  entry.ele("title").txt(item.title);
+  entry.ele("link").txt(item.link);
+  entry.ele("description").txt(item.description);
+  entry.ele("pubDate").txt(item.pubDate);
+});
+
+fs.writeFileSync(rssFile, rss.end({ prettyPrint: true }));
+
+console.log("✅ SEO metadata injected, enhancer added, sitemap.xml + rss.xml generated.");
