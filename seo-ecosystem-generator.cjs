@@ -6,40 +6,80 @@ const siteUrl = "https://read.maxclickempire.com";
 const postsDir = path.join(__dirname, "posts");
 const sitemapFile = path.join(__dirname, "sitemap.xml");
 const rssFile = path.join(__dirname, "rss.xml");
+const robotsFile = path.join(__dirname, "robots.txt");
+const metaScriptPath = path.join(postsDir, "post-meta.js");
 
 // === 🔍 Gather Posts
-const posts = fs
-  .readdirSync(postsDir)
+const posts = fs.readdirSync(postsDir)
   .filter(file => file.endsWith(".html"))
   .map(file => {
-    const content = fs.readFileSync(path.join(postsDir, file), "utf8");
-    const title = (content.match(/<title>(.*?)<\/title>/) || [])[1] || file.replace(".html", "");
-    const description = (content.match(/<meta name="description" content="(.*?)"/) || [])[1] || "";
-    const published = (content.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
-    const url = `${siteUrl}/posts/${file}`;
+    const fullPath = path.join(postsDir, file);
+    const html = fs.readFileSync(fullPath, "utf8");
+
+    const title = (html.match(/<title>(.*?)<\/title>/) || [])[1] || file.replace(".html", "");
+    const description = (html.match(/<meta name="description" content="(.*?)"/) || [])[1] || "";
+    const published = (html.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
     const slug = file.replace(".html", "");
-    return { title, description, url, published, slug };
+    const url = `${siteUrl}/posts/${file}`;
+
+    return { title, description, published, url, slug, filePath: fullPath, html };
   });
 
-// === 🌐 Inject SEO Enhancer
+// === 🧠 SEO Enhancer & Metadata Injection
 const enhancerScript = `<script src="https://cdn.jsdelivr.net/gh/akinolaogunlana/read.maxclickempire.com@main/seo-enhancer.js" defer></script>`;
-posts.forEach(post => {
-  const filePath = path.join(postsDir, `${post.slug}.html`);
-  let html = fs.readFileSync(filePath, "utf8");
 
-  if (!html.includes("seo-enhancer.js")) {
-    html = html.replace("</body>", `${enhancerScript}\n</body>`);
-    fs.writeFileSync(filePath, html, "utf8");
-    console.log(`✅ Injected SEO Enhancer into ${post.slug}.html`);
+posts.forEach(post => {
+  let updatedHtml = post.html;
+
+  // Inject enhancer script
+  if (!updatedHtml.includes("seo-enhancer.js")) {
+    updatedHtml = updatedHtml.replace("</body>", `${enhancerScript}\n</body>`);
   }
+
+  // Inject canonical tag
+  if (!updatedHtml.includes('<link rel="canonical"')) {
+    updatedHtml = updatedHtml.replace("</head>", `<link rel="canonical" href="${post.url}" />\n</head>`);
+  }
+
+  // Inject JSON-LD
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.description,
+    "url": post.url,
+    "datePublished": post.published,
+    "author": {
+      "@type": "Organization",
+      "name": "MaxClickEmpire"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "MaxClickEmpire",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/assets/og-image.jpg`
+      }
+    },
+    "mainEntityOfPage": post.url
+  };
+
+  if (!updatedHtml.includes('"@type":"BlogPosting"')) {
+    updatedHtml = updatedHtml.replace("</head>", `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>\n</head>`);
+  }
+
+  fs.writeFileSync(post.filePath, updatedHtml, "utf8");
+  console.log(`✅ Enhanced ${post.slug}.html`);
 });
 
-// === 🗺️ Generate Sitemap
-const sitemap = create({ version: "1.0" })
-  .ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
+// === 🗺️ Generate sitemap.xml
+const sitemap = create({ version: "1.0" }).ele("urlset", {
+  xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+});
 
 posts.forEach(post => {
-  sitemap.ele("url")
+  sitemap
+    .ele("url")
     .ele("loc").txt(post.url).up()
     .ele("lastmod").txt(post.published).up()
     .ele("changefreq").txt("weekly").up()
@@ -50,7 +90,7 @@ posts.forEach(post => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-// === 📡 Generate RSS
+// === 📡 Generate rss.xml
 const rssItems = posts.map(post => `
   <item>
     <title>${post.title}</title>
@@ -76,7 +116,7 @@ const rssFeed = `
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated");
 
-// === 🧠 Inject Metadata Map (optional)
+// === 🧠 Create post-meta.js
 const metadata = {};
 posts.forEach(post => {
   metadata[post.slug] = {
@@ -86,8 +126,21 @@ posts.forEach(post => {
     published: post.published
   };
 });
-const metadataJS = `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`;
-
-const metaScriptPath = path.join(postsDir, "post-meta.js");
-fs.writeFileSync(metaScriptPath, metadataJS, "utf8");
+fs.writeFileSync(metaScriptPath, `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`, "utf8");
 console.log("✅ post-meta.js generated");
+
+// === 🤖 Generate robots.txt
+const robotsTxt = `
+User-agent: *
+Allow: /
+
+Sitemap: ${siteUrl}/sitemap.xml
+`;
+fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
+console.log("✅ robots.txt generated");
+
+// === 📡 Ping Search Engines (to be optionally triggered in workflow)
+console.log("📡 You can now ping:");
+console.log(`🔔 Google: https://www.google.com/ping?sitemap=${siteUrl}/sitemap.xml`);
+console.log(`🔔 Bing: https://www.bing.com/ping?sitemap=${siteUrl}/sitemap.xml`);
+console.log(`🔔 IndexNow: https://yandex.com/indexnow?url=${siteUrl}&key=9b1fb73319b04fb3abb5ed09be53d65e`);
