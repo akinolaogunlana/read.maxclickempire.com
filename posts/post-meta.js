@@ -3,12 +3,12 @@ window.postMetadata = {
     "title": "Free-Lesson-Plan-Templates",
     "description": "for meta tag use only – Discover free, customizable Google Docs lesson plan templates that save teachers time and elevate classroom planning.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-01T21:37:31.256Z"
+    "published": "2025-07-01T22:00:27.832Z"
   },
   "Google-Docs-Student-Planner-Template": {
     "title": "Google-Docs-Student-Planner-Template",
     "description": "",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-01T21:37:31.257Z"
+    "published": "2025-07-01T22:00:27.832Z"
   }
 };
