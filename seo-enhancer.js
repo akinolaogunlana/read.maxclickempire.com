@@ -155,4 +155,35 @@
 
   console.log("🔍 Auto Tags:", topTags.join(", "));
 })();
+
+
+(function injectHeroBlock() {
+  if (document.querySelector(".post-hero")) return;
+
+  const slug = location.pathname.split("/").pop().replace(".html", "");
+  const meta = window.postMetadata?.[slug] || {};
+  const title = document.querySelector("h1")?.innerText || document.title;
+  const published = meta.published?.split("T")[0] || new Date().toISOString().split("T")[0];
+  const image = meta.image || "/assets/cover.jpg";
+  const subtitle = meta.subtitle || "Unlock next-level SEO and digital dominance with MaxClickEmpire.";
+
+  const heroHTML = `
+    <section class="post-hero">
+      <div class="hero-content">
+        <h1 class="post-title">${title}</h1>
+        <p class="post-meta">Published on ${published}</p>
+        <p class="post-subtitle">${subtitle}</p>
+      </div>
+      <img class="hero-image" src="${image}" alt="Hero Banner">
+    </section>
+  `;
+
+  const article = document.querySelector("article");
+  if (article) {
+    article.insertAdjacentHTML("afterbegin", heroHTML);
+  }
+})();
+
+
+
 </script>
