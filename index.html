@@ -1,37 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>MaxClickEmpire — Dominate Online, Build Legacy</title>
-
-  <meta name="description" content="Maximize your impact with free SEO guides, AI tools, and templates to dominate online. Build your digital legacy with MaxClickEmpire." />
-  <meta name="keywords" content="MaxClickEmpire, SEO tools, AI blogging, affiliate marketing, crypto blog, GPT automation, dominate online, free templates" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Strategic SEO templates, AI tools, and monetization guides. Dominate online with auto-indexed blog posts, optimized for algorithms." />
+  <meta name="keywords" content="MaxClickEmpire, AI SEO blog, affiliate marketing, automation, templates, digital growth, crypto tools" />
   <meta name="author" content="Ogunlana Akinola Okikiola" />
   <link rel="canonical" href="https://read.maxclickempire.com/" />
-  <link rel="icon" href="/assets/favicon.png" type="image/png" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
-  <meta property="og:description" content="Real-world SEO, expert AI blogging, and tools to dominate the digital space." />
+  <link rel="icon" href="/assets/favicon.png" type="image/png" />  <!-- Open Graph -->  <meta property="og:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
+  <meta property="og:description" content="Free expert templates, SEO automation tools, and digital guides to dominate online." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://read.maxclickempire.com/" />
-  <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />  <!-- Twitter Card -->  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
-  <meta name="twitter:description" content="Master online influence using SEO, AI, and automation. Free tools, smart hacks, no limits." />
-  <meta name="twitter:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
-
-  <!-- Schema -->
-  <script type="application/ld+json">
+  <meta name="twitter:description" content="Automated SEO blog powered by GitHub, designed for lifelong traffic." />
+  <meta name="twitter:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />  <!-- Schema JSON-LD -->  <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "MaxClickEmpire",
     "url": "https://read.maxclickempire.com",
-    "description": "SEO tools, AI writing systems, automation frameworks, and blog templates to dominate online.",
     "publisher": {
       "@type": "Organization",
       "name": "MaxClickEmpire",
@@ -41,110 +30,133 @@
       }
     }
   }
-  </script>
-
-  <!-- Design -->
-  <style>
+  </script>  <script defer data-domain="read.maxclickempire.com" src="https://plausible.io/js/plausible.js"></script>  <style>
+    :root {
+      --primary: #0a0a23;
+      --accent: #0f62fe;
+      --light: #f5f7fa;
+      --dark: #1c1c1c;
+      --card-bg: #fff;
+    }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f8f9fa;
-      color: #1c1c1c;
+      background: var(--light);
+      color: var(--primary);
       max-width: 960px;
       margin: auto;
       padding: 2rem;
     }
     h1 {
-      color: #0f62fe;
       font-size: 2.5rem;
       font-weight: 800;
+      color: var(--accent);
       margin-bottom: 0.5rem;
     }
-    .subtitle {
-      font-size: 1.1rem;
-      color: #666;
+    nav {
+      display: flex;
+      justify-content: space-between;
       margin-bottom: 2rem;
     }
-    input[type="text"] {
+    nav a {
+      color: var(--primary);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #444;
+    }
+    .search-input {
       width: 100%;
-      padding: 1rem;
-      margin-bottom: 2rem;
-      font-size: 1rem;
+      padding: 0.8rem;
+      margin: 2rem 0;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
     }
     ul#post-list {
       list-style: none;
       padding: 0;
+      display: grid;
+      gap: 1.2rem;
     }
     ul#post-list li {
-      background: #fff;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    ul#post-list li:hover {
+      transform: translateY(-2px);
     }
     ul#post-list li a {
-      color: #0f62fe;
-      font-size: 1.2rem;
+      color: var(--accent);
       font-weight: 700;
+      font-size: 1.1rem;
       text-decoration: none;
     }
-    ul#post-list li p {
-      font-size: 0.95rem;
-      margin-top: 0.4rem;
-      color: #444;
-    }
     footer {
-      margin-top: 3rem;
-      text-align: center;
+      margin-top: 4rem;
       font-size: 0.85rem;
-      color: #999;
+      text-align: center;
+      color: #888;
+      border-top: 1px solid #ddd;
+      padding-top: 1rem;
     }
-  </style>
-</head>
+  </style></head>
 <body>
-  <h1>🧠 MaxClickEmpire</h1>
-  <p class="subtitle">SEO power. AI leverage. Content automation. Templates that rank. All free.</p>
-
-  <input type="text" id="search" placeholder="Search by keyword..." />
-
-  <ul id="post-list">
+  <nav>
+    <div><a href="/">🏠 Home</a></div>
+    <div>
+      <a href="/about.html">About Us</a>
+      <a href="/posts/">Articles</a>
+    </div>
+  </nav>  <h1>🧠 MaxClickEmpire</h1>
+  <p class="subtitle">The blog that outsmarts search engines. Powered by GitHub, boosted by strategy, and designed for legacy.</p>  <input class="search-input" type="text" id="search" placeholder="Search AI + SEO articles..." />  <ul id="post-list">
     <li>Loading...</li>
-  </ul>
+  </ul>  <footer>
+    <p>© 2025 MaxClickEmpire. All rights reserved.</p>
+    <p>Built for the future. SEO, automation, and legacy engineering by <strong>Akinola Okikiola</strong>.</p>
+  </footer>  <script>
+    const repo = "akinolaogunlana/read.maxclickempire.com";
+    const branch = "main";
+    const folder = "posts";
 
-  <footer>
-    <p>© 2025 MaxClickEmpire. Built by Ogunlana Akinola Okikiola. Designed to outlive algorithms.</p>
-  </footer>
-
-  <script>
     async function loadPosts() {
-      const res = await fetch("/posts.json");
-      const posts = await res.json();
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}?ref=${branch}`);
+      const data = await res.json();
       const list = document.getElementById("post-list");
       const search = document.getElementById("search");
 
-      function render(items) {
+      const posts = data.filter(f => f.name.endsWith(".html")).map(f => {
+        const slug = f.name.replace(".html", "");
+        const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        const url = `/${folder}/${f.name}`;
+        const description = `Insights on ${title}. SEO & AI ready.`;
+        return { title, url, description };
+      });
+
+      function render(filtered = posts) {
         list.innerHTML = "";
-        if (!items.length) {
-          list.innerHTML = "<li>No posts found.</li>";
+        if (!filtered.length) {
+          list.innerHTML = "<li>No matching posts found.</li>";
           return;
         }
-        items.forEach(post => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="${post.url}">${post.title}</a><p>${post.description}</p>`;
-          list.appendChild(li);
+        filtered.forEach(post => {
+          const el = document.createElement("li");
+          el.innerHTML = `<a href="${post.url}">${post.title}</a><p>${post.description}</p>`;
+          list.appendChild(el);
         });
       }
 
       search.addEventListener("input", () => {
-        const query = search.value.toLowerCase();
-        render(posts.filter(p => p.title.toLowerCase().includes(query)));
+        const q = search.value.toLowerCase();
+        render(posts.filter(p => p.title.toLowerCase().includes(q)));
       });
 
-      render(posts);
+      render();
     }
 
     loadPosts();
-  </script>
-</body>
+  </script></body>
   </html>
