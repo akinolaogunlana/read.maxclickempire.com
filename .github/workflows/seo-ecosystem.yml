@@ -5,6 +5,8 @@ on:
     paths:
       - 'posts/**.html'
       - 'seo-ecosystem-generator.cjs'
+  schedule:
+    - cron: '0 0 */60 * *'  # every 60 days
   workflow_dispatch:
 
 jobs:
@@ -26,12 +28,18 @@ jobs:
             echo "⚙️ No package.json found, initializing..."
             npm init -y
           fi
-          npm install xmlbuilder2 --save
+          npm install xmlbuilder2 googleapis axios --save
+
+      - name: 🔐 Write Google Indexing API Key
+        run: echo "${{ secrets.GOOGLE_INDEXING_KEY }}" > credentials.json
 
       - name: ⚙️ Run SEO Ecosystem Generator
         run: node seo-ecosystem-generator.cjs
 
-      - name: 🌐 Ping Search Engines
+      - name: 🚀 Submit URLs to Google Indexing + IndexNow
+        run: node submit-to-indexing-api.js
+
+      - name: 🌐 Ping Search Engines with Sitemap
         run: |
           curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
           curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
@@ -67,5 +75,6 @@ jobs:
             - SEO tags injected
             - Sitemap + RSS generated
             - Metadata map created
-            - Search engines pinged
+            - Google Indexing submitted
+            - IndexNow pinged
             - GitHub Pages deployed
