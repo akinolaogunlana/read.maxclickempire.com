@@ -1,36 +1,34 @@
 <script>
-  // ✅ GitHub SEO & Engagement Injector v2.0 by MaxClickEmpire
-  (function () {
-    const slug = location.pathname.split("/").pop().replace(".html", "");
+// ✅ MaxClickEmpire SEO Enhancer v3.0
+(function () {
+  const waitForDom = (callback) => {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback);
+    } else {
+      callback();
+    }
+  };
 
-    // Load post metadata
+  waitForDom(() => {
+    const slug = location.pathname.split("/").pop().replace(".html", "");
     const meta = window.postMetadata?.[slug] || {
       title: document.title,
-      description:
-        document.querySelector("meta[name='description']")?.content ||
-        "MaxClickEmpire — Empower your digital journey with free tools, guides, and strategies.",
-      image:
-        document.querySelector("img")?.src || "/assets/cover.jpg",
+      description: document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.",
+      image: document.querySelector("img")?.src || "/assets/og-image.jpg",
       published: new Date().toISOString(),
     };
 
-    // Remove old tags
     const removeOld = [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card"
     ];
-    removeOld.forEach((name) => {
-      document
-        .querySelector(`meta[property='${name}'], meta[name='${name}']`)
-        ?.remove();
-    });
+    removeOld.forEach(name => document.querySelector(`meta[property='${name}'], meta[name='${name}']`)?.remove());
 
-    // Inject meta tags
     const injectMeta = (name, content, attr = "name") => {
-      const metaTag = document.createElement("meta");
-      metaTag.setAttribute(attr, name);
-      metaTag.setAttribute("content", content);
-      document.head.appendChild(metaTag);
+      const tag = document.createElement("meta");
+      tag.setAttribute(attr, name);
+      tag.setAttribute("content", content);
+      document.head.appendChild(tag);
     };
 
     document.title = meta.title;
@@ -45,7 +43,6 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // ✅ JSON-LD schema
     const schema = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -64,30 +61,28 @@
       },
       mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
     };
-    const schemaScript = document.createElement("script");
-    schemaScript.type = "application/ld+json";
-    schemaScript.textContent = JSON.stringify(schema);
-    document.head.appendChild(schemaScript);
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.textContent = JSON.stringify(schema);
+    document.head.appendChild(ld);
 
-    // ✅ Hero Block Injection
     const article = document.querySelector("article");
     if (article && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
-        <div class="hero-inner" style="text-align:center; padding:2rem; background:#f8f8f8; margin-bottom:2rem; border-radius:12px;">
-          <h1 class="hero-title" style="font-size:2rem;">${meta.title}</h1>
-          <p class="hero-meta">📅 Published: ${meta.published.split("T")[0]}</p>
-          <p class="hero-description" style="max-width:700px; margin:auto;">${meta.description}</p>
-          <img src="${meta.image}" alt="Hero image" style="max-width:100%; margin-top:1rem;" loading="lazy"/>
+        <div style="text-align:center;padding:2rem;background:#f9f9f9;border-radius:10px;margin-bottom:2rem">
+          <h1 style="font-size:2rem">${meta.title}</h1>
+          <p>📅 ${meta.published.split("T")[0]}</p>
+          <p style="max-width:700px;margin:auto">${meta.description}</p>
+          <img src="${meta.image}" alt="Cover" style="max-width:100%;margin-top:1rem" loading="lazy"/>
         </div>
       `;
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // ✅ Table of Contents
-    const headings = document.querySelectorAll("article h2, article h3");
-    if (headings.length) {
+    const headings = article?.querySelectorAll("h2, h3") || [];
+    if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
       toc.innerHTML = `<h2>📑 Table of Contents</h2><ul></ul>`;
@@ -96,58 +91,52 @@
         const id = `toc-${i}`;
         h.id = id;
         const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}">${h.innerText}</a>`;
+        li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
         ul.appendChild(li);
       });
       article?.insertAdjacentElement("afterbegin", toc);
     }
 
-    // ✅ Internal Links
-    const relatedLinks = [
+    const relatedLinks = window.relatedLinks || [
       { keyword: "Google Docs", url: "/posts/google-docs-template-guide.html" },
-      { keyword: "Google Docs planner", url: "/posts/google-docs-template-guide.html" },
-      { keyword: "Google Docs invoice template", url: "/posts/google-docs-invoice-template.html" },
-      { keyword: "Google Docs resume", url: "/posts/google-docs-resume-templates.html" },
-      { keyword: "Google Docs lesson plan", url: "/posts/lesson-plan-templates.html" },
-      { keyword: "Google Docs checklist", url: "/posts/google-docs-checklist-templates.html" },
-      { keyword: "Google Docs calendar", url: "/posts/google-docs-calendar-templates.html" },
-      { keyword: "Google Docs portfolio", url: "/posts/google-docs-portfolio-guide.html" },
       { keyword: "affiliate marketing", url: "/posts/affiliate-marketing-for-beginners.html" },
-      { keyword: "SEO tools", url: "/posts/best-seo-tools.html" },
-      { keyword: "content strategy", url: "/posts/advanced-content-strategy.html" },
-      { keyword: "digital business", url: "/posts/digital-business-blueprint.html" },
-      { keyword: "email marketing", url: "/posts/email-marketing-guide.html" },
-      { keyword: "AI tools", url: "/posts/ai-tools-for-creators.html" },
-      { keyword: "blogging for beginners", url: "/posts/blogging-for-beginners.html" }
+      { keyword: "SEO tools", url: "/posts/best-seo-tools.html" }
     ];
 
-    document.querySelectorAll("article p").forEach((p) => {
+    document.querySelectorAll("article p").forEach(p => {
       relatedLinks.forEach(({ keyword, url }) => {
         const regex = new RegExp(`\\b(${keyword})\\b`, "gi");
         if (!p.innerHTML.includes(url)) {
-          p.innerHTML = p.innerHTML.replace(
-            regex,
-            (match) =>
-              `<a href="${url}" title="Learn more about ${match}">${match}</a>`
-          );
+          p.innerHTML = p.innerHTML.replace(regex, `<a href='${url}' title='Learn more about $1'>$1</a>`);
         }
       });
     });
 
-    // ✅ Ad Injector (after 2nd paragraph)
-    const paras = document.querySelectorAll("article p");
-    const adHTML = `
-      <div style="text-align:center;margin:20px 0">
-        <!-- Replace with your AdSense Code -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-XXXX"
-             data-ad-slot="0000000000"
-             data-ad-format="auto"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>`;
-    if (paras.length >= 3) {
-      paras[2].insertAdjacentHTML("afterend", adHTML);
-    }
-  })();
-</script>
+    const paras = article?.querySelectorAll("p") || [];
+    const ad = `
+      <div style="text-align:center;margin:2rem 0">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="0000000000" data-ad-format="auto"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>`;
+if (paras.length >= 3) paras[2].insertAdjacentHTML("afterend", ad);
+
+// Related Post Recommender (bottom)
+if (!document.querySelector("#related-posts") && window.postMetadata) {
+  const currentKeywords = [meta.title, meta.description].join(" ").toLowerCase();
+  const related = Object.entries(window.postMetadata).filter(([slug, data]) =>
+    slug !== location.pathname.split("/").pop().replace(".html", "") &&
+    (data.title.toLowerCase().includes(currentKeywords) ||
+    data.description.toLowerCase().includes(currentKeywords))
+  ).slice(0, 3);
+
+  if (related.length) {
+    const relatedBlock = document.createElement("div");
+    relatedBlock.id = "related-posts";
+    relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>${related.map(([slug, data]) => `
+      <li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("\n")}</ul>`;
+    article?.appendChild(relatedBlock);
+  }
+}
+
+}); })(); </script>
+
+        
