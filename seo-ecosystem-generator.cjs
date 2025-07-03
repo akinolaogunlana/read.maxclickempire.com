@@ -150,12 +150,15 @@ Sitemap: ${siteUrl}/sitemap.xml
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-// 🔄 Auto-submit each URL to Google Indexing API
+// 🔄 Submit to Google Indexing API using ENV variable
 let credentials;
 try {
-  credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    throw new Error("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
+  }
+  credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
 } catch (err) {
-  console.error("❌ GOOGLE_INDEXING_KEY is invalid or missing:", err.message);
+  console.error("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is invalid or missing:", err.message);
   process.exit(1);
 }
 
@@ -183,7 +186,7 @@ async function indexUrlToGoogle(url) {
   }
 }
 
-// 🔁 Loop and submit to Google + IndexNow
+// 🔁 Submit to Google + IndexNow
 (async () => {
   for (const post of posts) {
     await indexUrlToGoogle(post.url);
