@@ -31,7 +31,7 @@ jobs:
           npm install xmlbuilder2 googleapis axios --save
 
       - name: 🔐 Write Google Indexing API Key
-        run: echo "${{ secrets.GOOGLE_INDEXING_KEY }}" > credentials.json
+        run: echo '${{ secrets.GOOGLE_INDEXING_KEY }}' > credentials.json
 
       - name: ⚙️ Run SEO Ecosystem Generator
         run: node seo-ecosystem-generator.cjs
