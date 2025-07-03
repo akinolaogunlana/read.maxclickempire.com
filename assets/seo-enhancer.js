@@ -1,4 +1,3 @@
-<script>
 // ✅ MaxClickEmpire SEO Enhancer v3.0
 (function () {
   const waitForDom = (callback) => {
@@ -117,26 +116,24 @@
       <div style="text-align:center;margin:2rem 0">
         <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="0000000000" data-ad-format="auto"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>`;
-if (paras.length >= 3) paras[2].insertAdjacentHTML("afterend", ad);
+    if (paras.length >= 3) paras[2].insertAdjacentHTML("afterend", ad);
 
-// Related Post Recommender (bottom)
-if (!document.querySelector("#related-posts") && window.postMetadata) {
-  const currentKeywords = [meta.title, meta.description].join(" ").toLowerCase();
-  const related = Object.entries(window.postMetadata).filter(([slug, data]) =>
-    slug !== location.pathname.split("/").pop().replace(".html", "") &&
-    (data.title.toLowerCase().includes(currentKeywords) ||
-    data.description.toLowerCase().includes(currentKeywords))
-  ).slice(0, 3);
+    // Related Post Recommender (bottom)
+    if (!document.querySelector("#related-posts") && window.postMetadata) {
+      const currentKeywords = [meta.title, meta.description].join(" ").toLowerCase();
+      const related = Object.entries(window.postMetadata).filter(([slug, data]) =>
+        slug !== location.pathname.split("/").pop().replace(".html", "") &&
+        (data.title.toLowerCase().includes(currentKeywords) ||
+        data.description.toLowerCase().includes(currentKeywords))
+      ).slice(0, 3);
 
-  if (related.length) {
-    const relatedBlock = document.createElement("div");
-    relatedBlock.id = "related-posts";
-    relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>${related.map(([slug, data]) => `
-      <li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("\n")}</ul>`;
-    article?.appendChild(relatedBlock);
-  }
-}
-
-}); })(); </script>
-
-        
+      if (related.length) {
+        const relatedBlock = document.createElement("div");
+        relatedBlock.id = "related-posts";
+        relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>${related.map(([slug, data]) => `
+          <li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("\n")}</ul>`;
+        article?.appendChild(relatedBlock);
+      }
+    }
+  });
+})();
