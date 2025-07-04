@@ -2,29 +2,30 @@ import fs from 'fs';
 import path from 'path';
 import { google } from 'googleapis';
 import axios from 'axios';
+import { Buffer } from 'buffer'; // For decoding Base64
 
 // Config
 const siteUrl = 'https://read.maxclickempire.com';
 const postsDir = path.join(process.cwd(), 'posts');
 const indexNowKey = '9b1fb73319b04fb3abb5ed09be53d65e';
 
-// Load HTML posts
+// 📄 Load posts
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith('.html'));
 const urls = postFiles.map(file => `${siteUrl}/posts/${file}`);
 
-// Load credentials from ENV
+// 🔐 Load & parse Base64-encoded credentials
 let credentials;
 try {
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    throw new Error('Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable.');
-  }
-  credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+  const base64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!base64) throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is missing');
+  const json = Buffer.from(base64, 'base64').toString('utf8');
+  credentials = JSON.parse(json);
 } catch (err) {
   console.error('❌ Failed to load credentials:', err.message);
   process.exit(1);
 }
 
-// Authenticate using credentials from env
+// 🔐 Authenticate with Google Indexing API
 const auth = new google.auth.JWT({
   email: credentials.client_email,
   key: credentials.private_key,
@@ -32,18 +33,19 @@ const auth = new google.auth.JWT({
 });
 const indexing = google.indexing({ version: 'v3', auth });
 
-// Submit to Google + IndexNow
+// 🚀 Submit each post
 async function submitUrls() {
+  await auth.authorize();
+
   for (const url of urls) {
     try {
-      // Google Indexing
-      await auth.authorize();
+      // 📤 Google Indexing
       await indexing.urlNotifications.publish({
         requestBody: { url, type: 'URL_UPDATED' },
       });
       console.log(`✅ Google Indexed: ${url}`);
 
-      // IndexNow (Bing/Yandex)
+      // 📤 IndexNow
       await axios.post(
         'https://api.indexnow.org/indexnow',
         {
