@@ -161,7 +161,6 @@ try {
   console.error("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is invalid or missing:", err.message);
   process.exit(1);
 }
-
 const jwt = new google.auth.JWT({
   email: credentials.client_email,
   key: credentials.private_key,
