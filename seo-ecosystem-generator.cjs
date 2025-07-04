@@ -153,10 +153,10 @@ console.log("✅ robots.txt generated");
 // 🔄 Submit to Google Indexing API using ENV variable
 let credentials;
 try {
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    throw new Error("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
-  }
-  credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+  const base64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!base64) throw new Error("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
+  const json = Buffer.from(base64, "base64").toString("utf8");
+  credentials = JSON.parse(json);
 } catch (err) {
   console.error("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is invalid or missing:", err.message);
   process.exit(1);
