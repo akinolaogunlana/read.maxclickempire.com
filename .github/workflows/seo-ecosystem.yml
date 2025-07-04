@@ -30,14 +30,13 @@ jobs:
           fi
           npm install xmlbuilder2 googleapis axios --save
 
+      - name: 🔐 Decode and Write Google Credentials
+        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
+
       - name: ⚙️ Run SEO Ecosystem Generator
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         run: node seo-ecosystem-generator.cjs
 
       - name: 🚀 Submit URLs to Google Indexing + IndexNow
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         run: node submit-to-indexing-api.js
 
       - name: 🌐 Ping Search Engines with Sitemap
