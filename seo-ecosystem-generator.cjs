@@ -1,6 +1,6 @@
 const fs = require("fs"); const path = require("path"); const { create } = require("xmlbuilder2"); const { google } = require("googleapis"); const axios = require("axios");
 
-const siteUrl = "https://read.maxclickempire.com"; const postsDir = path.join(__dirname, "posts"); const sitemapFile = path.join(__dirname, "sitemap.xml"); const rssFile = path.join(__dirname, "rss.xml"); const robotsFile = path.join(__dirname, "robots.txt"); const metaScriptPath = path.join(postsDir, "post-meta.js"); const enhancerScript = <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>;
+const siteUrl = "https://read.maxclickempire.com"; const postsDir = path.join(__dirname, "posts"); const sitemapFile = path.join(__dirname, "sitemap.xml"); const rssFile = path.join(__dirname, "rss.xml"); const robotsFile = path.join(__dirname, "robots.txt"); const metaScriptPath = path.join(postsDir, "post-meta.js"); const enhancerScript = '<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>';
 
 function shuffle(array) { let currentIndex = array.length, randomIndex; while (currentIndex !== 0) { randomIndex = Math.floor(Math.random() * currentIndex); currentIndex--; [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; } return array; }
 
@@ -22,7 +22,7 @@ if (ageInDays > 60 && html.includes("<article")) {
       const middle = shuffle(parts.slice(1, -1));
       return `<article${attr}>
 
-${[first, ...middle, last].join("\n")}
+${[first, ...middle, last].join("\n")} it
 
 </article>`;
         }
