@@ -1,88 +1,82 @@
 name: 🚀 Supreme SEO Ecosystem Automation
 
-on:
-  push:
-    paths:
-      - 'posts/**.html'
-      - 'seo-ecosystem-generator.cjs'
-  schedule:
-    - cron: '0 0 */60 * *'  # every 60 days
-  workflow_dispatch:
+on: push: paths: - 'posts/**.html' - 'seo-ecosystem-generator.cjs' schedule: - cron: '0 0 */60 * *'  # every 60 days workflow_dispatch:
 
-jobs:
-  supreme-seo:
-    runs-on: ubuntu-latest
+jobs: supreme-seo: runs-on: ubuntu-latest steps: - name: ✅ Checkout Repository uses: actions/checkout@v3
 
-    steps:
-      - name: ✅ Checkout Repository
-        uses: actions/checkout@v3
+- name: 🔧 Setup Node.js 20
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
 
-      - name: 🔧 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+  - name: 📦 Install Dependencies
+    run: |
+      if [ ! -f package.json ]; then
+        echo "⚙️ No package.json found, initializing..."
+        npm init -y
+      fi
+      npm install xmlbuilder2@^3.0.2 googleapis axios --save
 
-      - name: 📦 Install Dependencies
-        run: |
-          if [ ! -f package.json ]; then
-            echo "⚙️ No package.json found, initializing..."
-            npm init -y
-            npm install axios googleapis xmlbuilder2 --save
-          else
-            npm install
-          fi
+  - name: 🔍 Check for Secret
+    run: |
+      if [ -z "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" ]; then
+        echo "❌ Secret is missing"; exit 1;
+      else
+        echo "✅ Secret exists";
+      fi
 
-      - name: 🔐 Decode and Write Google Credentials
-        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
+  - name: 🔐 Decode and Write Google Credentials
+    run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
 
-      - name: ⚙️ Run SEO Ecosystem Generator
-        run: node seo-ecosystem-generator.cjs
+  - name: ⚙️ Run SEO Ecosystem Generator
+    run: node seo-ecosystem-generator.cjs
 
-      - name: 🚀 Submit URLs to Google Indexing + IndexNow
-        if: always()
-        run: |
-          if [ -f submit-to-indexing-api.js ]; then
-            node submit-to-indexing-api.js
-          else
-            echo "🟡 Skipping submit-to-indexing-api.js (not found)"
-          fi
+  - name: 🚀 Submit URLs to Google Indexing + IndexNow
+    if: ${{ always() }}
+    run: |
+      if [ -f submit-to-indexing-api.js ]; then
+        node submit-to-indexing-api.js
+      else
+        echo "🟡 Skipping submit-to-indexing-api.js (not found)"
+      fi
 
-      - name: 🌐 Ping Search Engines with Sitemap
-        run: |
-          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=9b1fb73319b04fb3abb5ed09be53d65e"
+  - name: 🌐 Ping Search Engines with Sitemap
+    run: |
+      curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+      curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+      curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=9b1fb73319b04fb3abb5ed09be53d65e"
 
-      - name: 🔄 Commit SEO, Sitemap, and Metadata
-        run: |
-          git config --global user.name "maxclick-seo-bot"
-          git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt posts/post-meta.js || true
-          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"
-          git push || echo "No changes to push"
+  - name: 🔄 Commit SEO, Sitemap, and Metadata
+    run: |
+      git config --global user.name "maxclick-seo-bot"
+      git config --global user.email "github-actions@users.noreply.github.com"
+      git add sitemap.xml rss.xml robots.txt posts/post-meta.js || true
+      git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes"
+      git push || echo "No changes to push"
 
-      - name: 🌍 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: ./
+  - name: 🌍 Deploy to GitHub Pages
+    uses: peaceiris/actions-gh-pages@v3
+    with:
+      personal_token: ${{ secrets.GH_PAGES_TOKEN }}
+      publish_dir: ./
 
-      - name: ✉️ Optional Email Notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USER }}
-          password: ${{ secrets.EMAIL_PASS }}
-          subject: "✅ MaxClickEmpire SEO Update Completed"
-          to: your@email.com
-          from: MaxClickEmpire Bot <your@email.com>
-          body: |
-            🚀 SEO Automation Summary:
-            - SEO tags injected
-            - Sitemap + RSS generated
-            - Metadata map created
-            - Google Indexing submitted
-            - IndexNow pinged
-            - GitHub Pages deployed
+  - name: ✉️ Optional Email Notification
+    if: always()
+    uses: dawidd6/action-send-mail@v3
+    with:
+      server_address: smtp.gmail.com
+      server_port: 465
+      username: ${{ secrets.EMAIL_USER }}
+      password: ${{ secrets.EMAIL_PASS }}
+      subject: "✅ MaxClickEmpire SEO Update Completed"
+      to: your@email.com
+      from: MaxClickEmpire Bot <your@email.com>
+      body: |
+        🚀 SEO Automation Summary:
+        - SEO tags injected
+        - Sitemap + RSS generated
+        - Metadata map created
+        - Google Indexing submitted
+        - IndexNow pinged
+        - GitHub Pages deployed
+
