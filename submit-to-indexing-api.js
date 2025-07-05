@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import { google } from 'googleapis';
-import axios from 'axios';
-import { Buffer } from 'buffer';
+const fs = require('fs');
+const path = require('path');
+const { google } = require('googleapis');
+const axios = require('axios');
+const { Buffer } = require('buffer');
 
 const siteUrl = 'https://read.maxclickempire.com';
 const postsDir = path.join(process.cwd(), 'posts');
