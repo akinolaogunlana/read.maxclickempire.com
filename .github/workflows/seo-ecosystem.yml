@@ -3,7 +3,7 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'posts/**.html'
+      - 'posts/**/*.html'
       - 'seo-ecosystem-generator.cjs'
   schedule:
     - cron: '0 0 */60 * *'  # every 60 days
@@ -12,55 +12,58 @@ on:
 jobs:
   supreme-seo:
     runs-on: ubuntu-latest
-    env:
-      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-      GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
     steps:
       - name: ✅ Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 🔧 Setup Node.js
+      - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 📦 Ensure Dependencies
+      - name: 📦 Install Dependencies
         run: |
           if [ ! -f package.json ]; then
             echo "⚙️ No package.json found, initializing..."
             npm init -y
-            npm install axios googleapis xmlbuilder2 --save
-          else
-            npm install
           fi
+          npm install xmlbuilder2 googleapis axios --save
 
-      - name: 🔐 Decode Google Credentials
-        run: |
-          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | base64 -d > credentials.json
+      - name: 🔐 Decode and Write Google Credentials
+        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
 
       - name: ⚙️ Run SEO Ecosystem Generator
         run: node seo-ecosystem-generator.cjs
 
+      - name: 🚀 Submit URLs to Google Indexing + IndexNow
+        if: ${{ always() }}
+        run: |
+          if [ -f submit-to-indexing-api.js ]; then
+            node submit-to-indexing-api.js
+          else
+            echo "🟡 Skipping submit-to-indexing-api.js (not found)"
+          fi
+
       - name: 🌐 Ping Search Engines with Sitemap
         run: |
-          curl -s "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl -s "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl -s "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=${INDEXNOW_KEY}"
+          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+          curl "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=9b1fb73319b04fb3abb5ed09be53d65e"
 
       - name: 🔄 Commit SEO, Sitemap, and Metadata
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
           git add sitemap.xml rss.xml robots.txt posts/post-meta.js || true
-          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"
+          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes"
           git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: ./  # Adjust if output is in /dist or /public
+          publish_dir: ./  # Root directory of your repo
 
       - name: ✉️ Optional Email Notification
         if: always()
