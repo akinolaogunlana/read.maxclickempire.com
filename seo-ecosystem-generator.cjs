@@ -1,4 +1,3 @@
-// seo-ecosystem-generator.cjs
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
@@ -142,26 +141,23 @@ Sitemap: ${siteUrl}/sitemap.xml
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-// 🔐 Decode Base64 secret and parse credentials
+// ✅ Read credentials.json directly
 let credentials;
 try {
-  const base64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!base64) throw new Error("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
-  const json = Buffer.from(base64, "base64").toString("utf8");
-  credentials = JSON.parse(json);
+  credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 } catch (err) {
-  console.error("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is invalid or missing:", err.message);
+  console.error("❌ credentials.json is invalid or missing:", err.message);
   process.exit(1);
 }
 
-// 🔑 JWT Auth
+// 🔐 JWT Auth
 const jwt = new google.auth.JWT({
   email: credentials.client_email,
   key: credentials.private_key,
   scopes: ["https://www.googleapis.com/auth/indexing"]
 });
 
-// 🌍 Index with Google Indexing API
+// 🌍 Google Indexing API
 async function indexUrlToGoogle(url) {
   try {
     const token = await jwt.authorize();
@@ -180,7 +176,7 @@ async function indexUrlToGoogle(url) {
   }
 }
 
-// 🔁 Loop and submit
+// 🔁 Index + IndexNow
 (async () => {
   for (const post of posts) {
     await indexUrlToGoogle(post.url);
