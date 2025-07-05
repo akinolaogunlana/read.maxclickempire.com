@@ -54,10 +54,10 @@ jobs:
           git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
-  uses: peaceiris/actions-gh-pages@v3
-  with:
-    personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-    publish_dir: ./  # root of your repo
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GH_PAGES_TOKEN }}
+          publish_dir: ./  # root of your repo
 
       - name: ✉️ Optional Email Notification
         if: always()
