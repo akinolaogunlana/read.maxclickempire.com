@@ -63,7 +63,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: ./  # adjust if you're using a dist/public folder
+          publish_dir: ./  # Update if needed
 
       - name: ✉️ Optional Email Notification
         if: always()
