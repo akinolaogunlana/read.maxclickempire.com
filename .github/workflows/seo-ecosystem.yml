@@ -3,7 +3,7 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'posts/**/*.html'
+      - 'posts/**.html'
       - 'seo-ecosystem-generator.cjs'
   schedule:
     - cron: '0 0 */60 * *'  # every 60 days
@@ -28,7 +28,7 @@ jobs:
             echo "⚙️ No package.json found, initializing..."
             npm init -y
           fi
-          npm install xmlbuilder2 googleapis axios --save
+          npm install xmlbuilder2@^3.0.2 googleapis axios --save
 
       - name: 🔐 Decode and Write Google Credentials
         run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
@@ -63,7 +63,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: ./  # Root directory of your repo
+          publish_dir: ./  # adjust if you're using a dist/public folder
 
       - name: ✉️ Optional Email Notification
         if: always()
