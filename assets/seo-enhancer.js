@@ -1,4 +1,4 @@
-// ✅ MaxClickEmpire SEO Enhancer v3.2
+// ✅ MaxClickEmpire SEO Enhancer v3.3
 (function () {
   function waitForDom(callback) {
     if (document.readyState === "loading") {
@@ -52,7 +52,17 @@
 
     document.title = meta.title;
     injectMeta("description", meta.description);
-    injectMeta("keywords", meta.title.toLowerCase().split(" ").slice(0, 10).join(", "));
+
+    // ✅ Improved keyword generation
+    const keywordList = meta.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/gi, "")
+      .split(/\s+/)
+      .filter(w => w.length > 2)
+      .slice(0, 10)
+      .join(", ");
+    injectMeta("keywords", keywordList);
+
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
     injectMeta("og:type", "article", "property");
