@@ -1,0 +1,10 @@
+# Sensitive credential files
+credentials.json
+
+# Node modules and temp
+node_modules
+npm-debug.log
+
+# GitHub Actions artifacts
+.github/*.log
+.github/*.env
