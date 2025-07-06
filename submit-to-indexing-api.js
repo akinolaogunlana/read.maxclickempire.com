@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { google } = require('googleapis');
 const axios = require('axios');
-const { Buffer } = require('buffer');
 
 const siteUrl = 'https://read.maxclickempire.com';
 const postsDir = path.join(process.cwd(), 'posts');
@@ -12,15 +11,13 @@ const indexNowKey = '9b1fb73319b04fb3abb5ed09be53d65e';
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith('.html'));
 const urls = postFiles.map(file => `${siteUrl}/posts/${file}`);
 
-// Load Google Credentials from Base64
+// ✅ Load Google Credentials from credentials.json
 let credentials;
 try {
-  const base64 = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!base64) throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is missing');
-  const json = Buffer.from(base64, 'base64').toString('utf8');
-  credentials = JSON.parse(json);
+  const raw = fs.readFileSync('credentials.json', 'utf8');
+  credentials = JSON.parse(raw);
 } catch (err) {
-  console.error('❌ Failed to load credentials:', err.message);
+  console.error('❌ Failed to read credentials.json:', err.message);
   process.exit(1);
 }
 
