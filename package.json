@@ -1,15 +1,18 @@
 {
-  "name": "maxclickempire-seo-automation",
+  "name": "supreme-seo-ecosystem",
   "version": "1.0.0",
-  "description": "Auto-generate sitemap.xml, rss.xml, and robots.txt for MaxClickEmpire GitHub Pages",
-  "main": "seo-ecosystem-generator.js",
+  "description": "Automated SEO system for MaxClickEmpire with Google Indexing and IndexNow support.",
+  "main": "seo-ecosystem-generator.cjs",
+  "type": "commonjs",
   "scripts": {
-    "start": "node seo-ecosystem-generator.js"
+    "start": "node seo-ecosystem-generator.cjs",
+    "submit": "node submit-to-indexing-api.js"
   },
-  "author": "Ogunlana Akinola Okikiola",
-  "license": "MIT",
-  "type": "module",
   "dependencies": {
+    "axios": "^1.10.0",
+    "googleapis": "^133.0.0",
     "xmlbuilder2": "^3.1.1"
-  }
+  },
+  "author": "MaxClickEmpire Bot",
+  "license": "MIT"
 }
