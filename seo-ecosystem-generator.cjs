@@ -9,10 +9,9 @@ const postsDir = path.join(__dirname, "posts");
 const sitemapFile = path.join(__dirname, "sitemap.xml");
 const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
-const metaScriptPath = path.join(postsDir, "post-meta.js");
-
+const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
-
+const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
 // 🌀 Shuffle helper
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
@@ -51,9 +50,9 @@ const posts = fs.readdirSync(postsDir)
       });
     }
 
-    if (!html.includes("seo-enhancer.js")) {
-      html = html.replace("</body>", `${enhancerScript}\n</body>`);
-    }
+    if (!html.includes("post-meta.js")) {
+  html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
+}
 
     if (!html.includes('<link rel="canonical"')) {
       html = html.replace("</head>", `<link rel="canonical" href="${url}" />\n</head>`);

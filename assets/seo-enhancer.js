@@ -1,47 +1,51 @@
-// ✅ MaxClickEmpire SEO Enhancer v3.1
+// ✅ MaxClickEmpire SEO Enhancer v3.2
 (function () {
-  const waitForDom = (callback) => {
+  function waitForDom(callback) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", callback);
     } else {
       callback();
     }
-  };
+  }
 
   waitForDom(() => {
-    const pathSlug = location.pathname.replace(/^\/+/, '').replace(/\.html$/, '');
+    const slug = location.pathname.split("/").pop()?.replace(".html", "");
+    const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
+
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
 
-    const slug = location.pathname.split("/").pop().replace(".html", "");
-    const meta = window.postMetadata?.[slug] || {
+    const meta = (window.postMetadata && window.postMetadata[slug]) || {
       title: document.title,
       description: document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.",
       image: document.querySelector("img")?.src || "/assets/og-image.jpg",
       published: new Date().toISOString(),
     };
 
-    const removeOld = [
+    // Remove old tags
+    [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
-    ];
-    removeOld.forEach(name =>
-      document.querySelector(`meta[property='${name}'], meta[name='${name}']`)?.remove()
-    );
+    ].forEach(name => {
+      const tag = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
+      if (tag) tag.remove();
+    });
 
-    const injectMeta = (name, content, attr = "name") => {
+    // Inject meta tag
+    function injectMeta(name, content, attr = "name") {
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
       tag.setAttribute("content", content);
       document.head.appendChild(tag);
-    };
+    }
 
     if (!document.querySelector("meta[charset]")) {
       const charset = document.createElement("meta");
       charset.setAttribute("charset", "UTF-8");
       document.head.prepend(charset);
     }
+
     if (!document.querySelector("meta[name='viewport']")) {
       injectMeta("viewport", "width=device-width, initial-scale=1.0");
     }
@@ -59,6 +63,7 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
+    // Inject JSON-LD schema
     const schema = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -79,8 +84,12 @@
     ld.textContent = JSON.stringify(schema);
     document.head.appendChild(ld);
 
+    // Wait for article
     const article = document.querySelector("article");
-    if (article && !document.querySelector(".post-hero")) {
+    if (!article) return;
+
+    // Inject Hero
+    if (!document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
@@ -93,7 +102,8 @@
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    const headings = article?.querySelectorAll("h2, h3") || [];
+    // Table of Contents
+    const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
@@ -109,22 +119,24 @@
       article.insertAdjacentElement("afterbegin", toc);
     }
 
+    // Related keywords
     const relatedLinks = window.relatedLinks || [
       { keyword: "Google Docs", url: "/posts/google-docs-template-guide.html" },
       { keyword: "affiliate marketing", url: "/posts/affiliate-marketing-for-beginners.html" },
       { keyword: "SEO tools", url: "/posts/best-seo-tools.html" }
     ];
 
-    document.querySelectorAll("article p").forEach(p => {
+    article.querySelectorAll("p").forEach(p => {
       relatedLinks.forEach(({ keyword, url }) => {
         const regex = new RegExp(`\\b(${keyword})\\b`, "gi");
         if (!p.innerHTML.includes(url)) {
-          p.innerHTML = p.innerHTML.replace(regex, `<a href='${url}' title='Learn more about $1'>$1</a>`);
+          p.innerHTML = p.innerHTML.replace(regex, `<a href="${url}" title="Learn more about $1">$1</a>`);
         }
       });
     });
 
-    const paras = article?.querySelectorAll("p") || [];
+    // Ad placement
+    const paras = article.querySelectorAll("p");
     if (paras.length >= 5) {
       const randomIndex = Math.floor(Math.random() * 3) + 2;
       const ad = `
@@ -135,30 +147,33 @@
       paras[randomIndex]?.insertAdjacentHTML("afterend", ad);
     }
 
+    // Related Posts
     if (!document.querySelector("#related-posts") && window.postMetadata) {
-      const currentKeywords = [meta.title, meta.description].join(" ").toLowerCase();
+      const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
       const related = Object.entries(window.postMetadata)
-        .filter(([slug, data]) =>
-          slug !== location.pathname.split("/").pop().replace(".html", "") &&
+        .filter(([key, data]) =>
+          key !== slug &&
           (data.title.toLowerCase().includes(currentKeywords) ||
-            data.description.toLowerCase().includes(currentKeywords))
+           data.description.toLowerCase().includes(currentKeywords))
         )
-        .sort(() => 0.5 - Math.random())
         .slice(0, 3);
 
       if (related.length) {
         const relatedBlock = document.createElement("div");
         relatedBlock.id = "related-posts";
-        relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>${related.map(([slug, data]) =>
-          `<li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("\n")}</ul>`;
+        relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>
+          ${related.map(([slug, data]) => `<li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("")}
+        </ul>`;
         article.appendChild(relatedBlock);
       }
     }
 
+    // Debug
     if (location.search.includes("debugSEO")) {
       console.log("🔍 MaxClick SEO Debug:", meta);
     }
 
+    // Refresh meta description after 30s
     setTimeout(() => {
       const desc = document.querySelector("meta[name='description']");
       if (desc) desc.setAttribute("content", meta.description + " 🔄 Refreshed");
