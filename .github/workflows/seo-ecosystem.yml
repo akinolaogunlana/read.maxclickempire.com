@@ -72,6 +72,9 @@ jobs:
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
           publish_dir: ./
+          exclude_assets: |
+            credentials.json
+            .github
 
       - name: ✉️ Optional Email Notification
         if: always()
