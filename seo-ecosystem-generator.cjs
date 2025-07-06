@@ -50,9 +50,9 @@ const posts = fs.readdirSync(postsDir)
       });
     }
 
-    if (!html.includes("seo-enhancer.js")) {
-      html = html.replace("</body>", `${enhancerScript}\n</body>`);
-    }
+    if (!html.includes("post-meta.js")) {
+  html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
+}
 
     if (!html.includes('<link rel="canonical"')) {
       html = html.replace("</head>", `<link rel="canonical" href="${url}" />\n</head>`);
