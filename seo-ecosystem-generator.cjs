@@ -9,8 +9,7 @@ const postsDir = path.join(__dirname, "posts");
 const sitemapFile = path.join(__dirname, "sitemap.xml");
 const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
-const metaScriptPath = path.join(postsDir, "post-meta.js");
-
+const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
 
 // 🌀 Shuffle helper
