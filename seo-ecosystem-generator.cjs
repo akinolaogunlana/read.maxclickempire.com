@@ -11,7 +11,7 @@ const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
 const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
-
+const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
 // 🌀 Shuffle helper
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
