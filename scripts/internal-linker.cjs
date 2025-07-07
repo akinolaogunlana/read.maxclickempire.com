@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const postsDir = path.join(__dirname, "..", "posts");
-const metadata = require("../data/post-meta.js").postMetadata;
+const { postMetadata: metadata } = require("../data/post-meta.js");
 
 const LINK_LIMIT = 3;
 
