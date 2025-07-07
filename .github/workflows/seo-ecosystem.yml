@@ -5,6 +5,7 @@ on:
     paths:
       - 'posts/**'
       - 'seo-ecosystem-generator.cjs'
+      - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
   schedule:
@@ -31,6 +32,10 @@ jobs:
             npm init -y
           fi
           npm install xmlbuilder2@^3.0.2 googleapis axios --save
+
+      - name: 🧩 Wrap Raw Posts with SEO Template
+        run: |
+          node wrap-with-template.js
 
       - name: 🔍 Check for Google Secret
         run: |
@@ -78,7 +83,7 @@ jobs:
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger || true
+          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger posts/*.html || true
           git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"
           git push || echo "No changes to push"
 
