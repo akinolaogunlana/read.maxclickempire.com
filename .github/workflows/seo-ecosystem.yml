@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'posts/**'
-      - 'internal-linker.cjs
+      - 'internal-linker.js
       - 'seo-ecosystem-generator.cjs'
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
