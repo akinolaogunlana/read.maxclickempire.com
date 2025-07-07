@@ -26,10 +26,8 @@ if (ageInDays > 60 && html.includes("<article")) {
   });
 }
 
-const enhancerTag = `<script src="/assets/seo-enhancer.js" defer></script>`;
-const metaTag = `<script src="/data/post-meta.js" defer></script>`;
-if (!html.includes("seo-enhancer.js")) {
-  html = html.replace("</body>", `${metaTag}\n${enhancerTag}\n</body>`);
+if (!html.includes("post-meta.js")) {
+  html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
 }
 
 if (!html.includes('<link rel="canonical"')) {
