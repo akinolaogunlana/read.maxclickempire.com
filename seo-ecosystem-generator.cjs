@@ -12,6 +12,7 @@ const robotsFile = path.join(__dirname, "robots.txt");
 const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
 const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
+
 // 🌀 Shuffle helper
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
@@ -34,6 +35,7 @@ const posts = fs.readdirSync(postsDir)
     const description = (html.match(/<meta name="description" content="(.*?)"/) || [])[1] || "";
     const published = (html.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
+    const url = `${siteUrl}/posts/${file}`; // ✅ Move here before any use
 
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
@@ -50,8 +52,8 @@ const posts = fs.readdirSync(postsDir)
     }
 
     if (!html.includes("post-meta.js")) {
-  html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
-}
+      html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
+    }
 
     if (!html.includes('<link rel="canonical"')) {
       html = html.replace("</head>", `<link rel="canonical" href="${url}" />\n</head>`);
