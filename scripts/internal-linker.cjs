@@ -5,26 +5,24 @@ const path = require("path");
 
 const postsDir = path.join(__dirname, "..", "posts");
 const metadataPath = path.join(__dirname, "..", "data", "post-meta.js");
-const LINK_LIMIT = 3;
 
-console.log(`[${new Date().toISOString()}] 🔎 Loading metadata from: ${metadataPath}`);
+console.log(`[${new Date().toISOString()}] 🧠 Reading metadata from: ${metadataPath}`);
 
 let metadata = {};
 try {
   metadata = require(metadataPath).postMetadata || {};
 } catch (err) {
-  console.error(`[${new Date().toISOString()}] ❌ Error loading metadata:`, err.message);
+  console.error(`[${new Date().toISOString()}] ❌ Failed to load metadata: ${err.message}`);
   process.exit(1);
 }
 
-/**
- * Escape keywords for RegExp use
- */
+const LINK_LIMIT = 3;
+
 function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const posts = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 posts.forEach((filename) => {
   try {
@@ -50,8 +48,7 @@ posts.forEach((filename) => {
       for (const link of potentialLinks) {
         if (linkedHrefs.has(link.href)) continue;
 
-        const safeKeyword = escapeRegex(link.keyword);
-        const regex = new RegExp(`\\b(${safeKeyword})\\b`, "i");
+        const regex = new RegExp(`\\b(${escapeRegex(link.keyword)})\\b`, "i");
 
         if (regex.test(content)) {
           content = content.replace(regex, `<a href="${link.href}" title="${link.title}">$1</a>`);
@@ -65,9 +62,8 @@ posts.forEach((filename) => {
     });
 
     fs.writeFileSync(filePath, html, "utf8");
-    const status = inserted > 0 ? `✅ ${inserted} links added` : "⚠️ No links added";
-    console.log(`[${new Date().toISOString()}] ${status} → ${filename}`);
+    console.log(`[${new Date().toISOString()}] ✅ Added ${inserted} internal links → ${filename}`);
   } catch (err) {
-    console.error(`[${new Date().toISOString()}] ❌ Error processing ${filename}:`, err.message);
+    console.error(`[${new Date().toISOString()}] ❌ Error processing ${filename}: ${err.message}`);
   }
 });
