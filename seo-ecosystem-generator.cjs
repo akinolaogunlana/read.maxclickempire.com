@@ -34,7 +34,6 @@ const posts = fs.readdirSync(postsDir)
     let title = (html.match(/<title>(.*?)<\/title>/i) || [])[1];
     let description = (html.match(/<meta name="description" content="(.*?)"/i) || [])[1];
 
-    // Auto fallback
     if (!title) {
       title = (html.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || file.replace(".html", "");
       html = html.replace("</head>", `<title>${title}</title>\n</head>`);
@@ -50,7 +49,7 @@ const posts = fs.readdirSync(postsDir)
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
-    // Shuffle paragraphs if post is older than 60 days
+    // Shuffle article paragraphs if older than 60 days
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
       html = html.replace(/<article([\s\S]*?)>([\s\S]*?)<\/article>/, (match, attr, inner) => {
@@ -99,7 +98,7 @@ const posts = fs.readdirSync(postsDir)
     return { title, description, published, url, slug };
   });
 
-// Sitemap
+// ✅ Sitemap generation
 const sitemap = create({ version: "1.0" })
   .ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
 posts.forEach(post => {
@@ -112,7 +111,7 @@ posts.forEach(post => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-// RSS
+// ✅ RSS Feed
 const rssItems = posts.map(post => `
   <item>
     <title>${post.title}</title>
@@ -136,17 +135,7 @@ const rssFeed = `<?xml version="1.0"?>
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated");
 
-// Robots.txt
-const robotsTxt = `
-User-agent: *
-Allow: /
-
-Sitemap: ${siteUrl}/sitemap.xml
-`;
-fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
-console.log("✅ robots.txt generated");
-
-// ✅ Generate post-meta.js (Node + Browser safe)
+// ✅ post-meta.js (Node + Browser compatible)
 const metadata = {};
 posts.forEach(post => {
   metadata[post.slug] = {
@@ -166,12 +155,22 @@ if (typeof module !== "undefined" && module.exports) {
 } else {
   window.postMetadata = postMetadata;
 }
-`;
+`.trim();
 
-fs.writeFileSync(metaScriptPath, metaOutput.trim(), "utf8");
+fs.writeFileSync(metaScriptPath, metaOutput, "utf8");
 console.log("✅ post-meta.js (Node + Browser compatible) generated");
 
-// ✅ Google Indexing
+// ✅ Robots.txt
+const robotsTxt = `
+User-agent: *
+Allow: /
+
+Sitemap: ${siteUrl}/sitemap.xml
+`;
+fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
+console.log("✅ robots.txt generated");
+
+// ✅ Google Indexing + IndexNow
 let credentials;
 try {
   credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
