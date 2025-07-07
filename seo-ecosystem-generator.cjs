@@ -1,18 +1,8 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Fixed) const fs = require("fs");
-const path = require("path");
-const { create } = require("xmlbuilder2");
-const { google } = require("googleapis");
-const axios = require("axios");
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Corrected) const fs = require("fs"); const path = require("path"); const { create } = require("xmlbuilder2"); const { google } = require("googleapis"); const axios = require("axios");
 
-const siteUrl = "https://read.maxclickempire.com";
-const postsDir = path.join(__dirname, "posts");
-const sitemapFile = path.join(__dirname, "sitemap.xml");
-const rssFile = path.join(__dirname, "rss.xml");
-const robotsFile = path.join(__dirname, "robots.txt");
-const metaScriptPath = path.join(__dirname, "data/post-meta.js");
+const siteUrl = "https://read.maxclickempire.com"; const postsDir = path.join(__dirname, "posts"); const sitemapFile = path.join(__dirname, "sitemap.xml"); const rssFile = path.join(__dirname, "rss.xml"); const robotsFile = path.join(__dirname, "robots.txt"); const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 
-const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
-const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
+const enhancerScript = <script src="${siteUrl}/assets/seo-enhancer.js" defer></script>; const metaScript = <script src="${siteUrl}/data/post-meta.js" defer></script>;
 
 function shuffle(array) { let currentIndex = array.length, randomIndex; while (currentIndex !== 0) { randomIndex = Math.floor(Math.random() * currentIndex); currentIndex--; [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; } return array; }
 
@@ -73,19 +63,19 @@ return { title, description, published, url, slug };
 
 });
 
-// Sitemap const sitemap = create({ version: "1.0" }).ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" }); posts.forEach(post => { sitemap.ele("url") .ele("loc").txt(post.url).up() .ele("lastmod").txt(new Date().toISOString()).up() .ele("changefreq").txt("weekly").up() .ele("priority").txt("0.8").up().up(); }); fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8"); console.log("✅ sitemap.xml generated");
+const sitemap = create({ version: "1.0" }).ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" }); posts.forEach(post => { sitemap.ele("url") .ele("loc").txt(post.url).up() .ele("lastmod").txt(new Date().toISOString()).up() .ele("changefreq").txt("weekly").up() .ele("priority").txt("0.8").up().up(); }); fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8"); console.log("✅ sitemap.xml generated");
 
-// RSS const rssItems = posts.map(post => <item> <title>${post.title}</title> <link>${post.url}</link> <description><![CDATA[${post.description}]]></description> <pubDate>${new Date(post.published).toUTCString()}</pubDate> <guid>${post.url}</guid> </item>).join("");
+const rssItems = posts.map(post => <item> <title>${post.title}</title> <link>${post.url}</link> <description><![CDATA[${post.description}]]></description> <pubDate>${new Date(post.published).toUTCString()}</pubDate> <guid>${post.url}</guid> </item>).join("");
 
 const rssFeed = <rss version="2.0"> <channel> <title>MaxClickEmpire Feed</title> <link>${siteUrl}</link> <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description> <language>en-us</language> ${rssItems} </channel> </rss>; fs.writeFileSync(rssFile, rssFeed.trim(), "utf8"); console.log("✅ rss.xml generated");
 
-// post-meta.js const metadata = {}; posts.forEach(post => { metadata[post.slug] = { title: post.title, description: post.description, image: ${siteUrl}/assets/og-image.jpg, published: post.published }; }); fs.writeFileSync(metaScriptPath, window.postMetadata = ${JSON.stringify(metadata, null, 2)};, "utf8"); console.log("✅ post-meta.js generated");
+const metadata = {}; posts.forEach(post => { metadata[post.slug] = { title: post.title, description: post.description, image: ${siteUrl}/assets/og-image.jpg, published: post.published }; }); fs.writeFileSync(metaScriptPath, window.postMetadata = ${JSON.stringify(metadata, null, 2)};, "utf8"); console.log("✅ post-meta.js generated");
 
-// robots.txt const robotsTxt = ` User-agent: * Allow: /
+const robotsTxt = ` User-agent: * Allow: /
 
 Sitemap: ${siteUrl}/sitemap.xml `; fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8"); console.log("✅ robots.txt generated");
 
-// Google Indexing let credentials; try { credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8")); } catch (err) { console.error("❌ credentials.json is invalid or missing:", err.message); process.exit(1); }
+let credentials; try { credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8")); } catch (err) { console.error("❌ credentials.json is invalid or missing:", err.message); process.exit(1); }
 
 const jwt = new google.auth.JWT({ email: credentials.client_email, key: credentials.private_key, scopes: ["https://www.googleapis.com/auth/indexing"] });
 
