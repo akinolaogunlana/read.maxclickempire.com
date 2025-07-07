@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'posts/**'
-      - 'internal-linker.js
+      - 'scripts/internal-linker.cjs'
       - 'seo-ecosystem-generator.cjs'
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
@@ -35,8 +35,7 @@ jobs:
           npm install xmlbuilder2@^3.0.2 googleapis axios --save
 
       - name: 🧩 Wrap Raw Posts with SEO Template
-        run: |
-          node wrap-with-template.js
+        run: node wrap-with-template.js
 
       - name: 🔍 Check for Google Secret
         run: |
@@ -49,14 +48,11 @@ jobs:
       - name: 🔐 Decode and Write Google Credentials
         run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
 
-      - name: ⚙️ Run SEO Ecosystem Generator
-        run: |
-          set -e
-          node
-- name: Add Internal Links
-  run: node scripts/internal-linker.cjs
+      - name: 🔗 Add Internal Links
+        run: node scripts/internal-linker.cjs
 
- seo-ecosystem-generator.cjs
+      - name: ⚙️ Run SEO Ecosystem Generator
+        run: node seo-ecosystem-generator.cjs
 
       - name: 🔎 Validate Post Metadata
         run: |
