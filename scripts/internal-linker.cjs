@@ -1,38 +1,31 @@
-// internal-linker.cjs
+// scripts/internal-linker.cjs
 
 const fs = require("fs");
 const path = require("path");
 
-const postsDir = path.join(__dirname, "posts");
-const metadataFile = path.join(__dirname, "data", "post-meta.js");
-const LINK_LIMIT = 3; // maximum internal links per post
+const postsDir = path.join(__dirname, "..", "posts");
+const metadataPath = path.join(__dirname, "..", "data", "post-meta.js");
+const LINK_LIMIT = 3;
 
-/**
- * Load metadata safely
- */
+console.log(`[${new Date().toISOString()}] 🔎 Loading metadata from: ${metadataPath}`);
+
 let metadata = {};
 try {
-  metadata = require(metadataFile).postMetadata || {};
+  metadata = require(metadataPath).postMetadata || {};
 } catch (err) {
   console.error(`[${new Date().toISOString()}] ❌ Error loading metadata:`, err.message);
   process.exit(1);
 }
 
 /**
- * Escape keywords for safe use in RegExp
+ * Escape keywords for RegExp use
  */
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * Get all .html posts
- */
 const posts = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
 
-/**
- * Process each HTML file
- */
 posts.forEach((filename) => {
   try {
     const filePath = path.join(postsDir, filename);
