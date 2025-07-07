@@ -8,8 +8,14 @@
   <meta name="description" content="Maximize your impact with expert answers, AI strategies, and free Google Docs templates. Dominate online, boost income, and build a digital legacy with MaxClickEmpire." />
   <meta name="keywords" content="Google Docs tools, dominate online, build legacy, AI for business, MaxClickEmpire, SEO, affiliate marketing, crypto, blog strategy, free templates, GPT automation" />
   <meta name="author" content="Ogunlana Akinola Okikiola" />
+  <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://read.maxclickempire.com/" />
   <link rel="icon" href="/assets/favicon.png" type="image/png" />
+
+  <!-- Preload Font (if used from Google) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
   <!-- Open Graph -->
   <meta property="og:title" content="MaxClickEmpire — Dominate Online, Build Legacy" />
@@ -29,21 +35,24 @@
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": [{
-      "@type": "Question",
-      "name": "What is MaxClickEmpire?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "MaxClickEmpire provides strategic SEO guides, AI tools, and monetization templates for digital success."
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is MaxClickEmpire?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MaxClickEmpire provides strategic SEO guides, AI tools, and monetization templates for digital success."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is MaxClickEmpire free to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, all resources are free to access and designed to help users dominate online and build a legacy."
+        }
       }
-    }, {
-      "@type": "Question",
-      "name": "Is MaxClickEmpire free to use?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, all resources are free to access and designed to help users dominate online and build a legacy."
-      }
-    }]
+    ]
   }
   </script>
 
@@ -78,12 +87,8 @@
       --card-bg: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--light);
       color: var(--primary);
       max-width: 960px;
@@ -221,24 +226,12 @@
     <p>Powered by <a href="https://github.com/akinolaogunlana/read.maxclickempire.com" target="_blank">GitHub</a>. Built to outlive algorithms.</p>
   </footer>
 
+  <script src="/data/post-meta.js" defer></script>
   <script>
-    const repo = "akinolaogunlana/read.maxclickempire.com";
-    const branch = "main";
-    const folder = "posts";
-
-    async function loadPosts() {
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}?ref=${branch}`);
-      const data = await res.json();
+    window.addEventListener("load", () => {
       const list = document.getElementById("post-list");
       const search = document.getElementById("search");
-
-      const posts = data.filter(file => file.name.endsWith(".html")).map(file => {
-        const slug = file.name.replace(".html", "").toLowerCase();
-        const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        const description = `Expert insights on ${title}. Real-world tools and strategic answers.`;
-        const url = `/${folder}/${file.name}`;
-        return { title, url, description };
-      });
+      const posts = window.postMeta || [];
 
       function render(filtered = posts) {
         list.innerHTML = "";
@@ -248,7 +241,7 @@
         }
         filtered.forEach(post => {
           const item = document.createElement("li");
-          item.innerHTML = `<a href="${post.url}">${post.title}</a><p>${post.description}</p>`;
+          item.innerHTML = `<a href="/posts/${post.filename}.html">${post.title}</a><p>${post.description}</p>`;
           list.appendChild(item);
         });
       }
@@ -259,20 +252,15 @@
       });
 
       render();
-    }
+    });
 
-    function updateProgressBar() {
+    // Progress bar
+    window.addEventListener("scroll", () => {
       const scrollTop = document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const scrolled = (scrollTop / scrollHeight) * 100;
       document.getElementById("progress-bar").style.width = `${scrolled}%`;
-    }
-
-    window.addEventListener("scroll", updateProgressBar);
-    window.addEventListener("load", () => {
-      updateProgressBar();
-      loadPosts();
     });
   </script>
 </body>
-  </html>
+</html>
