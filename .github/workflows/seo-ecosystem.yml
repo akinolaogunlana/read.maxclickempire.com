@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'posts/**'
+      - 'internal-linker.cjs
       - 'seo-ecosystem-generator.cjs'
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
@@ -51,7 +52,11 @@ jobs:
       - name: ⚙️ Run SEO Ecosystem Generator
         run: |
           set -e
-          node seo-ecosystem-generator.cjs
+          node
+- name: Add Internal Links
+  run: node scripts/internal-linker.cjs
+
+ seo-ecosystem-generator.cjs
 
       - name: 🔎 Validate Post Metadata
         run: |
