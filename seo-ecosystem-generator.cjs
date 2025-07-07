@@ -92,34 +92,7 @@ const posts = fs.readdirSync(postsDir)
 
     if (!html.includes('"@type":"BlogPosting"')) {
       html = html.replace("</head>", `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>\n</head>`);
-}
-
-
-// Add internal links
-const otherPosts = posts
-  .filter(p => p.slug !== slug)
-  .sort(() => 0.5 - Math.random())
-  .slice(0, 3); // Select 3 random posts
-
-const internalLinksHTML = `
-  <aside class="related-posts">
-    <h2>🔗 Related Posts</h2>
-    <ul>
-      ${otherPosts.map(p => `<li><a href="${p.url}">${p.title}</a></li>`).join("\n")}
-    </ul>
-  </aside>
-`;
-
-// Inject into <article> or at end of body if <article> is not found
-if (html.includes("<article")) {
-  html = html.replace(/<\/article>/, `${internalLinksHTML}\n</article>`);
-} else {
-  html = html.replace("</body>", `${internalLinksHTML}\n</body>`);
-}
-
-
-
-    
+} 
 
     fs.writeFileSync(fullPath, html, "utf8");
     console.log(`✅ Enhanced ${file}`);
