@@ -34,7 +34,6 @@ const posts = fs.readdirSync(postsDir)
     const description = (html.match(/<meta name="description" content="(.*?)"/) || [])[1] || "";
     const published = (html.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
-    const url = `${siteUrl}/posts/${file}`;
 
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
