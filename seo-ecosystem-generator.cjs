@@ -92,7 +92,7 @@ const posts = fs.readdirSync(postsDir)
 
     if (!html.includes('"@type":"BlogPosting"')) {
       html = html.replace("</head>", `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>\n</head>`);
-    }
+} 
 
     fs.writeFileSync(fullPath, html, "utf8");
     console.log(`✅ Enhanced ${file}`);
