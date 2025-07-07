@@ -3,15 +3,12 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'posts/**.html'
-      - 'posts/**/**.html'
+      - 'posts/**'
       - 'seo-ecosystem-generator.cjs'
-      - 'rss.xml'
-      - 'sitemap.xml'
-      - 'robots.txt'
       - 'data/post-meta.js'
+      - 'assets/seo-enhancer.js'
   schedule:
-    - cron: '0 0 */60 * *'  # every 60 days
+    - cron: '0 3 * * *'  # Every day at 3:00 AM UTC
   workflow_dispatch:
 
 jobs:
@@ -47,7 +44,21 @@ jobs:
         run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
 
       - name: ⚙️ Run SEO Ecosystem Generator
-        run: node seo-ecosystem-generator.cjs
+        run: |
+          set -e
+          node seo-ecosystem-generator.cjs
+
+      - name: 🔎 Validate Post Metadata
+        run: |
+          if grep -q '""' data/post-meta.js; then
+            echo "❌ Empty title or description found in post-meta.js"
+            exit 1
+          else
+            echo "✅ Metadata check passed"
+          fi
+
+      - name: 🕐 Touch Timestamp File
+        run: date > .deploy-trigger
 
       - name: 🚀 Submit URLs to Google Indexing + IndexNow
         if: ${{ always() }}
@@ -60,16 +71,15 @@ jobs:
 
       - name: 🌐 Ping Search Engines with Sitemap
         run: |
-          curl -s "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl -s "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl -s "https://yandex.com/indexnow?url=https://read.maxclickempire.com&key=9b1fb73319b04fb3abb5ed09be53d65e"
+          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
 
-      - name: 🔄 Commit SEO, Sitemap, and Metadata
+      - name: 🔄 Commit SEO, Sitemap, Metadata
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js posts/*.html || true
-          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes"
+          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger || true
+          git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"
           git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
@@ -77,7 +87,6 @@ jobs:
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
           publish_dir: ./
-          publish_branch: gh-pages
           exclude_assets: |
             credentials.json
             .github
@@ -97,6 +106,7 @@ jobs:
             🚀 SEO Automation Summary:
             - SEO tags injected
             - Sitemap + RSS generated
-            - Metadata updated
+            - Metadata map created
             - Google Indexing submitted
+            - IndexNow pinged
             - GitHub Pages deployed
