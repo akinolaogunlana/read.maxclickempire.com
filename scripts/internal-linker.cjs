@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 
+// Load metadata
 const postsDir = path.join(__dirname, "..", "posts");
 const { postMetadata: metadata } = require("../data/post-meta.js");
 
@@ -11,6 +12,7 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Get all post files
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 posts.forEach((filename) => {
