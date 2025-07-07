@@ -1,8 +1,18 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Fixed) const fs = require("fs"); const path = require("path"); const { create } = require("xmlbuilder2"); const { google } = require("googleapis"); const axios = require("axios");
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Fixed) const fs = require("fs");
+const path = require("path");
+const { create } = require("xmlbuilder2");
+const { google } = require("googleapis");
+const axios = require("axios");
 
-const siteUrl = "https://read.maxclickempire.com"; const postsDir = path.join(__dirname, "posts"); const sitemapFile = path.join(__dirname, "sitemap.xml"); const rssFile = path.join(__dirname, "rss.xml"); const robotsFile = path.join(__dirname, "robots.txt"); const metaScriptPath = path.join(__dirname, "data/post-meta.js");
+const siteUrl = "https://read.maxclickempire.com";
+const postsDir = path.join(__dirname, "posts");
+const sitemapFile = path.join(__dirname, "sitemap.xml");
+const rssFile = path.join(__dirname, "rss.xml");
+const robotsFile = path.join(__dirname, "robots.txt");
+const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 
-const enhancerScript = <script src="${siteUrl}/assets/seo-enhancer.js" defer></script>; const metaScript = <script src="${siteUrl}/data/post-meta.js" defer></script>;
+const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
+const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
 
 function shuffle(array) { let currentIndex = array.length, randomIndex; while (currentIndex !== 0) { randomIndex = Math.floor(Math.random() * currentIndex); currentIndex--; [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; } return array; }
 
