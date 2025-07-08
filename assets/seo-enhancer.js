@@ -1,3 +1,4 @@
+<!--
 (function () {
   function waitForDom(callback) {
     if (document.readyState === "loading") {
@@ -202,3 +203,5 @@
     }, 30000);
   });
 })();
+
+-->
