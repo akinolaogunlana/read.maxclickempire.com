@@ -3,8 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
-let raw;
 
+let raw;
 try {
   raw = fs.readFileSync(metaPath, "utf8");
 } catch (err) {
@@ -14,31 +14,20 @@ try {
 
 let metadataJson = null;
 
-// Case 1: Starts with `window.postMetadata = {...}`
-const windowMatch = raw.match(/window\.postMetadata\s*=\s*(\{[\s\S]*\});?/);
+// Match either `window.postMetadata = {...};` or `const postMetadata = {...};`
+const match = raw.match(/(?:window|const)\s*\.?\s*postMetadata\s*=\s*(\{[\s\S]*?\})\s*;/);
 
-// Case 2: Starts with `const postMetadata = {...}`
-const constMatch = raw.match(/const\s+postMetadata\s*=\s*(\{[\s\S]*\});?/);
-
-if (windowMatch) {
-  metadataJson = windowMatch[1];
-} else if (constMatch) {
-  metadataJson = constMatch[1];
-} else {
-  console.error("❌ Could not find postMetadata object in post-meta.js");
+if (!match || !match[1]) {
+  console.error("❌ Could not extract valid postMetadata JSON object.");
   process.exit(1);
 }
 
-let metadata;
 try {
-  metadata = JSON.parse(metadataJson);
-} catch (err) {
-  console.error("❌ Failed to parse metadata JSON:", err.message);
-  process.exit(1);
-}
+  // Parse to confirm it's valid JSON
+  const metadata = JSON.parse(match[1]);
 
-// Final output (dual compatible)
-const fixed = `// Auto-fixed for Node.js and Browser use
+  // Rewrite in dual-compatible format
+  const fixedOutput = `// Auto-fixed for Node.js and Browser use
 
 const postMetadata = ${JSON.stringify(metadata, null, 2)};
 
@@ -49,5 +38,9 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 `;
 
-fs.writeFileSync(metaPath, fixed, "utf8");
-console.log("✅ Fixed post-meta.js for Node.js + Browser compatibility");
+  fs.writeFileSync(metaPath, fixedOutput, "utf8");
+  console.log("✅ Fixed post-meta.js for Node.js + Browser compatibility");
+} catch (err) {
+  console.error("❌ Failed to parse metadata JSON:", err.message);
+  process.exit(1);
+}
