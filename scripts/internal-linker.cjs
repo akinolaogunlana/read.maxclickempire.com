@@ -1,13 +1,12 @@
 // scripts/internal-linker.cjs
+
 const fs = require("fs");
 const path = require("path");
-const keyword_extractor = require("keyword-extractor");
+const keywordExtractor = require("keyword-extractor");
 const natural = require("natural");
-const { JSDOM } = require("jsdom");
 
-// Config
+// Setup paths
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 3;
 
 // Load metadata
 let metadata;
@@ -19,39 +18,31 @@ try {
   process.exit(1);
 }
 
-// Utils
+// Settings
+const LINK_LIMIT = 3;
+
+// Helpers
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function generateKeywordVariants(keyword) {
-  const lower = keyword.toLowerCase();
-  return [
-    lower,
-    lower.replace(/-/g, " "),
-    lower.replace(/\s/g, "-"),
-    lower.replace(/\s/g, "")
-  ];
+  const base = keyword.toLowerCase();
+  return Array.from(new Set([
+    base,
+    base.replace(/-/g, " "),
+    base.replace(/\s/g, "-"),
+    base.replace(/\s/g, ""),
+    base.charAt(0).toUpperCase() + base.slice(1),
+  ]));
 }
 
-function getKeywordsFromContent(content) {
-  return keyword_extractor.extract(content, {
-    language: "english",
-    remove_digits: true,
-    return_changed_case: true,
-    remove_duplicates: true
-  });
+function scoreSimilarity(a, b) {
+  const distance = natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
+  return distance; // 0–1
 }
 
-// Cosine similarity (basic NLP vector-based match)
-function computeSimilarity(str1, str2) {
-  const tfidf = new natural.TfIdf();
-  tfidf.addDocument(str1);
-  tfidf.addDocument(str2);
-  return tfidf.tfidf(str2, 0); // similarity score
-}
-
-// Main logic
+// Start processing
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 posts.forEach((filename) => {
@@ -62,47 +53,59 @@ posts.forEach((filename) => {
   const currentMeta = metadata[currentSlug] || {};
   const currentTitle = currentMeta.title || currentSlug;
 
-  const dom = new JSDOM(html);
-  const paragraphs = dom.window.document.querySelectorAll("p");
+  const keywordsFromPage = (
+    html.match(/<meta name="keywords" content="([^"]+)"/) || []
+  )[1]?.split(",").map(k => k.trim()) || [];
 
-  const keywordsInPage = getKeywordsFromContent(dom.window.document.body.textContent || "");
+  // Extract NLP keywords from the entire page text
+  const bodyText = html.replace(/<[^>]*>/g, " ");
+  const nlpKeywords = keywordExtractor.extract(bodyText, {
+    language: "english",
+    remove_digits: true,
+    return_changed_case: true,
+    remove_duplicates: true,
+  });
 
   const usedLinks = new Set();
   let inserted = 0;
 
-  const candidates = Object.entries(metadata)
+  // Build potential links ranked by similarity score
+  const potentialLinks = Object.entries(metadata)
     .filter(([slug]) => slug !== currentSlug)
     .map(([slug, data]) => {
-      const keyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
-      const variants = generateKeywordVariants(keyword);
+      const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
+      const variants = generateKeywordVariants(baseKeyword);
       const score = Math.max(
-        computeSimilarity(currentTitle, data.title),
-        ...keywordsInPage.map(k => computeSimilarity(k, keyword))
+        scoreSimilarity(currentTitle, data.title),
+        ...keywordsFromPage.map(k => scoreSimilarity(k, baseKeyword)),
+        ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword))
       );
 
       return {
-        href: `/posts/${slug}.html`,
-        keyword,
-        title: data.title,
+        keyword: baseKeyword,
         variants,
-        score
+        href: `/posts/${slug}.html`, // ✅ Fixed string template
+        title: data.title,
+        score,
       };
     })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 20); // limit to top candidates for performance
+    .sort((a, b) => b.score - a.score);
 
-  paragraphs.forEach(p => {
-    if (inserted >= LINK_LIMIT) return;
-    if (p.innerHTML.match(/<a\s/i)) return;
+  // Insert links into paragraphs
+  html = html.replace(/<p>(.*?)<\/p>/gs, (match, content) => {
+    if (inserted >= LINK_LIMIT || /<a\s/i.test(content)) return match;
 
-    let text = p.innerHTML;
-    for (const link of candidates) {
+    for (const link of potentialLinks) {
       if (usedLinks.has(link.href)) continue;
 
       for (const variant of link.variants) {
-        const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
-        if (regex.test(text)) {
-          text = text.replace(regex, `<a href="${link.href}" title="${link.title}">$1</a>`);
+        const keywordRegex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+        if (keywordRegex.test(content)) {
+          const anchorText = content.match(keywordRegex)[1];
+          content = content.replace(
+            keywordRegex,
+            `<a href="${link.href}" title="${link.title}">${anchorText}</a>`
+          );
           usedLinks.add(link.href);
           inserted++;
           break;
@@ -111,10 +114,11 @@ posts.forEach((filename) => {
 
       if (inserted >= LINK_LIMIT) break;
     }
-    p.innerHTML = text;
+
+    return `<p>${content}</p>`;
   });
 
-  // Write back updated HTML
-  fs.writeFileSync(filePath, dom.serialize(), "utf8");
-  console.log(`🔗 ${filename} — inserted ${inserted} intelligent internal links`);
+  // Save the updated HTML
+  fs.writeFileSync(filePath, html, "utf8");
+  console.log(`🔗 ${filename} — inserted ${inserted} internal links`);
 });
