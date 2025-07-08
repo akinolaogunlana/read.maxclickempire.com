@@ -5,79 +5,85 @@ const postMetadata = {
     "title": "5 Modern Google Docs Resume Templates That Actually Get You Hired",
     "description": "Read about 5 Modern Google Docs Resume Templates That Actually Get You Hired.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.681Z"
+    "published": "2025-07-08T20:43:30.175Z"
   },
   "best-free-google-docs-resume-templates": {
     "title": "Best Free Google Docs Resume Templates",
     "description": "Discover the best free Google Docs resume templates—ATS‑friendly, editable, and stylish for every career level and industry. Download now!",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.683Z"
+    "published": "2025-07-08T20:43:30.178Z"
   },
   "best-minimalist-google-docs-resume-template": {
     "title": "Best Minimalist Google Docs Resume Template: A Complete Guide",
     "description": "Read about Best Minimalist Google Docs Resume Template: A Complete Guide.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.684Z"
+    "published": "2025-07-08T20:43:30.178Z"
   },
   "classroom-seating-chart-google-docs-template": {
     "title": "Classroom Seating Chart Google Docs Template: Free & Customizable",
     "description": "Free Classroom Seating Chart Google Docs Template. Customize seating, share with teachers, and organize your classroom easily with our drag-and-drop editable chart.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.684Z"
+    "published": "2025-07-08T20:43:30.179Z"
   },
   "create-professional-invoice-google-docs": {
     "title": "How to Create a Professional Invoice Using Google Docs",
     "description": "Read about How to Create a Professional Invoice Using Google Docs.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.685Z"
+    "published": "2025-07-08T20:43:30.179Z"
   },
   "creative-resume-template-designers-docs": {
     "title": "Creative Resume Template for Graphic Designers in Google Docs",
     "description": "Read about Creative Resume Template for Graphic Designers in Google Docs.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.685Z"
+    "published": "2025-07-08T20:43:30.179Z"
   },
   "free-lesson-plan-templates": {
     "title": "Free Lesson Plan Templates for Teachers in Google Docs",
     "description": "Read about Free Lesson Plan Templates for Teachers in Google Docs.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.685Z"
+    "published": "2025-07-08T20:43:30.180Z"
   },
   "google-docs-resume-template-for-fresh-graduates": {
     "title": "Google Docs Resume Template for Fresh Graduates: 5 Free ATS‑Ready Designs",
     "description": "Explore 5 free Google Docs resume templates ideal for fresh graduates—easy to customize, ATS‑friendly, and designed to land your first job.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.686Z"
+    "published": "2025-07-08T20:43:30.180Z"
   },
   "hoogle-docs-student-planner-template": {
     "title": "Google Docs Student Planner Template: Ultimate Student Organization Guide",
     "description": "Read about Google Docs Student Planner Template: Ultimate Student Organization Guide.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.686Z"
+    "published": "2025-07-08T20:43:30.181Z"
   },
   "invoice-templates-freelancers-docs": {
     "title": "Free Google Docs Invoice Templates for Freelancers: Get Paid Faster",
     "description": "Read about Free Google Docs Invoice Templates for Freelancers: Get Paid Faster.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.687Z"
+    "published": "2025-07-08T20:43:30.181Z"
   },
   "one-page-resume-template-google-docs": {
     "title": "One‑Page Resume Template in Google Docs: Your Ultimate Guide",
     "description": "Read about One‑Page Resume Template in Google Docs: Your Ultimate Guide.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.687Z"
+    "published": "2025-07-08T20:43:30.182Z"
+  },
+  "proposal-template-small-business-docs": {
+    "title": "Google Docs Proposal Template for Small Businesses: Ultimate Guide",
+    "description": "Read about Google Docs Proposal Template for Small Businesses: Ultimate Guide.",
+    "image": "https://read.maxclickempire.com/assets/og-image.jpg",
+    "published": "2025-07-08T20:43:30.182Z"
   },
   "resume-and-cover-letter-templates": {
     "title": "Resume & Cover Letter Templates for Career Success",
     "description": "Professionally crafted resume & cover letter templates to boost your career—ATS-friendly, customizable, and designed to help you land interviews.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.687Z"
+    "published": "2025-07-08T20:43:30.182Z"
   },
   "resume-freezer-remote-docs": {
     "title": "Resume for Remote Jobs: Freezer – Free Google Docs Template & Expert Tips",
     "description": "Read about Resume for Remote Jobs: Freezer – Free Google Docs Template & Expert Tips.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T20:28:38.688Z"
+    "published": "2025-07-08T20:43:30.183Z"
   }
 };
 
