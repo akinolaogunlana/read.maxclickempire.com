@@ -1,0 +1,35 @@
+const fs = require("fs");
+const path = require("path");
+
+const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
+
+if (!fs.existsSync(metaPath)) {
+  console.error("❌ post-meta.js not found.");
+  process.exit(1);
+}
+
+const raw = fs.readFileSync(metaPath, "utf8");
+const match = raw.match(/postMetadata\s*=\s*(\{[\s\S]*\});?/);
+
+if (!match) {
+  console.error("❌ Could not parse postMetadata object.");
+  process.exit(1);
+}
+
+const metadataJSON = match[1];
+
+const fixedOutput = `
+// Auto-fixed for Node.js and browser compatibility
+
+const postMetadata = ${metadataJSON};
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports.postMetadata = postMetadata;
+}
+if (typeof window !== "undefined") {
+  window.postMetadata = postMetadata;
+}
+`.trim();
+
+fs.writeFileSync(metaPath, fixedOutput, "utf8");
+console.log("✅ post-meta.js patched for Node + Browser.");
