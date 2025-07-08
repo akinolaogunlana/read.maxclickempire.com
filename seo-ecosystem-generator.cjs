@@ -1,9 +1,10 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Auto-Fix Version)
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Final Auto-Fix Version)
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
 const { google } = require("googleapis");
 const axios = require("axios");
+const { execSync } = require("child_process");
 
 const siteUrl = "https://read.maxclickempire.com";
 const postsDir = path.join(__dirname, "posts");
@@ -34,7 +35,6 @@ const posts = fs.readdirSync(postsDir)
     let title = (html.match(/<title>(.*?)<\/title>/i) || [])[1];
     let description = (html.match(/<meta name="description" content="(.*?)"/i) || [])[1];
 
-    // Auto fallback
     if (!title) {
       title = (html.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || file.replace(".html", "");
       html = html.replace("</head>", `<title>${title}</title>\n</head>`);
@@ -50,7 +50,6 @@ const posts = fs.readdirSync(postsDir)
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
-    // Shuffle paragraphs if post is older than 60 days
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
       html = html.replace(/<article([\s\S]*?)>([\s\S]*?)<\/article>/, (match, attr, inner) => {
@@ -92,14 +91,14 @@ const posts = fs.readdirSync(postsDir)
 
     if (!html.includes('"@type":"BlogPosting"')) {
       html = html.replace("</head>", `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>\n</head>`);
-} 
+    }
 
     fs.writeFileSync(fullPath, html, "utf8");
     console.log(`✅ Enhanced ${file}`);
     return { title, description, published, url, slug };
   });
 
-// Sitemap
+// Sitemap generation
 const sitemap = create({ version: "1.0" })
   .ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
 posts.forEach(post => {
@@ -112,7 +111,20 @@ posts.forEach(post => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-// RSS
+// Metadata JS file (raw)
+const metadata = {};
+posts.forEach(post => {
+  metadata[post.slug] = {
+    title: post.title,
+    description: post.description,
+    image: `${siteUrl}/assets/og-image.jpg`,
+    published: post.published
+  };
+});
+fs.writeFileSync(metaScriptPath, `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`, "utf8");
+console.log("✅ post-meta.js generated");
+
+// RSS generation
 const rssItems = posts.map(post => `
   <item>
     <title>${post.title}</title>
@@ -136,20 +148,7 @@ const rssFeed = `<?xml version="1.0"?>
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated");
 
-// Metadata JS
-const metadata = {};
-posts.forEach(post => {
-  metadata[post.slug] = {
-    title: post.title,
-    description: post.description,
-    image: `${siteUrl}/assets/og-image.jpg`,
-    published: post.published
-  };
-});
-fs.writeFileSync(metaScriptPath, `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`, "utf8");
-console.log("✅ post-meta.js generated");
-
-// Robots.txt
+// robots.txt generation
 const robotsTxt = `
 User-agent: *
 Allow: /
@@ -201,5 +200,12 @@ async function indexUrlToGoogle(url) {
     } catch (err) {
       console.error(`❌ IndexNow failed for ${post.url}:`, err.message);
     }
+  }
+
+  // ✅ Fix post-meta.js for Node.js + browser environments
+  try {
+    execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
+  } catch (e) {
+    console.error("❌ Failed to fix post-meta.js:", e.message);
   }
 })();

@@ -1,0 +1,31 @@
+// scripts/fix-post-meta.cjs
+const fs = require("fs");
+const path = require("path");
+
+const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
+
+// Try to read existing post-meta.js as raw JS string
+let metadataRaw;
+try {
+  const content = fs.readFileSync(metaPath, "utf8");
+
+  // Extract JSON object from either window or module style
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  metadataRaw = JSON.parse(jsonMatch[0]);
+} catch (err) {
+  console.error("❌ Failed to load or parse post-meta.js:", err.message);
+  process.exit(1);
+}
+
+const output = `// ✅ Auto-fixed for Node.js + Browser compatibility
+const postMetadata = ${JSON.stringify(metadataRaw, null, 2)};
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports.postMetadata = postMetadata;
+} else {
+  window.postMetadata = postMetadata;
+}
+`;
+
+fs.writeFileSync(metaPath, output, "utf8");
+console.log("✅ Fixed post-meta.js for both Node and browser");
