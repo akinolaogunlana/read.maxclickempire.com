@@ -6,6 +6,7 @@ on:
       - 'posts/**'
       - 'scripts/internal-linker.cjs'
       - 'seo-ecosystem-generator.cjs'
+      - 'scripts/fix-post-meta.cjs'
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
@@ -47,6 +48,9 @@ jobs:
 
       - name: 🔐 Decode and Write Google Credentials
         run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json
+
+      - name: 🛠️ Fix post-meta.js (Node + Browser compatible)
+        run: node scripts/fix-post-meta.cjs
 
       - name: 🔗 Add Internal Links
         run: node scripts/internal-linker.cjs
