@@ -1,35 +1,31 @@
+// scripts/fix-post-meta.cjs
 const fs = require("fs");
 const path = require("path");
 
 const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
 
-if (!fs.existsSync(metaPath)) {
-  console.error("❌ post-meta.js not found.");
+// Try to read existing post-meta.js as raw JS string
+let metadataRaw;
+try {
+  const content = fs.readFileSync(metaPath, "utf8");
+
+  // Extract JSON object from either window or module style
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  metadataRaw = JSON.parse(jsonMatch[0]);
+} catch (err) {
+  console.error("❌ Failed to load or parse post-meta.js:", err.message);
   process.exit(1);
 }
 
-const raw = fs.readFileSync(metaPath, "utf8");
-const match = raw.match(/postMetadata\s*=\s*(\{[\s\S]*\});?/);
-
-if (!match) {
-  console.error("❌ Could not parse postMetadata object.");
-  process.exit(1);
-}
-
-const metadataJSON = match[1];
-
-const fixedOutput = `
-// Auto-fixed for Node.js and browser compatibility
-
-const postMetadata = ${metadataJSON};
+const output = `// ✅ Auto-fixed for Node.js + Browser compatibility
+const postMetadata = ${JSON.stringify(metadataRaw, null, 2)};
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports.postMetadata = postMetadata;
-}
-if (typeof window !== "undefined") {
+} else {
   window.postMetadata = postMetadata;
 }
-`.trim();
+`;
 
-fs.writeFileSync(metaPath, fixedOutput, "utf8");
-console.log("✅ post-meta.js patched for Node + Browser.");
+fs.writeFileSync(metaPath, output, "utf8");
+console.log("✅ Fixed post-meta.js for both Node and browser");
