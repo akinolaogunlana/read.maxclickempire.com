@@ -1,4 +1,3 @@
-// ✅ MaxClickEmpire SEO Enhancer v3.3
 (function () {
   function waitForDom(callback) {
     if (document.readyState === "loading") {
@@ -15,6 +14,7 @@
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
 
+    // 📦 Load metadata
     const meta = (window.postMetadata && window.postMetadata[slug]) || {
       title: document.title,
       description: document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.",
@@ -22,7 +22,7 @@
       published: new Date().toISOString(),
     };
 
-    // Remove old tags
+    // 🧼 Remove old tags
     [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -32,7 +32,7 @@
       if (tag) tag.remove();
     });
 
-    // Inject meta tag
+    // 🧠 Inject meta
     function injectMeta(name, content, attr = "name") {
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
@@ -53,7 +53,7 @@
     document.title = meta.title;
     injectMeta("description", meta.description);
 
-    // ✅ Improved keyword generation
+    // 📊 Keywords
     const keywordList = meta.title
       .toLowerCase()
       .replace(/[^a-z0-9\s]/gi, "")
@@ -63,6 +63,7 @@
       .join(", ");
     injectMeta("keywords", keywordList);
 
+    // 🧷 Social
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
     injectMeta("og:type", "article", "property");
@@ -73,7 +74,7 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // Inject JSON-LD schema
+    // 📚 JSON-LD
     const schema = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -94,30 +95,37 @@
     ld.textContent = JSON.stringify(schema);
     document.head.appendChild(ld);
 
-    // Wait for article
     const article = document.querySelector("article");
     if (!article) return;
 
-    // Inject Hero
+    // 🎨 Hero Section
     if (!document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
-        <div style="text-align:center;padding:2rem;background:#f9f9f9;border-radius:10px;margin-bottom:2rem">
-          <h1 style="font-size:2rem">${meta.title}</h1>
-          <p>📅 ${meta.published.split("T")[0]}</p>
-          <p style="max-width:700px;margin:auto">${meta.description}</p>
-          <img src="${meta.image}" alt="${meta.title} cover" style="max-width:100%;margin-top:1rem" loading="lazy"/>
-        </div>`;
+        <div style="
+          background: linear-gradient(to right, #f5f7fa, #e4ecf3);
+          border-radius: 20px;
+          padding: 2rem;
+          text-align: center;
+          box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+          margin-bottom: 2.5rem;
+        ">
+          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
+          <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
+          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+          <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+        </div>
+      `;
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // Table of Contents
+    // 🧭 TOC
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
-      toc.innerHTML = `<h2>📑 Table of Contents</h2><ul></ul>`;
+      toc.innerHTML = `<h2 style="margin-bottom:0.5rem;">📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
       const ul = toc.querySelector("ul");
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
@@ -129,35 +137,33 @@
       article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // Related keywords
-    const relatedLinks = window.relatedLinks || [
-      { keyword: "Google Docs", url: "/posts/google-docs-template-guide.html" },
-      { keyword: "affiliate marketing", url: "/posts/affiliate-marketing-for-beginners.html" },
-      { keyword: "SEO tools", url: "/posts/best-seo-tools.html" }
-    ];
-
-    article.querySelectorAll("p").forEach(p => {
-      relatedLinks.forEach(({ keyword, url }) => {
-        const regex = new RegExp(`\\b(${keyword})\\b`, "gi");
-        if (!p.innerHTML.includes(url)) {
-          p.innerHTML = p.innerHTML.replace(regex, `<a href="${url}" title="Learn more about $1">$1</a>`);
-        }
+    // 💡 (Optional) Internal Link Injection
+    /*
+    if (window.relatedLinks) {
+      article.querySelectorAll("p").forEach(p => {
+        window.relatedLinks.forEach(({ keyword, url }) => {
+          const regex = new RegExp("\\b(" + keyword + ")\\b", "gi");
+          if (!p.innerHTML.includes(url)) {
+            p.innerHTML = p.innerHTML.replace(regex, `<a href="${url}" title="Learn more about $1">$1</a>`);
+          }
+        });
       });
-    });
+    }
+    */
 
-    // Ad placement
+    // 📣 Ads
     const paras = article.querySelectorAll("p");
     if (paras.length >= 5) {
-      const randomIndex = Math.floor(Math.random() * 3) + 2;
+      const idx = Math.floor(Math.random() * 3) + 2;
       const ad = `
         <div style="text-align:center;margin:2rem 0">
           <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="0000000000" data-ad-format="auto"></ins>
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>`;
-      paras[randomIndex]?.insertAdjacentHTML("afterend", ad);
+      paras[idx]?.insertAdjacentHTML("afterend", ad);
     }
 
-    // Related Posts
+    // 🧠 Related Posts
     if (!document.querySelector("#related-posts") && window.postMetadata) {
       const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
       const related = Object.entries(window.postMetadata)
@@ -178,12 +184,18 @@
       }
     }
 
-    // Debug
-    if (location.search.includes("debugSEO")) {
-      console.log("🔍 MaxClick SEO Debug:", meta);
+    // 🌗 Dark Mode Toggle (auto detect)
+    const darkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (darkMode) {
+      document.body.classList.add("dark-theme");
     }
 
-    // Refresh meta description after 30s
+    // 🧪 Debug
+    if (location.search.includes("debugSEO")) {
+      console.log("🔍 SEO Meta Loaded:", meta);
+    }
+
+    // 🔄 Refresh description
     setTimeout(() => {
       const desc = document.querySelector("meta[name='description']");
       if (desc) desc.setAttribute("content", meta.description + " 🔄 Refreshed");
