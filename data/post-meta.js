@@ -5,49 +5,55 @@ const postMetadata = {
     "title": "5 Modern Google Docs Resume Templates That Actually Get You Hired",
     "description": "Read about 5 Modern Google Docs Resume Templates That Actually Get You Hired.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.006Z"
+    "published": "2025-07-08T20:03:01.885Z"
   },
   "best-free-google-docs-resume-templates": {
     "title": "Best Free Google Docs Resume Templates",
     "description": "Discover the best free Google Docs resume templates—ATS‑friendly, editable, and stylish for every career level and industry. Download now!",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.008Z"
+    "published": "2025-07-08T20:03:01.887Z"
+  },
+  "best-minimalist-google-docs-resume-template": {
+    "title": "Best Minimalist Google Docs Resume Template: A Complete Guide",
+    "description": "Read about Best Minimalist Google Docs Resume Template: A Complete Guide.",
+    "image": "https://read.maxclickempire.com/assets/og-image.jpg",
+    "published": "2025-07-08T20:03:01.887Z"
   },
   "classroom-seating-chart-google-docs-template": {
     "title": "Classroom Seating Chart Google Docs Template: Free & Customizable",
     "description": "Free Classroom Seating Chart Google Docs Template. Customize seating, share with teachers, and organize your classroom easily with our drag-and-drop editable chart.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.009Z"
+    "published": "2025-07-08T20:03:01.887Z"
   },
   "free-lesson-plan-templates": {
     "title": "Free Lesson Plan Templates for Teachers in Google Docs",
     "description": "Read about Free Lesson Plan Templates for Teachers in Google Docs.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.009Z"
+    "published": "2025-07-08T20:03:01.888Z"
   },
   "google-docs-resume-template-for-fresh-graduates": {
     "title": "Google Docs Resume Template for Fresh Graduates: 5 Free ATS‑Ready Designs",
     "description": "Explore 5 free Google Docs resume templates ideal for fresh graduates—easy to customize, ATS‑friendly, and designed to land your first job.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.010Z"
+    "published": "2025-07-08T20:03:01.888Z"
   },
   "hoogle-docs-student-planner-template": {
     "title": "Google Docs Student Planner Template: Ultimate Student Organization Guide",
     "description": "Read about Google Docs Student Planner Template: Ultimate Student Organization Guide.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.010Z"
+    "published": "2025-07-08T20:03:01.889Z"
   },
   "one-page-resume-template-google-docs": {
     "title": "One‑Page Resume Template in Google Docs: Your Ultimate Guide",
     "description": "Read about One‑Page Resume Template in Google Docs: Your Ultimate Guide.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.010Z"
+    "published": "2025-07-08T20:03:01.889Z"
   },
   "resume-and-cover-letter-templates": {
     "title": "Resume & Cover Letter Templates for Career Success",
     "description": "Professionally crafted resume & cover letter templates to boost your career—ATS-friendly, customizable, and designed to help you land interviews.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-08T19:53:13.011Z"
+    "published": "2025-07-08T20:03:01.889Z"
   }
 };
 
