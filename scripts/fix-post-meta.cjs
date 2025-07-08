@@ -3,30 +3,42 @@ const fs = require("fs");
 const path = require("path");
 
 const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
+let raw;
 
-// Load the original post-meta.js file
-const raw = fs.readFileSync(metaPath, "utf8");
-
-// Extract JSON from window.postMetadata = {...};
-const match = raw.match(/window\.postMetadata\s*=\s*(\{[\s\S]*\});?/);
-
-if (!match) {
-  console.error("❌ Could not find postMetadata object in post-meta.js");
+try {
+  raw = fs.readFileSync(metaPath, "utf8");
+} catch (err) {
+  console.error("❌ Cannot read post-meta.js:", err.message);
   process.exit(1);
 }
 
-const metadataJson = match[1];
+let metadataJson = null;
+
+// Case 1: Starts with `window.postMetadata = {...}`
+const windowMatch = raw.match(/window\.postMetadata\s*=\s*(\{[\s\S]*\});?/);
+
+// Case 2: Starts with `const postMetadata = {...}`
+const constMatch = raw.match(/const\s+postMetadata\s*=\s*(\{[\s\S]*\});?/);
+
+if (windowMatch) {
+  metadataJson = windowMatch[1];
+} else if (constMatch) {
+  metadataJson = constMatch[1];
+} else {
+  console.error("❌ Could not find postMetadata object in post-meta.js");
+  process.exit(1);
+}
 
 let metadata;
 try {
   metadata = JSON.parse(metadataJson);
 } catch (err) {
-  console.error("❌ Failed to parse post metadata JSON:", err.message);
+  console.error("❌ Failed to parse metadata JSON:", err.message);
   process.exit(1);
 }
 
-// Rewrite the file in Node.js compatible format
-const fixed = `// Auto-fixed for Node.js compatibility
+// Final output (dual compatible)
+const fixed = `// Auto-fixed for Node.js and Browser use
 
 const postMetadata = ${JSON.stringify(metadata, null, 2)};
 
