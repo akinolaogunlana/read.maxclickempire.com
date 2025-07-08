@@ -1,15 +1,14 @@
 {
   "name": "supreme-seo-ecosystem",
   "version": "1.1.0",
-  "description": "Automated SEO system for MaxClickEmpire with smart internal linking, Google Indexing, NLP-enhanced keyword clustering, and IndexNow support.",
+  "description": "Automated SEO system for MaxClickEmpire with smart internal linking, Google Indexing, and IndexNow support.",
   "main": "seo-ecosystem-generator.cjs",
   "type": "commonjs",
   "scripts": {
     "start": "node seo-ecosystem-generator.cjs",
     "submit": "node submit-to-indexing-api.js",
     "link": "node scripts/internal-linker.cjs",
-    "fix-meta": "node scripts/fix-post-meta.cjs",
-    "keywords": "node scripts/extract-keywords.cjs"
+    "fix-meta": "node scripts/fix-post-meta.cjs"
   },
   "dependencies": {
     "axios": "^1.6.8",
@@ -17,14 +16,7 @@
     "jsdom": "^24.0.0",
     "keyword-extractor": "^0.0.22",
     "natural": "^6.5.0",
-    "wink-nlp": "^1.5.0",
-    "wink-eng-lite-model": "^1.1.0",
-    "xmlbuilder2": "^3.0.2",
-    "retext": "^10.0.0",
-    "retext-keywords": "^6.0.0",
-    "retext-pos": "^5.0.0",
-    "unified": "^10.1.2",
-    "vfile": "^5.3.7"
+    "xmlbuilder2": "^3.0.2"
   },
   "author": "MaxClickEmpire Bot",
   "license": "MIT"
