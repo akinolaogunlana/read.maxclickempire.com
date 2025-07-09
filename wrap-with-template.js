@@ -4,6 +4,7 @@ const path = require("path");
 const postsDir = path.join(__dirname, "posts");
 const templatePath = path.join(__dirname, "template.html");
 
+// Load the updated, optimized HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
 fs.readdirSync(postsDir).forEach((file) => {
@@ -12,36 +13,23 @@ fs.readdirSync(postsDir).forEach((file) => {
   const filePath = path.join(postsDir, file);
   let content = fs.readFileSync(filePath, "utf8");
 
-  // Skip if already wrapped
+  // Skip if already wrapped in full HTML
   if (content.includes("<!DOCTYPE html>")) return;
 
-  const h1Match = content.match(/<h1>(.*?)<\/h1>/);
+  // Extract metadata
+  const h1Match = content.match(/<h1>(.*?)<\/h1>/i);
   const title = h1Match ? h1Match[1].trim() : file.replace(".html", "");
 
   const descMatch = content.match(/<!--\s*Meta Description:\s*(.*?)\s*-->/i);
   const description = descMatch ? descMatch[1].trim() : `Read about ${title}.`;
 
-  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/);
-  const keywords = keywordMatch ? keywordMatch[1] : "";
+  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/i);
+  const keywords = keywordMatch ? keywordMatch[1] : "MaxClickEmpire, templates, guides";
 
   const filename = path.basename(file, ".html");
   const isoDate = new Date().toISOString();
 
-  // ✅ IMPROVEMENTS:
-  // 1. Add loading="lazy" to all images
-  content = content.replace(/<img\s+([^>]*?)>/g, (match, attrs) => {
-    // Avoid duplicates
-    if (attrs.includes("loading=")) return `<img ${attrs}>`;
-    return `<img ${attrs} loading="lazy">`;
-  });
-
-  // 2. Wrap images in div with class for CLS stability
-  content = content.replace(/<img[^>]*>/g, (imgTag) => {
-    return `<div class="image-wrapper">${imgTag}</div>`;
-  });
-
-  // 3. Optional: Add width/height to img if known (skip for now unless you know dimensions)
-
+  // Replace placeholders in template
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
@@ -50,6 +38,7 @@ fs.readdirSync(postsDir).forEach((file) => {
     .replace(/{{DATE}}/g, isoDate)
     .replace(/{{CONTENT}}/g, content.trim());
 
+  // Save final HTML file
   fs.writeFileSync(filePath, finalHtml, "utf8");
   console.log(`✅ Wrapped: ${file}`);
 });
