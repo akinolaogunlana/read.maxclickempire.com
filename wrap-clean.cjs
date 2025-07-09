@@ -1,45 +1,89 @@
 const fs = require('fs');
 const path = require('path');
-const { JSDOM } = require('jsdom');
 
 const postsDir = path.join(__dirname, 'posts');
-const outputDir = path.join(__dirname, 'dist');
-const templatePath = path.join(__dirname, 'template.html');
 
-// Ensure output directory exists
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+fs.readdirSync(postsDir).forEach(file => {
+  if (!file.endsWith('.html')) return;
 
-// Load the wrapper template
-let template = fs.readFileSync(templatePath, 'utf8');
+  const filePath = path.join(postsDir, file);
+  let html = fs.readFileSync(filePath, 'utf-8');
 
-// Get all HTML files in posts/
-const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.html'));
+  // 🧹 1. Remove duplicate JSON-LD scripts (keep first)
+  const ldJsonRegex = /<script type="application\/ld\+json">[\s\S]*?<\/script>/gi;
+  const ldMatches = html.match(ldJsonRegex);
+  if (ldMatches && ldMatches.length > 1) {
+    html = html.replace(ldJsonRegex, (_, offset) => {
+      const first = ldMatches.shift();
+      return first; // keep first only
+    });
+  }
 
-files.forEach(file => {
-  const filepath = path.join(postsDir, file);
-  const rawHTML = fs.readFileSync(filepath, 'utf8');
-  const dom = new JSDOM(rawHTML);
-  const document = dom.window.document;
+  // 🧹 2. Remove junk <script> with console.log or debugger
+  html = html.replace(/<script[^>]*>[\s\S]*?(console\.log|debugger|alert)[\s\S]*?<\/script>/gi, '');
 
-  // Extract meaningful fields
-  const title = document.querySelector('title')?.textContent || 'Untitled';
-  const description = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
-  const content = document.body.innerHTML || '';
-  const date = new Date().toISOString();
-  const filename = path.parse(file).name;
+  // 🧹 3. Remove empty or duplicated <meta>
+  html = html.replace(/<meta name="keywords" content="\s*"\s*\/?>/gi, '');
+  html = html.replace(/<meta[^>]+name="(description|author|keywords)"[^>]*>\s*(?=<meta[^>]+name="\1")/gi, '');
 
-  // Remove duplicate structured data scripts
-  document.querySelectorAll('script[type="application/ld+json"]').forEach(el => el.remove());
+  // 🧹 4. Fix duplicate html/head/body
+  ['html', 'head', 'body'].forEach(tag => {
+    const openRegex = new RegExp(`<${tag}[^>]*>`, 'gi');
+    const closeRegex = new RegExp(`</${tag}>`, 'gi');
 
-  // Replace placeholders in the template
-  const finalHTML = template
-    .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{CONTENT}}/g, content)
-    .replace(/{{DATE}}/g, date)
-    .replace(/{{FILENAME}}/g, filename);
+    const openTags = html.match(openRegex);
+    const closeTags = html.match(closeRegex);
 
-  // Write cleaned file to dist/
-  fs.writeFileSync(path.join(outputDir, file), finalHTML, 'utf8');
-  console.log(`✅ Wrapped and cleaned: ${file}`);
+    if (openTags && openTags.length > 1) {
+      let count = 0;
+      html = html.replace(openRegex, match => ++count === 1 ? match : '');
+    }
+
+    if (closeTags && closeTags.length > 1) {
+      let count = 0;
+      html = html.replace(closeRegex, match => ++count === 1 ? match : '');
+    }
+  });
+
+  // 🧹 5. Fix unclosed article
+  if (!html.includes('</article>') && html.includes('<article')) {
+    html = html.replace(/<\/main>\s*<\/body>/i, '</article></main></body>');
+  }
+
+  // 🧹 6. Ensure correct DOCTYPE and structure
+  if (!html.startsWith('<!DOCTYPE html>')) {
+    html = '<!DOCTYPE html>\n' + html;
+  }
+
+  // 🧹 7. Ensure <html>, <head>, <body> are in correct order
+  const headMatch = html.match(/<head[\s\S]*?<\/head>/i);
+  const bodyMatch = html.match(/<body[\s\S]*?<\/body>/i);
+
+  let newHead = headMatch ? headMatch[0] : '<head></head>';
+  let newBody = bodyMatch ? bodyMatch[0] : '<body></body>';
+
+  const finalHTML = `
+<!DOCTYPE html>
+<html lang="en">
+${newHead}
+${newBody}
+</html>
+`.trim();
+
+  // 🧼 Optional: Extract article and insert in body
+  const articleMatch = html.match(/<article[\s\S]*?<\/article>/i);
+  if (articleMatch) {
+    newBody = `<body>\n  ${articleMatch[0]}\n</body>`;
+  }
+
+  const cleanedHTML = `
+<!DOCTYPE html>
+<html lang="en">
+${newHead}
+${newBody}
+</html>
+`.replace(/\n{3,}/g, '\n\n'); // tidy blank lines
+
+  fs.writeFileSync(filePath, cleanedHTML);
+  console.log(`✅ Cleaned & corrected: ${file}`);
 });
