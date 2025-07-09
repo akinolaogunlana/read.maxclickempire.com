@@ -10,11 +10,13 @@
   <meta name="author" content="Ogunlana Akinola Okikiola" />
   <link rel="canonical" href="https://read.maxclickempire.com/posts/{{FILENAME}}.html" />
 
-  <!-- Preload Fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"></noscript>
+  <!-- Preload fonts to reduce CLS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet';" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"></noscript>
 
-  <!-- Structured Data -->
+  <!-- Structured Data for SEO -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -45,80 +47,119 @@
   }
   </script>
 
-  <!-- CSS Optimization -->
   <style>
     :root {
-      --font-main: 'Inter', sans-serif;
-      --color-text: #0a0a23;
-      --color-accent: #0f62fe;
-      --color-bg: #ffffff;
-      --color-muted: #666;
-      --max-width: 960px;
+      --primary: #0a0a23;
+      --accent: #0f62fe;
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: 'Inter', sans-serif;
+      font-display: swap;
     }
 
     body {
-      font-family: var(--font-main);
-      background: #f9fafc;
-      color: var(--color-text);
-      margin: 0 auto;
-      max-width: var(--max-width);
-      padding: 1.5rem;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      color: var(--text);
       line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
-    h1, h2, h3 {
-      color: var(--color-accent);
-      font-weight: 700;
-    }
-
-    article img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-    }
-
-    a {
-      color: var(--color-accent);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
+    main {
+      max-width: 800px;
+      width: 100%;
+      margin: auto;
+      padding: 2rem 1rem;
+      flex: 1 0 auto;
     }
 
     article {
-      background: var(--color-bg);
+      background: var(--bg);
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      min-height: 80vh;
+    }
+
+    nav {
+      margin-bottom: 2rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 1.5rem 0;
+    }
+
+    h1, h2, h3 {
+      color: var(--accent);
+      line-height: 1.2;
     }
 
     footer {
-      margin-top: 3rem;
-      padding-top: 1rem;
-      font-size: 0.85rem;
       text-align: center;
-      color: var(--color-muted);
-      border-top: 1px solid #ddd;
+      padding: 1rem;
+      font-size: 0.9rem;
+      background: #f1f5f9;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
-
 <body>
 
-<article>
-  {{CONTENT}}
-</article>
+  <main>
+    <nav>
+      <a href="https://read.maxclickempire.com/">← Back to Home</a>
+    </nav>
 
-<footer>
-  <p>© 2025 MaxClickEmpire. All rights reserved.</p>
-  <p><a href="https://read.maxclickempire.com/">Back to Home</a></p>
-</footer>
+    <article>
+      {{CONTENT}}
+    </article>
+  </main>
 
-<!-- Scripts -->
-<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
-<script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
+  <footer>
+    &copy; {{DATE_YEAR}} MaxClickEmpire. All rights reserved.
+    &bull;
+    <a href="https://read.maxclickempire.com/about.html">About</a>
+    <a href="https://read.maxclickempire.com/contact.html">Contact</a>
+  </footer>
+
+  <!-- Deferred scripts -->
+  <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
+  <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
 
 </body>
 </html>
