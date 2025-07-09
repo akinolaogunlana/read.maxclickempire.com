@@ -7,11 +7,11 @@ on:
       - 'scripts/internal-linker.cjs'
       - 'seo-ecosystem-generator.cjs'
       - 'scripts/fix-post-meta.cjs'
-      - 'wrap-clean.cjs'
+      - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
   schedule:
-    - cron: '0 3 * * *'  # ⏰ Every day at 3:00 AM UTC
+    - cron: '0 3 * * *'  # Every day at 3:00 AM UTC
   workflow_dispatch:
 
 jobs:
@@ -33,10 +33,15 @@ jobs:
             echo "⚙️ No package.json found, initializing..."
             npm init -y
           fi
-          npm install axios googleapis xmlbuilder2 html-minifier cheerio
+          npm install xmlbuilder2@^3.0.2 googleapis axios cheerio --save
 
-      - name: 🧩 Wrap + Clean Raw Posts with SEO Template
-        run: node wrap-clean.cjs
+      - name: 🧩 Wrap Raw Posts with SEO Template (to dist/)
+        run: node wrap-with-template.js
+
+      - name: 🧹 Sync dist/ cleaned posts to posts/
+        run: |
+          mkdir -p posts
+          rsync -a --delete dist/ posts/
 
       - name: 🔍 Check for Google Secret
         run: |
@@ -88,7 +93,7 @@ jobs:
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger dist/*.html || true
+          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger posts/*.html || true
           git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"
           git push || echo "No changes to push"
 
@@ -96,7 +101,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./  # Full repo
           exclude_assets: |
             credentials.json
             .github
@@ -114,9 +119,9 @@ jobs:
           from: MaxClickEmpire Bot <your@email.com>
           body: |
             🚀 SEO Automation Summary:
-            - Posts cleaned & wrapped with template
-            - Duplicate JSON-LD removed
+            - Posts cleaned, SEO-wrapped
+            - Internal links added
             - Sitemap + RSS updated
-            - Metadata map generated
-            - Google Indexing submitted
+            - Metadata generated
+            - Google Indexing + IndexNow submitted
             - GitHub Pages deployed
