@@ -1,0 +1,26 @@
+{
+  "name": "supreme-seo-ecosystem",
+  "version": "1.2.0",
+  "description": "Automated SEO system for MaxClickEmpire with smart internal linking, Google Indexing, JSON-LD cleaning, and templating.",
+  "main": "seo-ecosystem-generator.cjs",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node seo-ecosystem-generator.cjs",
+    "submit": "node submit-to-indexing-api.js",
+    "link": "node scripts/internal-linker.cjs",
+    "fix-meta": "node scripts/fix-post-meta.cjs",
+    "wrap": "node scripts/wrap-clean.cjs"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "cheerio": "^1.1.0",
+    "googleapis": "^133.0.0",
+    "html-minifier": "^4.0.0",
+    "jsdom": "^24.0.0",
+    "keyword-extractor": "^0.0.22",
+    "natural": "^6.5.0",
+    "xmlbuilder2": "^3.1.1"
+  },
+  "author": "MaxClickEmpire Bot",
+  "license": "MIT"
+}
