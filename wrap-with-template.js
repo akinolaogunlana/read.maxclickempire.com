@@ -2,55 +2,77 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+// Paths
 const postsDir = path.join(__dirname, 'posts');
 const outputDir = path.join(__dirname, 'dist');
-const template = fs.readFileSync('template.html', 'utf8');
+const templateHtml = fs.readFileSync('template.html', 'utf8');
 
 // Ensure output folder exists
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir);
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+
+function parseJsonSafely(content) {
+  try {
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
 }
 
-function cleanAndWrapPost(postHtml, template) {
-  const dom = new JSDOM(postHtml);
-  const document = dom.window.document;
+function isSameJSON(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
 
-  // Remove duplicate JSON-LD scripts
+function removeDuplicateJSONLD(document) {
   const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+  const seen = [];
 
-  let foundFirst = false;
   scripts.forEach(script => {
-    const content = script.textContent;
-    if (!foundFirst && content.includes('"@type": "BlogPosting"')) {
-      foundFirst = true;
+    const json = parseJsonSafely(script.textContent);
+    if (!json) {
+      script.remove(); // remove broken JSON
+      return;
+    }
+
+    const alreadyExists = seen.some(existing => isSameJSON(existing, json));
+    if (alreadyExists) {
+      script.remove();
     } else {
-      script.remove(); // Remove duplicates
+      seen.push(json);
     }
   });
-
-  // Return new HTML
-  const cleanedHtml = document.documentElement.outerHTML;
-  const wrapped = template.replace('<!--CONTENT-->', cleanedHtml);
-  return minifyHtml(wrapped);
 }
 
-function minifyHtml(html) {
-  return html
+function cleanAndWrap(htmlContent) {
+  const dom = new JSDOM(htmlContent);
+  const document = dom.window.document;
+
+  // Remove duplicate structured data
+  removeDuplicateJSONLD(document);
+
+  // Get the cleaned HTML
+  const cleanedHtml = document.documentElement.outerHTML;
+
+  // Wrap in template
+  const wrapped = templateHtml.replace('<!--CONTENT-->', cleanedHtml);
+
+  // Minify
+  return wrapped
     .replace(/\n/g, '')
     .replace(/\s{2,}/g, ' ')
     .replace(/>\s+</g, '><')
     .trim();
 }
 
+// Process each HTML file
 fs.readdirSync(postsDir).forEach(file => {
-  if (file.endsWith('.html')) {
-    const inputPath = path.join(postsDir, file);
-    const outputPath = path.join(outputDir, file);
+  if (!file.endsWith('.html')) return;
 
-    const postHtml = fs.readFileSync(inputPath, 'utf8');
-    const finalOutput = cleanAndWrapPost(postHtml, template);
+  const inputPath = path.join(postsDir, file);
+  const outputPath = path.join(outputDir, file);
+  const content = fs.readFileSync(inputPath, 'utf8');
 
-    fs.writeFileSync(outputPath, finalOutput, 'utf8');
-    console.log(`✅ Processed: ${file}`);
-  }
+  const finalHtml = cleanAndWrap(content);
+  fs.writeFileSync(outputPath, finalHtml, 'utf8');
+
+  console.log(`✅ Cleaned & wrapped: ${file}`);
 });
