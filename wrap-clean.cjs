@@ -1,5 +1,3 @@
-// ✅ Supreme Wrap-Clean Engine (MaxClickEmpire)
-
 #!/usr/bin/env node
 
 const fs = require("fs");
