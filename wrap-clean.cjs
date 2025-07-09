@@ -1,70 +1,42 @@
-// ✅ MaxClickEmpire Wrap Clean Script
-const fs = require("fs");
-const path = require("path");
+// ✅ Supreme Wrap-Clean Engine (MaxClickEmpire)
 
-const postsDir = path.join(__dirname, "posts");
+const fs = require("fs"); const path = require("path"); const cheerio = require("cheerio"); const htmlMinifier = require("html-minifier").minify;
 
-const files = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+const RAW_DIR = path.join(__dirname, "posts"); const DIST_DIR = path.join(__dirname, "dist"); const TEMPLATE_PATH = path.join(__dirname, "template.html"); const cache = new Set();
 
-files.forEach(file => {
-  const filePath = path.join(postsDir, file);
-  let html = fs.readFileSync(filePath, "utf8");
+const TEMPLATE_HTML = fs.readFileSync(TEMPLATE_PATH, "utf8");
 
-  // --- Step 1: Clean up duplicate JSON-LD BlogPosting blocks ---
-  const blogPostingRegex = /<script[^>]*type="application\/ld\+json">[\s\S]*?"@type"\s*:\s*"BlogPosting"[\s\S]*?<\/script>/gi;
-  const matches = [...html.matchAll(blogPostingRegex)];
+if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR);
 
-  if (matches.length > 1) {
-    html = html.replace(blogPostingRegex, '');
-    html = html.replace("</head>", `${matches[0][0]}\n</head>`);
-  }
+function normalizeSlug(title) { return title.toLowerCase() .replace(/[^a-z0-9]+/g, '-') .replace(/(^-|-$)/g, ''); }
 
-  // --- Step 2: Remove duplicate canonical link ---
-  const canonicalRegex = /<link[^>]+rel="canonical"[^>]*>/gi;
-  const canonicalMatches = html.match(canonicalRegex);
-  if (canonicalMatches && canonicalMatches.length > 1) {
-    html = html.replace(canonicalRegex, '');
-    html = html.replace("</head>", `${canonicalMatches[0]}\n</head>`);
-  }
+function isValidHTML($) { return $("title").length > 0 && $("meta[name='description']").length > 0 && $("article").length > 0; }
 
-  // --- Step 3: Remove duplicate <title> ---
-  const titleMatches = html.match(/<title>.*?<\/title>/gi);
-  if (titleMatches && titleMatches.length > 1) {
-    html = html.replace(/<title>.*?<\/title>/gi, '');
-    html = html.replace("</head>", `${titleMatches[0]}\n</head>`);
-  }
+function extractSlugDateSafe(title, date) { const base = normalizeSlug(title); const d = new Date(date).toISOString().slice(0, 10); return ${base}-${d}; }
 
-  // --- Step 4: Remove duplicate <meta name="description"> ---
-  const descMatches = html.match(/<meta\s+name="description"[^>]*>/gi);
-  if (descMatches && descMatches.length > 1) {
-    html = html.replace(/<meta\s+name="description"[^>]*>/gi, '');
-    html = html.replace("</head>", `${descMatches[0]}\n</head>`);
-  }
+function cleanHTML(rawHtml, fileName) { const $ = cheerio.load(rawHtml);
 
-  // --- Step 5: Remove exact duplicate enhancer + meta script blocks ---
-  const metaScriptRegex = /<script\s+src="[^"]*post-meta\.js"[^>]*><\/script>/gi;
-  const enhancerScriptRegex = /<script\s+src="[^"]*seo-enhancer\.js"[^>]*><\/script>/gi;
+// Try to fix missing or invalid structure let title = $("title").text() || $("h1").first().text() || fileName.replace(/.html$/, ""); let desc = $("meta[name='description']").attr("content") || $("p").first().text().slice(0, 160).replace(/\n/g, " ").trim(); let pubDate = $("[datetime]").attr("datetime") || new Date().toISOString();
 
-  const keepMeta = (html.match(metaScriptRegex) || [])[0] || '';
-  const keepEnhancer = (html.match(enhancerScriptRegex) || [])[0] || '';
+const slugKey = extractSlugDateSafe(title, pubDate); if (cache.has(slugKey)) return null; // Duplicate cache.add(slugKey);
 
-  html = html.replace(metaScriptRegex, '');
-  html = html.replace(enhancerScriptRegex, '');
-  html = html.replace("</body>", `${keepMeta}\n${keepEnhancer}\n</body>`);
+// Remove existing scripts and JSON-LD blocks $("script[type='application/ld+json']").remove(); $("script[src*='post-meta.js']").remove(); $("script[src*='seo-enhancer.js']").remove();
 
-  // --- Step 6: Sanity cleanup of HTML structure ---
-  html = html.replace(/<\/html>[\s\S]*?$/, "</html>");
-  html = html.replace(/<html[^>]*>/gi, "<html lang=\"en\">");
-  html = html.replace(/<head>[\s\S]*?<head>/gi, "<head>"); // double heads
-  html = html.replace(/<body>[\s\S]*?<body>/gi, "<body>"); // double bodies
-  html = html.replace(/<\/head>[\s\S]*?<\/head>/gi, match => {
-    const headContents = match.match(/<head>([\s\S]*?)<\/head>/i);
-    return headContents ? `<head>${headContents[1]}</head>` : match;
-  });
+// Inject into template const content = $("article").html() || $("body").html(); const $template = cheerio.load(TEMPLATE_HTML);
 
-  // Optional: remove empty lines and clean spacing
-  html = html.replace(/^\s*[\r\n]/gm, "");
+$template("title").text(title); $template("meta[name='description']").attr("content", desc); $template("article").html(content);
 
-  fs.writeFileSync(filePath, html, "utf8");
-  console.log(`✅ Cleaned: ${file}`);
-});
+// Add canonical link const canonical = https://read.maxclickempire.com/posts/${fileName}; $template("head").append(<link rel=\"canonical\" href=\"${canonical}\">);
+
+// Add enhancer and meta script $template("body").append(<script src='/data/post-meta.js' defer></script>); $template("body").append(<script src='/assets/seo-enhancer.js' defer></script>);
+
+// Add JSON-LD schema const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headline: title, description: desc, url: canonical, datePublished: pubDate, dateModified: new Date().toISOString(), author: { "@type": "Organization", name: "MaxClickEmpire" }, publisher: { "@type": "Organization", name: "MaxClickEmpire", logo: { "@type": "ImageObject", url: "https://read.maxclickempire.com/assets/og-image.jpg" } }, mainEntityOfPage: canonical }; $template("head").append(<script type='application/ld+json'>${JSON.stringify(jsonLd)}</script>);
+
+// Final cleanup & minify return htmlMinifier($template.html(), { collapseWhitespace: true, removeComments: true, minifyCSS: true, minifyJS: true, removeEmptyElements: false }); }
+
+fs.readdirSync(RAW_DIR).forEach(file => { if (!file.endsWith(".html")) return; const rawPath = path.join(RAW_DIR, file); const rawHtml = fs.readFileSync(rawPath, "utf8");
+
+const cleaned = cleanHTML(rawHtml, file); if (!cleaned) { console.log(🟡 Skipped duplicate or invalid: ${file}); return; }
+
+const outputPath = path.join(DIST_DIR, file); fs.writeFileSync(outputPath, cleaned, "utf8"); console.log(✅ Cleaned & wrapped: ${file}); });
+
