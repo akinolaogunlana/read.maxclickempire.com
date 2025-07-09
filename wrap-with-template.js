@@ -1,40 +1,35 @@
 const fs = require("fs");
 const path = require("path");
 
-// === CONFIG ===
 const postsDir = path.join(__dirname, "posts");
 const templatePath = path.join(__dirname, "template.html");
 const template = fs.readFileSync(templatePath, "utf8");
 
-// === Helper: Check if already wrapped ===
 function isWrapped(content) {
   return content.includes("<!DOCTYPE html>") && content.includes("</html>");
 }
 
-// === Helper: Clean old structure ===
 function cleanContent(content) {
   // Remove all <script type="application/ld+json"> blocks
   content = content.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, "");
 
-  // Remove any doctype, html, head, or body tags
+  // Remove leftover html/head/body/doc type
   content = content.replace(/<\/?(html|head|body|!DOCTYPE)[^>]*>/gi, "");
 
-  // Strip excessive comments except Meta Description
+  // Keep only meta description comment
   content = content.replace(/<!--(?!\s*Meta Description).*?-->/gs, "");
 
   return content.trim();
 }
 
-// === Helper: Minify final HTML ===
 function minifyHTML(html) {
   return html
-    .replace(/>\s+</g, '><')                  // Remove whitespace between tags
-    .replace(/\s{2,}/g, ' ')                  // Collapse multiple spaces
-    .replace(/\n+/g, '')                      // Remove newlines
-    .replace(/<!--(?!\[if).*?-->/g, '');      // Remove non-conditional comments
+    .replace(/>\s+</g, '><')      // Remove space between tags
+    .replace(/\s{2,}/g, ' ')      // Collapse multiple spaces
+    .replace(/\n+/g, '')          // Remove newlines
+    .replace(/<!--.*?-->/g, '');  // Remove all comments
 }
 
-// === Process files ===
 fs.readdirSync(postsDir).forEach((file) => {
   if (!file.endsWith(".html")) return;
 
@@ -42,12 +37,14 @@ fs.readdirSync(postsDir).forEach((file) => {
   let content = fs.readFileSync(filePath, "utf8");
 
   if (isWrapped(content)) {
-    console.log(`⏭️  Skipping: ${file}`);
+    console.log(`⏭️  Already wrapped: ${file}`);
     return;
   }
 
-  // Clean and extract
+  // Clean malformed structures and duplicated scripts
   content = cleanContent(content);
+
+  // Metadata extraction
   const h1Match = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
   const title = h1Match ? h1Match[1].trim() : file.replace(".html", "");
 
@@ -60,7 +57,7 @@ fs.readdirSync(postsDir).forEach((file) => {
   const filename = path.basename(file, ".html");
   const isoDate = new Date().toISOString();
 
-  // Inject and compress
+  // Inject and minify
   const finalHtmlRaw = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
@@ -69,9 +66,8 @@ fs.readdirSync(postsDir).forEach((file) => {
     .replace(/{{DATE}}/g, isoDate)
     .replace(/{{CONTENT}}/g, content);
 
-  const compressedHtml = minifyHTML(finalHtmlRaw);
+  const finalCompressed = minifyHTML(finalHtmlRaw);
+  fs.writeFileSync(filePath, finalCompressed, "utf8");
 
-  // Save final file
-  fs.writeFileSync(filePath, compressedHtml, "utf8");
   console.log(`✅ Wrapped, cleaned & compressed: ${file}`);
 });
