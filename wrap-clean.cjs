@@ -1,80 +1,45 @@
 const fs = require('fs');
 const path = require('path');
-const { minify } = require('html-minifier');
-const cheerio = require('cheerio');
+const { JSDOM } = require('jsdom');
 
-// === CONFIG ===
-const TEMPLATE_PATH = './template.html';
-const POSTS_DIR = './posts/';
-const DIST_DIR = './dist/';
+const postsDir = path.join(__dirname, 'posts');
+const outputDir = path.join(__dirname, 'dist');
+const templatePath = path.join(__dirname, 'template.html');
 
-// === Ensure dist folder exists ===
-if (!fs.existsSync(DIST_DIR)) {
-  fs.mkdirSync(DIST_DIR);
-}
+// Ensure output directory exists
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-// === Function to remove duplicate BlogPosting JSON-LD ===
-function removeDuplicateJSONLD(html) {
-  const $ = cheerio.load(html);
+// Load the wrapper template
+let template = fs.readFileSync(templatePath, 'utf8');
 
-  let foundFirst = false;
-
-  $('script[type="application/ld+json"]').each((i, el) => {
-    try {
-      const json = JSON.parse($(el).html());
-      if (json['@type'] === 'BlogPosting') {
-        if (!foundFirst) {
-          foundFirst = true;
-        } else {
-          $(el).remove(); // Remove duplicate BlogPosting JSON-LD
-        }
-      }
-    } catch (e) {
-      // Leave invalid JSON-LD alone
-    }
-  });
-
-  return $.html();
-}
-
-// === Function to insert post HTML into the template ===
-function wrapWithTemplate(templateHtml, postHtml) {
-  return templateHtml.replace('<!--CONTENT-->', postHtml);
-}
-
-// === Function to minify HTML ===
-function minifyHtml(html) {
-  return minify(html, {
-    collapseWhitespace: true,
-    removeComments: true,
-    removeRedundantAttributes: true,
-    removeEmptyAttributes: true,
-    minifyJS: true,
-    minifyCSS: true,
-  });
-}
-
-// === Main Script ===
-const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.html'));
+// Get all HTML files in posts/
+const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.html'));
 
 files.forEach(file => {
-  const postPath = path.join(POSTS_DIR, file);
-  const postHtml = fs.readFileSync(postPath, 'utf8');
+  const filepath = path.join(postsDir, file);
+  const rawHTML = fs.readFileSync(filepath, 'utf8');
+  const dom = new JSDOM(rawHTML);
+  const document = dom.window.document;
 
-  // Insert post into template
-  let wrappedHtml = wrapWithTemplate(template, postHtml);
+  // Extract meaningful fields
+  const title = document.querySelector('title')?.textContent || 'Untitled';
+  const description = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+  const content = document.body.innerHTML || '';
+  const date = new Date().toISOString();
+  const filename = path.parse(file).name;
 
-  // Remove duplicate JSON-LD
-  let cleanedHtml = removeDuplicateJSONLD(wrappedHtml);
+  // Remove duplicate structured data scripts
+  document.querySelectorAll('script[type="application/ld+json"]').forEach(el => el.remove());
 
-  // Minify
-  let finalHtml = minifyHtml(cleanedHtml);
+  // Replace placeholders in the template
+  const finalHTML = template
+    .replace(/{{TITLE}}/g, title)
+    .replace(/{{DESCRIPTION}}/g, description)
+    .replace(/{{CONTENT}}/g, content)
+    .replace(/{{DATE}}/g, date)
+    .replace(/{{FILENAME}}/g, filename);
 
-  // Save to dist/
-  const outputPath = path.join(DIST_DIR, file);
-  fs.writeFileSync(outputPath, finalHtml, 'utf8');
-  console.log(`✅ Cleaned: ${file}`);
+  // Write cleaned file to dist/
+  fs.writeFileSync(path.join(outputDir, file), finalHTML, 'utf8');
+  console.log(`✅ Wrapped and cleaned: ${file}`);
 });
-
-console.log('\n🎉 All posts wrapped, cleaned, and saved to /dist');
