@@ -1,52 +1,51 @@
+// ✅ MaxClickEmpire Post Wrapper — Now using 'posts/' as input/output
 const fs = require("fs");
 const path = require("path");
 
-// Template HTML wrapper file (with placeholders like {{TITLE}}, {{CONTENT}}, etc.)
-const templatePath = path.join(__dirname, "template.html");
-const contentDir = path.join(__dirname, "raw");
-const outputDir = path.join(__dirname, "dist");
+const TEMPLATE_PATH = path.join(__dirname, "template.html"); // Your SEO template
+const POSTS_DIR = path.join(__dirname, "posts"); // Raw and output directory
 
-// Ensure output folder exists
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
+// Check if template.html exists
+if (!fs.existsSync(TEMPLATE_PATH)) {
+  console.error("❌ template.html not found!");
+  process.exit(1);
 }
 
-// Read the base HTML template
-const template = fs.readFileSync(templatePath, "utf8");
-
-// Utility: create a clean filename slug
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+// Check if posts directory exists
+if (!fs.existsSync(POSTS_DIR)) {
+  console.error("❌ posts/ directory not found!");
+  process.exit(1);
 }
 
-// Wrap each file in /raw with the template
-fs.readdirSync(contentDir).forEach((file) => {
+const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
+
+function sanitize(text) {
+  return text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+}
+
+fs.readdirSync(POSTS_DIR).forEach(file => {
   if (!file.endsWith(".html")) return;
 
-  const rawContent = fs.readFileSync(path.join(contentDir, file), "utf8");
+  const filePath = path.join(POSTS_DIR, file);
+  let html = fs.readFileSync(filePath, "utf8");
 
-  // Try to extract metadata
-  const title = (rawContent.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || "Untitled Post";
-  const description =
-    (rawContent.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1] ||
-    "Post from MaxClickEmpire";
-  const date = new Date().toISOString().split("T")[0];
-  const slug = slugify(title);
-  const filename = slug;
+  // Extract core info
+  const title = (html.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || "Untitled Post";
+  const description = (html.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1] || "A helpful resource from MaxClickEmpire.";
+  const dateMatch = html.match(/datetime="([^"]+)"/i);
+  const date = dateMatch ? dateMatch[1] : new Date().toISOString();
+  const slug = file.replace(/\.html$/, "");
 
-  const finalHtml = template
-    .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, title.split(" ").join(", "))
+  // Replace placeholders
+  const wrapped = template
+    .replace(/{{TITLE}}/g, sanitize(title))
+    .replace(/{{DESCRIPTION}}/g, sanitize(description))
+    .replace(/{{CONTENT}}/g, html)
+    .replace(/{{FILENAME}}/g, slug)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{CONTENT}}/g, rawContent);
+    .replace(/{{KEYWORDS}}/g, sanitize(title.toLowerCase().replace(/\W+/g, ", ")));
 
-  fs.writeFileSync(path.join(outputDir, `${filename}.html`), finalHtml, "utf8");
-  console.log(`✅ Wrapped ${file} as ${filename}.html`);
+  // Save wrapped version
+  fs.writeFileSync(filePath, wrapped, "utf8");
+  console.log(`✅ Wrapped: ${file}`);
 });
