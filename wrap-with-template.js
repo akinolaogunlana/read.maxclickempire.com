@@ -1,71 +1,60 @@
 const fs = require('fs');
 const path = require('path');
 
-// === Paths ===
-const TEMPLATE_PATH = './template.html';
-const POSTS_DIR = './posts';
-const OUTPUT_DIR = './dist';
+// === SETTINGS ===
+const postsDir = path.join(__dirname, 'posts');
+const distDir = path.join(__dirname, 'dist');
+const templatePath = path.join(__dirname, 'template.html');
 
-// === Ensure Output Directory Exists ===
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR);
+// === Ensure dist folder exists ===
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir);
 }
 
-// === Load Template ===
-const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
+// === Load template file ===
+const template = fs.readFileSync(templatePath, 'utf8');
 
-// === Remove Duplicate JSON-LD Scripts ===
+// === Remove duplicate BlogPosting JSON-LD scripts ===
 function removeDuplicateJSONLD(html) {
-  const jsonldRegex = /<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
-  let firstBlogPostingKept = false;
+  const jsonldRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
+  let firstFound = false;
 
   return html.replace(jsonldRegex, (match, content) => {
-    try {
-      const data = JSON.parse(content);
-      if (data['@type'] === 'BlogPosting') {
-        if (firstBlogPostingKept) return ''; // remove duplicate
-        firstBlogPostingKept = true;
-        return match; // keep first valid
-      }
-    } catch (e) {
-      // If JSON parsing fails, keep the script tag just in case
+    if (!firstFound && content.includes('"@type": "BlogPosting"')) {
+      firstFound = true;
       return match;
     }
-    return match; // non-BlogPosting, keep
+    return '';
   });
 }
 
-// === Basic Minifier ===
+// === Minify HTML ===
 function minifyHTML(html) {
   return html
-    .replace(/<!--[\s\S]*?-->/g, '')     // remove comments
-    .replace(/\n+/g, '')                 // remove new lines
-    .replace(/\s{2,}/g, ' ')             // collapse spaces
-    .replace(/>\s+</g, '><')             // trim tag spacing
+    .replace(/\n/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/>\s+</g, '><') // Remove space between tags
     .trim();
 }
 
-// === Main Function ===
-fs.readdirSync(POSTS_DIR).forEach(file => {
-  if (path.extname(file) !== '.html') return;
+// === Process each post ===
+fs.readdirSync(postsDir).forEach(file => {
+  if (file.endsWith('.html')) {
+    const filePath = path.join(postsDir, file);
+    const rawHtml = fs.readFileSync(filePath, 'utf8');
 
-  const postPath = path.join(POSTS_DIR, file);
-  const postHtml = fs.readFileSync(postPath, 'utf8');
+    // Clean JSON-LD
+    const cleanedHtml = removeDuplicateJSONLD(rawHtml);
 
-  // Step 1: Clean duplicate JSON-LD
-  const cleanedHtml = removeDuplicateJSONLD(postHtml);
+    // Inject into template
+    const wrappedHtml = template.replace('{{content}}', cleanedHtml);
 
-  // Step 2: Inject into template
-  const wrappedHtml = template.replace('{{content}}', cleanedHtml);
+    // Minify
+    const finalHtml = minifyHTML(wrappedHtml);
 
-  // Step 3: Clean duplicates again if template adds any
-  const finalClean = removeDuplicateJSONLD(wrappedHtml);
-
-  // Step 4: Minify
-  const minified = minifyHTML(finalClean);
-
-  // Step 5: Save to dist/
-  const outputPath = path.join(OUTPUT_DIR, file);
-  fs.writeFileSync(outputPath, minified, 'utf8');
-  console.log(`✅ Cleaned & wrapped: ${file}`);
+    // Write to dist
+    const outputPath = path.join(distDir, file);
+    fs.writeFileSync(outputPath, finalHtml, 'utf8');
+    console.log(`✅ Processed and saved: ${file}`);
+  }
 });
