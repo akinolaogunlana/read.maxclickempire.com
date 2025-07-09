@@ -3,43 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="Ogunlana Akinola Okikiola" />
   <link rel="canonical" href="https://read.maxclickempire.com/posts/{{FILENAME}}.html" />
 
-  <!-- Prevent layout shifts -->
+  <!-- CLS Prevention (Minimal) -->
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-    }
-
-    header, footer {
-      background: #f8f8f8;
-      padding: 1rem;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    nav a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: #333;
-    }
-
-    article {
-      max-width: 700px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-
     img {
       max-width: 100%;
       height: auto;
+      display: block;
+    }
+    article {
+      padding: 0 1rem;
+      max-width: 700px;
+      margin: auto;
     }
   </style>
 
@@ -74,21 +55,9 @@
   </script>
 </head>
 <body>
-
-  <header>
-    <nav>
-      <a href="https://read.maxclickempire.com/">Home</a>
-      <a href="https://read.maxclickempire.com/about.html">About</a>
-    </nav>
-  </header>
-
   <article>
     {{CONTENT}}
   </article>
-
-  <footer>
-    &copy; 2025 MaxClickEmpire. All rights reserved.
-  </footer>
 
   <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
   <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
