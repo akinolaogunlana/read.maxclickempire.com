@@ -1,60 +1,61 @@
 const fs = require('fs');
 const path = require('path');
 
-// === SETTINGS ===
+const template = fs.readFileSync('template.html', 'utf8');
 const postsDir = path.join(__dirname, 'posts');
-const distDir = path.join(__dirname, 'dist');
-const templatePath = path.join(__dirname, 'template.html');
+const outputDir = path.join(__dirname, 'dist');
 
-// === Ensure dist folder exists ===
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir);
+// Ensure the output directory exists
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir);
 }
 
-// === Load template file ===
-const template = fs.readFileSync(templatePath, 'utf8');
-
-// === Remove duplicate BlogPosting JSON-LD scripts ===
 function removeDuplicateJSONLD(html) {
   const jsonldRegex = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
-  let firstFound = false;
 
+  let foundFirst = false;
   return html.replace(jsonldRegex, (match, content) => {
-    if (!firstFound && content.includes('"@type": "BlogPosting"')) {
-      firstFound = true;
-      return match;
+    if (!foundFirst && content.includes('"@type": "BlogPosting"')) {
+      foundFirst = true;
+      return match; // Keep first one
     }
-    return '';
+    return ''; // Remove others
   });
 }
 
-// === Minify HTML ===
-function minifyHTML(html) {
+function minifyHtml(html) {
   return html
-    .replace(/\n/g, '')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/>\s+</g, '><') // Remove space between tags
+    .replace(/\n/g, '')                // Remove newlines
+    .replace(/\s{2,}/g, ' ')           // Collapse multiple spaces
+    .replace(/>\s+</g, '><')           // Remove spaces between tags
     .trim();
 }
 
-// === Process each post ===
-fs.readdirSync(postsDir).forEach(file => {
-  if (file.endsWith('.html')) {
-    const filePath = path.join(postsDir, file);
-    const rawHtml = fs.readFileSync(filePath, 'utf8');
-
-    // Clean JSON-LD
-    const cleanedHtml = removeDuplicateJSONLD(rawHtml);
-
-    // Inject into template
-    const wrappedHtml = template.replace('{{content}}', cleanedHtml);
-
-    // Minify
-    const finalHtml = minifyHTML(wrappedHtml);
-
-    // Write to dist
-    const outputPath = path.join(distDir, file);
-    fs.writeFileSync(outputPath, finalHtml, 'utf8');
-    console.log(`✅ Processed and saved: ${file}`);
+fs.readdir(postsDir, (err, files) => {
+  if (err) {
+    console.error('❌ Error reading posts directory:', err);
+    return;
   }
+
+  files.forEach(file => {
+    if (path.extname(file) === '.html') {
+      const postPath = path.join(postsDir, file);
+      let postContent = fs.readFileSync(postPath, 'utf8');
+
+      // Remove duplicate JSON-LD scripts
+      postContent = removeDuplicateJSONLD(postContent);
+
+      // Inject the post content into the template
+      const finalHtml = template.replace('<!--CONTENT-->', postContent);
+
+      // Optional: Minify the HTML
+      const minified = minifyHtml(finalHtml);
+
+      // Save to /dist
+      const outputFilePath = path.join(outputDir, file);
+      fs.writeFileSync(outputFilePath, minified, 'utf8');
+
+      console.log(`✅ Wrapped and cleaned: ${file}`);
+    }
+  });
 });
