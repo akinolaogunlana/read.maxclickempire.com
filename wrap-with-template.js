@@ -1,73 +1,77 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const postsDir = path.join(__dirname, "posts");
-const templatePath = path.join(__dirname, "template.html");
-const template = fs.readFileSync(templatePath, "utf8");
+const TEMPLATE_PATH = './template.html';
+const POSTS_DIR = './posts';
+const OUTPUT_DIR = './dist';
 
-function isWrapped(content) {
-  return content.includes("<!DOCTYPE html>") && content.includes("</html>");
+// Make sure output directory exists
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR);
 }
 
-function cleanContent(content) {
-  // Remove all <script type="application/ld+json"> blocks
-  content = content.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, "");
+// Load the HTML template
+const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
 
-  // Remove leftover html/head/body/doc type
-  content = content.replace(/<\/?(html|head|body|!DOCTYPE)[^>]*>/gi, "");
+// === UTILITIES ===
 
-  // Keep only meta description comment
-  content = content.replace(/<!--(?!\s*Meta Description).*?-->/gs, "");
+// Remove duplicate <script type="application/ld+json"> with @type = BlogPosting
+function removeDuplicateJSONLD(html) {
+  const jsonldRegex = /<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi;
 
-  return content.trim();
+  let foundBlogPosting = false;
+
+  return html.replace(jsonldRegex, (match, content) => {
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed['@type'] === 'BlogPosting') {
+        if (foundBlogPosting) {
+          return ''; // remove duplicates
+        }
+        foundBlogPosting = true;
+        return match; // keep first
+      }
+      return match; // keep other @types
+    } catch {
+      return match; // invalid JSON? keep safe
+    }
+  });
 }
 
+// Very basic HTML minifier
 function minifyHTML(html) {
   return html
-    .replace(/>\s+</g, '><')      // Remove space between tags
-    .replace(/\s{2,}/g, ' ')      // Collapse multiple spaces
-    .replace(/\n+/g, '')          // Remove newlines
-    .replace(/<!--.*?-->/g, '');  // Remove all comments
+    .replace(/>\s+</g, '><')             // remove whitespace between tags
+    .replace(/\s{2,}/g, ' ')             // collapse spaces
+    .replace(/<!--[\s\S]*?-->/g, '')     // remove HTML comments
+    .replace(/\n/g, '')                  // remove newlines
+    .trim();
 }
 
-fs.readdirSync(postsDir).forEach((file) => {
-  if (!file.endsWith(".html")) return;
+// === MAIN PROCESS ===
 
-  const filePath = path.join(postsDir, file);
-  let content = fs.readFileSync(filePath, "utf8");
+fs.readdirSync(POSTS_DIR).forEach(file => {
+  const filePath = path.join(POSTS_DIR, file);
 
-  if (isWrapped(content)) {
-    console.log(`⏭️  Already wrapped: ${file}`);
-    return;
+  if (path.extname(file) === '.html') {
+    const rawHtml = fs.readFileSync(filePath, 'utf8');
+
+    // Clean duplicates in the post content
+    const cleanedPostHtml = removeDuplicateJSONLD(rawHtml);
+
+    // Wrap inside the template
+    const wrappedHtml = template.replace('{{content}}', cleanedPostHtml);
+
+    // Final duplicate clean-up (in case the template has JSON-LD)
+    const fullyCleaned = removeDuplicateJSONLD(wrappedHtml);
+
+    // Minify the final result
+    const minifiedHtml = minifyHTML(fullyCleaned);
+
+    // Save to output
+    const outputPath = path.join(OUTPUT_DIR, file);
+    fs.writeFileSync(outputPath, minifiedHtml, 'utf8');
+
+    console.log(`✅ Processed: ${file}`);
   }
-
-  // Clean malformed structures and duplicated scripts
-  content = cleanContent(content);
-
-  // Metadata extraction
-  const h1Match = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  const title = h1Match ? h1Match[1].trim() : file.replace(".html", "");
-
-  const descMatch = content.match(/<!--\s*Meta Description:\s*(.*?)\s*-->/i);
-  const description = descMatch ? descMatch[1].trim() : `Read about ${title}.`;
-
-  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/i);
-  const keywords = keywordMatch ? keywordMatch[1] : "";
-
-  const filename = path.basename(file, ".html");
-  const isoDate = new Date().toISOString();
-
-  // Inject and minify
-  const finalHtmlRaw = template
-    .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, keywords)
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{DATE}}/g, isoDate)
-    .replace(/{{CONTENT}}/g, content);
-
-  const finalCompressed = minifyHTML(finalHtmlRaw);
-  fs.writeFileSync(filePath, finalCompressed, "utf8");
-
-  console.log(`✅ Wrapped, cleaned & compressed: ${file}`);
 });
