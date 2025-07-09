@@ -4,7 +4,7 @@ const path = require("path");
 const postsDir = path.join(__dirname, "posts");
 const templatePath = path.join(__dirname, "template.html");
 
-// Load the updated, optimized HTML template
+// Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
 fs.readdirSync(postsDir).forEach((file) => {
@@ -13,21 +13,24 @@ fs.readdirSync(postsDir).forEach((file) => {
   const filePath = path.join(postsDir, file);
   let content = fs.readFileSync(filePath, "utf8");
 
-  // Skip if already wrapped in full HTML
+  // Skip if already wrapped
   if (content.includes("<!DOCTYPE html>")) return;
 
-  // Extract metadata
-  const h1Match = content.match(/<h1>(.*?)<\/h1>/i);
+  // Extract Metadata
+  const h1Match = content.match(/<h1.*?>(.*?)<\/h1>/);
   const title = h1Match ? h1Match[1].trim() : file.replace(".html", "");
 
   const descMatch = content.match(/<!--\s*Meta Description:\s*(.*?)\s*-->/i);
-  const description = descMatch ? descMatch[1].trim() : `Read about ${title}.`;
+  const description = descMatch ? descMatch[1].trim() : `Explore ${title} in detail.`;
 
-  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/i);
-  const keywords = keywordMatch ? keywordMatch[1] : "MaxClickEmpire, templates, guides";
+  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/);
+  const keywords = keywordMatch ? keywordMatch[1] : "";
 
   const filename = path.basename(file, ".html");
   const isoDate = new Date().toISOString();
+
+  // Sanitize content to be inside <article>
+  const articleWrapped = `<article>\n${content.trim()}\n</article>`;
 
   // Replace placeholders in template
   const finalHtml = template
@@ -36,9 +39,9 @@ fs.readdirSync(postsDir).forEach((file) => {
     .replace(/{{KEYWORDS}}/g, keywords)
     .replace(/{{FILENAME}}/g, filename)
     .replace(/{{DATE}}/g, isoDate)
-    .replace(/{{CONTENT}}/g, content.trim());
+    .replace(/{{CONTENT}}/g, articleWrapped);
 
-  // Save final HTML file
+  // Write final file
   fs.writeFileSync(filePath, finalHtml, "utf8");
-  console.log(`✅ Wrapped: ${file}`);
+  console.log(`✅ Wrapped with template: ${file}`);
 });
