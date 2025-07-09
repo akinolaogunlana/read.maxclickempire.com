@@ -27,6 +27,21 @@ fs.readdirSync(postsDir).forEach((file) => {
   const filename = path.basename(file, ".html");
   const isoDate = new Date().toISOString();
 
+  // ✅ IMPROVEMENTS:
+  // 1. Add loading="lazy" to all images
+  content = content.replace(/<img\s+([^>]*?)>/g, (match, attrs) => {
+    // Avoid duplicates
+    if (attrs.includes("loading=")) return `<img ${attrs}>`;
+    return `<img ${attrs} loading="lazy">`;
+  });
+
+  // 2. Wrap images in div with class for CLS stability
+  content = content.replace(/<img[^>]*>/g, (imgTag) => {
+    return `<div class="image-wrapper">${imgTag}</div>`;
+  });
+
+  // 3. Optional: Add width/height to img if known (skip for now unless you know dimensions)
+
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
