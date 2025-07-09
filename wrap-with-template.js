@@ -1,78 +1,52 @@
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
+const fs = require("fs");
+const path = require("path");
 
-// Paths
-const postsDir = path.join(__dirname, 'posts');
-const outputDir = path.join(__dirname, 'dist');
-const templateHtml = fs.readFileSync('template.html', 'utf8');
+// Template HTML wrapper file (with placeholders like {{TITLE}}, {{CONTENT}}, etc.)
+const templatePath = path.join(__dirname, "template.html");
+const contentDir = path.join(__dirname, "raw");
+const outputDir = path.join(__dirname, "dist");
 
 // Ensure output folder exists
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-
-function parseJsonSafely(content) {
-  try {
-    return JSON.parse(content);
-  } catch {
-    return null;
-  }
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
 }
 
-function isSameJSON(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
+// Read the base HTML template
+const template = fs.readFileSync(templatePath, "utf8");
+
+// Utility: create a clean filename slug
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-function removeDuplicateJSONLD(document) {
-  const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
-  const seen = [];
+// Wrap each file in /raw with the template
+fs.readdirSync(contentDir).forEach((file) => {
+  if (!file.endsWith(".html")) return;
 
-  scripts.forEach(script => {
-    const json = parseJsonSafely(script.textContent);
-    if (!json) {
-      script.remove(); // remove broken JSON
-      return;
-    }
+  const rawContent = fs.readFileSync(path.join(contentDir, file), "utf8");
 
-    const alreadyExists = seen.some(existing => isSameJSON(existing, json));
-    if (alreadyExists) {
-      script.remove();
-    } else {
-      seen.push(json);
-    }
-  });
-}
+  // Try to extract metadata
+  const title = (rawContent.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || "Untitled Post";
+  const description =
+    (rawContent.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1] ||
+    "Post from MaxClickEmpire";
+  const date = new Date().toISOString().split("T")[0];
+  const slug = slugify(title);
+  const filename = slug;
 
-function cleanAndWrap(htmlContent) {
-  const dom = new JSDOM(htmlContent);
-  const document = dom.window.document;
+  const finalHtml = template
+    .replace(/{{TITLE}}/g, title)
+    .replace(/{{DESCRIPTION}}/g, description)
+    .replace(/{{KEYWORDS}}/g, title.split(" ").join(", "))
+    .replace(/{{DATE}}/g, date)
+    .replace(/{{FILENAME}}/g, filename)
+    .replace(/{{CONTENT}}/g, rawContent);
 
-  // Remove duplicate structured data
-  removeDuplicateJSONLD(document);
-
-  // Get the cleaned HTML
-  const cleanedHtml = document.documentElement.outerHTML;
-
-  // Wrap in template
-  const wrapped = templateHtml.replace('<!--CONTENT-->', cleanedHtml);
-
-  // Minify
-  return wrapped
-    .replace(/\n/g, '')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/>\s+</g, '><')
-    .trim();
-}
-
-// Process each HTML file
-fs.readdirSync(postsDir).forEach(file => {
-  if (!file.endsWith('.html')) return;
-
-  const inputPath = path.join(postsDir, file);
-  const outputPath = path.join(outputDir, file);
-  const content = fs.readFileSync(inputPath, 'utf8');
-
-  const finalHtml = cleanAndWrap(content);
-  fs.writeFileSync(outputPath, finalHtml, 'utf8');
-
-  console.log(`✅ Cleaned & wrapped: ${file}`);
+  fs.writeFileSync(path.join(outputDir, `${filename}.html`), finalHtml, "utf8");
+  console.log(`✅ Wrapped ${file} as ${filename}.html`);
 });
