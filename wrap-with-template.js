@@ -4,7 +4,6 @@ const path = require("path");
 const postsDir = path.join(__dirname, "posts");
 const templatePath = path.join(__dirname, "template.html");
 
-// Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
 fs.readdirSync(postsDir).forEach((file) => {
@@ -16,32 +15,26 @@ fs.readdirSync(postsDir).forEach((file) => {
   // Skip if already wrapped
   if (content.includes("<!DOCTYPE html>")) return;
 
-  // Extract Metadata
-  const h1Match = content.match(/<h1.*?>(.*?)<\/h1>/);
+  const h1Match = content.match(/<h1>(.*?)<\/h1>/i);
   const title = h1Match ? h1Match[1].trim() : file.replace(".html", "");
 
   const descMatch = content.match(/<!--\s*Meta Description:\s*(.*?)\s*-->/i);
-  const description = descMatch ? descMatch[1].trim() : `Explore ${title} in detail.`;
+  const description = descMatch ? descMatch[1].trim() : `Read about ${title}.`;
 
-  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/);
+  const keywordMatch = content.match(/<meta name="keywords" content="(.*?)"/i);
   const keywords = keywordMatch ? keywordMatch[1] : "";
 
   const filename = path.basename(file, ".html");
   const isoDate = new Date().toISOString();
 
-  // Sanitize content to be inside <article>
-  const articleWrapped = `<article>\n${content.trim()}\n</article>`;
-
-  // Replace placeholders in template
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, keywords)
     .replace(/{{FILENAME}}/g, filename)
     .replace(/{{DATE}}/g, isoDate)
-    .replace(/{{CONTENT}}/g, articleWrapped);
+    .replace(/{{CONTENT}}/g, content.trim());
 
-  // Write final file
   fs.writeFileSync(filePath, finalHtml, "utf8");
-  console.log(`✅ Wrapped with template: ${file}`);
+  console.log(`✅ Wrapped: ${file}`);
 });
