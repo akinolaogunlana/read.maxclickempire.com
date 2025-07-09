@@ -8,17 +8,11 @@
   <meta name="description" content="{{DESCRIPTION}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="Ogunlana Akinola Okikiola" />
-  <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://read.maxclickempire.com/posts/{{FILENAME}}.html" />
 
-  <!-- Preconnect to Google Fonts for faster rendering -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Load only used font weights, use swap to prevent CLS -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- Favicon -->
-  <link rel="icon" href="https://read.maxclickempire.com/assets/favicon.png" type="image/png" />
+  <!-- Preload Fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"></noscript>
 
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -51,75 +45,80 @@
   }
   </script>
 
-  <!-- Minimal inline styles to reduce render-blocking -->
+  <!-- CSS Optimization -->
   <style>
+    :root {
+      --font-main: 'Inter', sans-serif;
+      --color-text: #0a0a23;
+      --color-accent: #0f62fe;
+      --color-bg: #ffffff;
+      --color-muted: #666;
+      --max-width: 960px;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-main);
+      background: #f9fafc;
+      color: var(--color-text);
+      margin: 0 auto;
+      max-width: var(--max-width);
+      padding: 1.5rem;
       line-height: 1.7;
-      margin: 0;
-      padding: 1rem;
-      background-color: #f9f9f9;
-      color: #111;
-      max-width: 720px;
-      margin: auto;
+    }
+
+    h1, h2, h3 {
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    article img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+
+    a {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
 
     article {
-      background: #fff;
+      background: var(--color-bg);
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
     }
 
-    article img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 1rem auto;
-      aspect-ratio: auto; /* fallback for CLS prevention */
-    }
-
-    h1, h2, h3 {
-      line-height: 1.3;
-    }
-
-    img[loading="lazy"] {
-      aspect-ratio: 16 / 9;
-    }
-
-    /* Fix potential layout shift with reserved image space */
-    .image-wrapper {
-      width: 100%;
-      max-width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
-
-    .image-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      font-size: 0.85rem;
+      text-align: center;
+      color: var(--color-muted);
+      border-top: 1px solid #ddd;
     }
   </style>
 </head>
 
 <body>
 
-  <article>
-    {{CONTENT}}
-  </article>
+<article>
+  {{CONTENT}}
+</article>
 
-  <!-- Lazy load all images if applicable -->
-  <script>
-    document.querySelectorAll("img").forEach(img => {
-      if (!img.hasAttribute("loading")) img.setAttribute("loading", "lazy");
-    });
-  </script>
+<footer>
+  <p>© 2025 MaxClickEmpire. All rights reserved.</p>
+  <p><a href="https://read.maxclickempire.com/">Back to Home</a></p>
+</footer>
 
-  <!-- External Scripts -->
-  <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
-  <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
+<!-- Scripts -->
+<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
+<script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
 
 </body>
 </html>
