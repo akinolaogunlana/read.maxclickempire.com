@@ -14,10 +14,13 @@
     if (skip.includes(pathSlug)) return;
 
     const article = document.querySelector("article");
-    const h1 = article?.querySelector("h1");
+    if (!article) return;
+
+    let h1 = article.querySelector("h1");
     const titleText = h1?.textContent.trim() || document.title;
     const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
-    const image = document.querySelector("img")?.src || "/assets/og-image.jpg";
+    const firstImg = article.querySelector("img");
+    const image = firstImg?.src || "/assets/og-image.jpg";
 
     const meta = (window.postMetadata && window.postMetadata[slug]) || {
       title: titleText,
@@ -26,9 +29,9 @@
       published: new Date().toISOString()
     };
 
-    // Remove old meta tags
+    // Remove old SEO tags
     [
-      "og:title", "og:description", "og:url", "og:type",
+      "og:title", "og:description", "og:url", "og:type", "og:image",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
     ].forEach(name => {
@@ -46,7 +49,6 @@
 
     document.title = meta.title;
     injectMeta("description", meta.description);
-
     const keywords = meta.title
       .toLowerCase()
       .replace(/[^a-z0-9\s]/gi, "")
@@ -67,7 +69,6 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // Schema markup
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -87,13 +88,8 @@
     });
     document.head.appendChild(ld);
 
-    if (!article) return;
-
-    // Move h1 into hero only (no duplication)
+    // Move h1 into hero block
     if (h1 && !document.querySelector(".post-hero")) {
-      const h1Text = h1.textContent.trim();
-      h1.remove(); // Remove h1 from original location
-
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
@@ -104,12 +100,14 @@
           text-align: center;
           margin-bottom: 2.5rem;
         ">
-          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${h1Text}</h1>
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
-          <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy" />
+          <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
         </div>
       `;
+      const h1Clone = h1.cloneNode(true);
+      h1.remove();
+      hero.querySelector("div").insertAdjacentElement("afterbegin", h1Clone);
       article.insertAdjacentElement("afterbegin", hero);
     }
 
@@ -130,7 +128,7 @@
       article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // Related posts
+    // Related Posts
     if (!document.querySelector("#related-posts") && window.postMetadata) {
       const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
       const related = Object.entries(window.postMetadata)
@@ -172,7 +170,7 @@
       document.body.appendChild(footer);
     }
 
-    // Optional: Apply dark theme
+    // Dark mode
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
