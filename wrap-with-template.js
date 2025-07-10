@@ -10,22 +10,13 @@ const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist directory exists
+// Ensure output directory exists
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-// Load template
-if (!fs.existsSync(templatePath)) {
-  console.error("❌ template.html not found!");
-  process.exit(1);
-}
+// Read HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Utility: hash generator
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
-}
-
-// Utility: slug from title
+// Helper: Slugify title
 function slugify(text) {
   return text
     .toLowerCase()
@@ -35,53 +26,53 @@ function slugify(text) {
     .replace(/^-+|-+$/g, "");
 }
 
-// Track duplicates
+// Helper: Hash to detect duplicates
+function generateHash(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
+}
+
 const seenHashes = new Set();
 
-// Process each raw HTML file
 const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
+
 files.forEach(file => {
   const rawPath = path.join(rawDir, file);
   const rawHtml = fs.readFileSync(rawPath, "utf8");
-
   const $ = cheerio.load(rawHtml);
 
-  // Extract important elements
   const title = $("h1").first().text().trim() || "Untitled Post";
-  const firstParagraph = $("p").first().text().trim().replace(/\s+/g, " ");
-  const description = firstParagraph.length > 40 ? firstParagraph : title;
-  const slug = slugify(title);
-  const date = new Date().toISOString().split("T")[0];
+  const description = $("p").first().text().trim().replace(/\s+/g, " ") || "A helpful post from MaxClickEmpire.";
+  const rawContent = $("article").html() || $("body").html() || rawHtml;
 
-  // Clean content
-  $("h1").first().remove(); // Remove duplicate heading
-  const cleanedContent = $("body").html() || rawHtml;
-  const cleanHTML = cleanedContent
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/style="[^"]*"/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+  // Remove <script> tags and inline styles
+  const $clean = cheerio.load(rawContent);
+  $clean("script").remove();
+  $clean("[style]").removeAttr("style");
 
-  const hash = generateHash(cleanHTML);
+  // ❌ Remove first <h1> and <p> (they go in the hero)
+  $clean("h1").first().remove();
+  $clean("p").first().remove();
+
+  const finalContent = $clean.html();
+  const hash = generateHash(finalContent);
   if (seenHashes.has(hash)) {
     console.log(`⚠️ Duplicate skipped: ${file}`);
     return;
   }
   seenHashes.add(hash);
 
-  // Keywords from title (no repetition)
-  const keywords = [...new Set(title.toLowerCase().split(/\s+/).filter(w => w.length > 2))].join(", ");
+  const date = new Date().toISOString().split("T")[0];
+  const slug = slugify(title);
+  const outputPath = path.join(distDir, `${slug}.html`);
 
-  // Wrap in template
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, keywords)
+    .replace(/{{KEYWORDS}}/g, title.toLowerCase().split(/\s+/).filter(w => w.length > 2).join(", "))
     .replace(/{{FILENAME}}/g, slug)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, cleanHTML);
+    .replace(/{{CONTENT}}/g, finalContent);
 
-  const outputPath = path.join(distDir, `${slug}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Wrapped & Saved: ${slug}.html`);
+  console.log(`✅ Wrapped & Cleaned: ${slug}.html`);
 });
