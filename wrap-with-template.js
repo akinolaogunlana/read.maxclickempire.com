@@ -1,115 +1,87 @@
+#!/usr/bin/env node
+
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const cheerio = require("cheerio");
 
-const TEMPLATE_PATH = path.join(__dirname, "template.html");
-const POSTS_DIR = path.join(__dirname, "posts");
+// Paths
+const rawDir = path.join(__dirname, "raw");
+const templatePath = path.join(__dirname, "template.html");
+const distDir = path.join(__dirname, "dist");
 
-if (!fs.existsSync(TEMPLATE_PATH)) {
+// Ensure dist directory exists
+if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+
+// Load template
+if (!fs.existsSync(templatePath)) {
   console.error("❌ template.html not found!");
   process.exit(1);
 }
-if (!fs.existsSync(POSTS_DIR)) {
-  console.error("❌ posts/ directory not found!");
-  process.exit(1);
+const template = fs.readFileSync(templatePath, "utf8");
+
+// Utility: hash generator
+function generateHash(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
 }
 
-const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
-
-function sanitize(text) {
-  return text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+// Utility: slug from title
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-fs.readdirSync(POSTS_DIR).forEach(file => {
-  if (!file.endsWith(".html")) return;
+// Track duplicates
+const seenHashes = new Set();
 
-  const filePath = path.join(POSTS_DIR, file);
-  let html = fs.readFileSync(filePath, "utf8");
+// Process each raw HTML file
+const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
+files.forEach(file => {
+  const rawPath = path.join(rawDir, file);
+  const rawHtml = fs.readFileSync(rawPath, "utf8");
 
-  // Skip already wrapped files
-  if (html.includes("<!-- WRAPPED -->")) {
-    console.log(`⚠️ Already wrapped: ${file}`);
+  const $ = cheerio.load(rawHtml);
+
+  // Extract important elements
+  const title = $("h1").first().text().trim() || "Untitled Post";
+  const firstParagraph = $("p").first().text().trim().replace(/\s+/g, " ");
+  const description = firstParagraph.length > 40 ? firstParagraph : title;
+  const slug = slugify(title);
+  const date = new Date().toISOString().split("T")[0];
+
+  // Clean content
+  $("h1").first().remove(); // Remove duplicate heading
+  const cleanedContent = $("body").html() || rawHtml;
+  const cleanHTML = cleanedContent
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/style="[^"]*"/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  const hash = generateHash(cleanHTML);
+  if (seenHashes.has(hash)) {
+    console.log(`⚠️ Duplicate skipped: ${file}`);
     return;
   }
+  seenHashes.add(hash);
 
-  // Strip <article> wrappers
-  html = html.replace(/^<article[^>]*>/i, "").replace(/<\/article>\s*$/i, "");
+  // Keywords from title (no repetition)
+  const keywords = [...new Set(title.toLowerCase().split(/\s+/).filter(w => w.length > 2))].join(", ");
 
-  // Remove <meta> tags inside content
-  html = html.replace(/<meta[^>]*>/gi, "");
-
-  // Extract <h1> title
-  const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  const title = h1Match ? h1Match[1].trim() : "";
-  if (!title) {
-    console.warn(`⚠️ Missing <h1> in: ${file}`);
-  }
-
-  // Remove repeated title lines (especially above the <h1>)
-  const rawTitleText = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const titleRegex = new RegExp(`(^|\\n)\\s*${rawTitleText}\\s*(\\n|$)`, "gi");
-  html = html.replace(titleRegex, "\n");
-
-  // Remove exact match of title inside first <p>
-  const firstPMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
-  if (firstPMatch && title && firstPMatch[1].trim() === title.trim()) {
-    html = html.replace(firstPMatch[0], "");
-  }
-
-  // Extract first paragraph for meta description
-  const firstParagraph = (html.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1];
-  const description = sanitize(firstParagraph || title || "A helpful resource from MaxClickEmpire.");
-
-  // Extract date from <time> tag if available
-  const dateMatch = html.match(/<time[^>]*datetime="([^"]+)"[^>]*>/i);
-  const date = dateMatch ? dateMatch[1] : new Date().toISOString();
-
-  const slug = file.replace(/\.html$/, "");
-
-  // Structured Data Injection
-  const structuredData = `
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "${sanitize(title || slug)}",
-  "description": "${description}",
-  "url": "https://read.maxclickempire.com/posts/${slug}.html",
-  "datePublished": "${date}",
-  "dateModified": "${date}",
-  "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-  "author": {
-    "@type": "Person",
-    "name": "Ogunlana Akinola Okikiola"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "MaxClickEmpire",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://read.maxclickempire.com/assets/favicon.png"
-    }
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
-  }
-}
-</script>`.trim();
-
-  // Final wrap with template
-  const wrapped = `
-<!-- WRAPPED -->
-${template
-    .replace(/{{TITLE}}/g, sanitize(title || slug))
+  // Wrap in template
+  const finalHtml = template
+    .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{CONTENT}}/g, html.trim())
+    .replace(/{{KEYWORDS}}/g, keywords)
     .replace(/{{FILENAME}}/g, slug)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{STRUCTURED_DATA}}/g, structuredData)
-    .replace(/{{KEYWORDS}}/g, "") // Safe fallback
-}
-`;
+    .replace(/{{CONTENT}}/g, cleanHTML);
 
-  fs.writeFileSync(filePath, wrapped.trim(), "utf8");
-  console.log(`✅ Wrapped: ${file}`);
+  const outputPath = path.join(distDir, `${slug}.html`);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
+  console.log(`✅ Wrapped & Saved: ${slug}.html`);
 });
