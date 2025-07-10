@@ -9,53 +9,56 @@
 
   waitForDom(() => {
     const slug = location.pathname.split("/").pop()?.replace(".html", "");
-    const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
     const skip = ["about", "contact", "privacy-policy", "terms"];
-    if (skip.includes(pathSlug)) return;
+    if (skip.includes(slug)) return;
 
-    const h1 = document.querySelector("article h1");
-    const descMeta = document.querySelector("meta[name='description']");
-    const image = document.querySelector("img")?.src || "/assets/og-image.jpg";
-
-    const meta = {
-      title: h1?.textContent.trim() || document.title,
-      description: descMeta?.content || "Digital strategy and free tools.",
-      image,
+    const meta = (window.postMetadata && window.postMetadata[slug]) || {
+      title: document.title,
+      description: document.querySelector("meta[name='description']")?.content || "Free digital resources by MaxClickEmpire.",
+      image: document.querySelector("img")?.src || "/assets/og-image.jpg",
       published: new Date().toISOString()
     };
 
-    // Remove duplicate meta tags
+    // Remove outdated tags
     [
-      "og:title", "og:description", "og:url", "og:type",
+      "og:title", "og:description", "og:image", "og:url",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
     ].forEach(name => {
-      const tag = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
-      if (tag) tag.remove();
+      const el = document.querySelector(`meta[property="${name}"], meta[name="${name}"]`);
+      if (el) el.remove();
     });
 
-    function injectMeta(name, content, attr = "name") {
-      if (!content) return;
+    const injectMeta = (name, content, attr = "name") => {
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
       tag.setAttribute("content", content);
       document.head.appendChild(tag);
-    }
+    };
 
-    document.title = meta.title;
+    // Inject SEO metadata
     injectMeta("description", meta.description);
-    injectMeta("keywords", meta.title.toLowerCase().replace(/[^a-z0-9\s]/gi, "").split(/\s+/).filter(w => w.length > 2).slice(0, 10).join(", "));
+    const keywordList = meta.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/gi, "")
+      .split(/\s+/)
+      .filter(w => w.length > 2)
+      .slice(0, 10)
+      .join(", ");
+    injectMeta("keywords", keywordList);
+
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
     injectMeta("og:type", "article", "property");
     injectMeta("og:url", location.href, "property");
     injectMeta("og:image", meta.image, "property");
+
     injectMeta("twitter:card", "summary_large_image");
     injectMeta("twitter:title", meta.title);
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // JSON-LD
+    // Structured Data
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -64,11 +67,11 @@
       headline: meta.title,
       description: meta.description,
       image: meta.image,
+      datePublished: meta.published,
       author: {
         "@type": "Person",
         name: "Ogunlana Akinola Okikiola"
       },
-      datePublished: meta.published,
       publisher: {
         "@type": "Organization",
         name: "MaxClickEmpire",
@@ -87,8 +90,8 @@
     const article = document.querySelector("article");
     if (!article) return;
 
-    // Hero section
-    if (h1 && !document.querySelector(".post-hero")) {
+    // Hero Section
+    if (!document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
@@ -97,84 +100,64 @@
           border-radius: 20px;
           padding: 2rem;
           text-align: center;
+          box-shadow: 0 4px 25px rgba(0,0,0,0.05);
           margin-bottom: 2.5rem;
         ">
           <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+          <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
         </div>
       `;
-      h1.remove();
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // Sticky TOC
+    // Non-Sticky Table of Contents
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
-      toc.style.cssText = `
-        position: sticky;
-        top: 1rem;
-        background: #fff;
-        border-left: 4px solid #4b6cb7;
-        padding: 1rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        border-radius: 8px;
-        max-width: 300px;
-        font-size: 0.95rem;
-      `;
-      toc.innerHTML = `<h2 style="margin-top:0;">📚 Table of Contents</h2><ul style="padding-left:1rem;margin:0;"></ul>`;
+      toc.style = "margin-bottom:2rem;padding:1rem;border-left:4px solid #4a90e2;background:#f9f9f9;border-radius:8px;";
+      toc.innerHTML = `<h2 style="margin-bottom:0.5rem;">📚 Table of Contents</h2><ul style="list-style:none;padding-left:1rem;"></ul>`;
       const ul = toc.querySelector("ul");
 
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
         h.id = id;
         const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}" style="text-decoration:none;color:#2a2a2a;">${h.textContent}</a>`;
+        li.innerHTML = `<a href="#${id}" style="text-decoration:none;color:#333;">${h.textContent}</a>`;
         ul.appendChild(li);
       });
 
       article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // Related post cards
+    // Related Posts (Cards)
     if (!document.querySelector("#related-posts") && window.postMetadata) {
+      const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
       const related = Object.entries(window.postMetadata)
         .filter(([key, data]) =>
           key !== slug &&
-          (meta.title.toLowerCase().includes(key) ||
-           data.title.toLowerCase().includes(meta.title.toLowerCase()))
+          (data.title.toLowerCase().includes(currentKeywords) ||
+           data.description.toLowerCase().includes(currentKeywords))
         )
         .slice(0, 3);
 
       if (related.length) {
-        const relatedSection = document.createElement("section");
-        relatedSection.id = "related-posts";
-        relatedSection.innerHTML = `
-          <h2 style="margin-top:3rem;">🔗 Related Posts</h2>
-          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-            ${related.map(([key, data]) => `
-              <a href="/posts/${key}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;transition:0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                <strong>${data.title}</strong><br/>
-                <small style="color:#777;">${data.description.slice(0, 100)}...</small>
+        const relatedBlock = document.createElement("div");
+        relatedBlock.id = "related-posts";
+        relatedBlock.innerHTML = `
+          <h3 style="margin-top:3rem;">🔗 Related Posts</h3>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            ${related.map(([slug, data]) => `
+              <a href="/posts/${slug}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #eee;padding:1rem;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.03);transition:all 0.3s;">
+                <strong style="color:#1a1a1a">${data.title}</strong>
+                <p style="font-size:0.9rem;color:#555;">${data.description.slice(0, 100)}...</p>
               </a>
             `).join("")}
-          </div>
-        `;
-        article.appendChild(relatedSection);
+          </div>`;
+        article.appendChild(relatedBlock);
       }
-    }
-
-    // Dark Mode
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.body.classList.add("dark-theme");
-    }
-
-    // Debug
-    if (location.search.includes("debugSEO")) {
-      console.log("🔍 SEO Meta Loaded:", meta);
     }
   });
 })();
