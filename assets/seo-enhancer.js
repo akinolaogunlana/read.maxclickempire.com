@@ -18,7 +18,7 @@ const meta = (window.postMetadata && window.postMetadata[slug]) || {
   published: new Date().toISOString()
 };
 
-// Inject navigation header if not present
+// ✅ Navigation
 if (!document.querySelector("header.site-header")) {
   const header = document.createElement("header");
   header.className = "site-header";
@@ -35,7 +35,7 @@ if (!document.querySelector("header.site-header")) {
   document.body.insertAdjacentElement("afterbegin", header);
 }
 
-// Remove old meta
+// ✅ Clean up old meta
 [
   "og:title", "og:description", "og:url", "og:type", "og:image",
   "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -75,7 +75,6 @@ injectMeta("twitter:title", meta.title);
 injectMeta("twitter:description", meta.description);
 injectMeta("twitter:image", meta.image);
 
-// Structured data
 const ld = document.createElement("script");
 ld.type = "application/ld+json";
 ld.textContent = JSON.stringify({
@@ -95,7 +94,7 @@ ld.textContent = JSON.stringify({
 });
 document.head.appendChild(ld);
 
-// Hero section
+// ✅ Hero section
 if (h1 && !document.querySelector(".post-hero")) {
   const hero = document.createElement("section");
   hero.className = "post-hero";
@@ -112,7 +111,7 @@ if (h1 && !document.querySelector(".post-hero")) {
   article.insertAdjacentElement("afterbegin", hero);
 }
 
-// Table of Contents
+// ✅ Table of Contents
 const headings = article.querySelectorAll("h2, h3");
 if (headings.length && !document.querySelector("#toc")) {
   const toc = document.createElement("div");
@@ -129,7 +128,7 @@ if (headings.length && !document.querySelector("#toc")) {
   article.insertAdjacentElement("afterbegin", toc);
 }
 
-// Related posts
+// ✅ Related Posts
 if (!document.querySelector("#related-posts") && window.postMetadata) {
   const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
   const related = Object.entries(window.postMetadata)
@@ -158,7 +157,7 @@ if (!document.querySelector("#related-posts") && window.postMetadata) {
   }
 }
 
-// Footer
+// ✅ Footer
 if (!document.querySelector("footer.site-footer")) {
   const footer = document.createElement("footer");
   footer.className = "site-footer";
@@ -171,7 +170,7 @@ if (!document.querySelector("footer.site-footer")) {
   document.body.appendChild(footer);
 }
 
-// Dark mode
+// ✅ Dark mode support
 if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
   document.body.classList.add("dark-theme");
 }
