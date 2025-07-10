@@ -21,7 +21,6 @@
       published: new Date().toISOString(),
     };
 
-    // Remove old meta tags
     [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -32,6 +31,7 @@
     });
 
     function injectMeta(name, content, attr = "name") {
+      if (!content) return;
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
       tag.setAttribute("content", content);
@@ -51,14 +51,14 @@
     document.title = meta.title;
     injectMeta("description", meta.description);
 
-    const keywordList = meta.title
+    const keywords = meta.title
       .toLowerCase()
       .replace(/[^a-z0-9\s]/gi, "")
       .split(/\s+/)
-      .filter(w => w.length > 2)
+      .filter(word => word.length > 2)
       .slice(0, 10)
       .join(", ");
-    injectMeta("keywords", keywordList);
+    injectMeta("keywords", keywords);
 
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
@@ -92,47 +92,59 @@
     ld.textContent = JSON.stringify(schema);
     document.head.appendChild(ld);
 
+    const body = document.body;
     const article = document.querySelector("article");
     if (!article) return;
 
-    // 🎨 Hero Section (avoid duplicate H1)
-    if (!document.querySelector(".post-hero")) {
-      const firstText = article.firstElementChild?.textContent.trim().toLowerCase();
-      const metaTitle = meta.title.trim().toLowerCase();
+    // Remove first <h1> to avoid duplicate title
+    const firstHeading = article.querySelector("h1");
+    if (firstHeading) firstHeading.remove();
 
-      const isTitleAlreadyThere =
-        firstText === metaTitle ||
-        firstText.includes(metaTitle) ||
-        article.innerHTML.includes(`<h1>${meta.title}</h1>`);
-
-      if (!isTitleAlreadyThere) {
-        const hero = document.createElement("section");
-        hero.className = "post-hero";
-        hero.innerHTML = `
-          <div style="
-            background: linear-gradient(to right, #f5f7fa, #e4ecf3);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.05);
-            margin-bottom: 2.5rem;
-          ">
-            <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
-            <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
-            <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
-            <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+    // 🔗 Add Navigation if missing
+    if (!document.querySelector("nav.site-nav")) {
+      const nav = document.createElement("nav");
+      nav.className = "site-nav";
+      nav.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:#ffffff;border-bottom:1px solid #eee;">
+          <a href="/" style="font-weight:700;font-size:1.2rem;color:#222;text-decoration:none;">📘 MaxClickEmpire</a>
+          <div>
+            <a href="/" style="margin-right:1rem;color:#333;text-decoration:none;">Home</a>
+            <a href="/about.html" style="margin-right:1rem;color:#333;text-decoration:none;">About</a>
+            <a href="/contact.html" style="color:#333;text-decoration:none;">Contact</a>
           </div>
-        `;
-        article.insertAdjacentElement("afterbegin", hero);
-      }
+        </div>
+      `;
+      body.insertAdjacentElement("afterbegin", nav);
     }
 
-    // 🧭 Table of Contents
+    // 🎨 Hero
+    if (!document.querySelector(".post-hero")) {
+      const hero = document.createElement("section");
+      hero.className = "post-hero";
+      hero.innerHTML = `
+        <div style="
+          background: linear-gradient(to right, #f5f7fa, #e4ecf3);
+          border-radius: 20px;
+          padding: 2rem;
+          text-align: center;
+          box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+          margin-bottom: 2.5rem;
+        ">
+          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
+          <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
+          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+          <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+        </div>
+      `;
+      article.insertAdjacentElement("afterbegin", hero);
+    }
+
+    // 📚 Table of Contents
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
-      toc.innerHTML = `<h2 style="margin-bottom:0.5rem;">📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
+      toc.innerHTML = `<h2>📚 Table of Contents</h2><ul></ul>`;
       const ul = toc.querySelector("ul");
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
@@ -142,18 +154,6 @@
         ul.appendChild(li);
       });
       article.insertAdjacentElement("afterbegin", toc);
-    }
-
-    // 📣 Ads
-    const paras = article.querySelectorAll("p");
-    if (paras.length >= 5) {
-      const idx = Math.floor(Math.random() * 3) + 2;
-      const ad = `
-        <div style="text-align:center;margin:2rem 0">
-          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="0000000000" data-ad-format="auto"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>`;
-      paras[idx]?.insertAdjacentHTML("afterend", ad);
     }
 
     // 🧠 Related Posts
@@ -177,19 +177,25 @@
       }
     }
 
-    // 🌗 Dark Mode Auto
-    const darkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (darkMode) {
+    // 🌙 Dark Mode
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
 
-    // 🔄 Refresh description after 30s
-    setTimeout(() => {
-      const desc = document.querySelector("meta[name='description']");
-      if (desc) desc.setAttribute("content", meta.description + " 🔄 Refreshed");
-    }, 30000);
+    // ⏬ Add Footer
+    if (!document.querySelector("footer.site-footer")) {
+      const footer = document.createElement("footer");
+      footer.className = "site-footer";
+      footer.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:#888;font-size:0.9rem;border-top:1px solid #eee;margin-top:3rem;">
+          &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
+          <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
+        </div>
+      `;
+      body.appendChild(footer);
+    }
 
-    // 🧪 Debug
+    // 🔎 Debug
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
