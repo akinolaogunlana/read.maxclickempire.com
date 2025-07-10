@@ -18,7 +18,6 @@ const meta = (window.postMetadata && window.postMetadata[slug]) || {
   published: new Date().toISOString()
 };
 
-// ✅ Navigation
 if (!document.querySelector("header.site-header")) {
   const header = document.createElement("header");
   header.className = "site-header";
@@ -35,7 +34,6 @@ if (!document.querySelector("header.site-header")) {
   document.body.insertAdjacentElement("afterbegin", header);
 }
 
-// ✅ Clean up old meta
 [
   "og:title", "og:description", "og:url", "og:type", "og:image",
   "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -55,21 +53,13 @@ function injectMeta(name, content, attr = "name") {
 
 document.title = meta.title;
 injectMeta("description", meta.description);
-const keywords = meta.title
-  .toLowerCase()
-  .replace(/[^a-z0-9\s]/gi, "")
-  .split(/\s+/)
-  .filter(w => w.length > 2)
-  .slice(0, 10)
-  .join(", ");
+const keywords = meta.title.toLowerCase().replace(/[^a-z0-9\s]/gi, "").split(/\s+/).filter(w => w.length > 2).slice(0, 10).join(", ");
 injectMeta("keywords", keywords);
-
 injectMeta("og:title", meta.title, "property");
 injectMeta("og:description", meta.description, "property");
 injectMeta("og:type", "article", "property");
 injectMeta("og:url", location.href, "property");
 injectMeta("og:image", meta.image, "property");
-
 injectMeta("twitter:card", "summary_large_image");
 injectMeta("twitter:title", meta.title);
 injectMeta("twitter:description", meta.description);
@@ -94,7 +84,6 @@ ld.textContent = JSON.stringify({
 });
 document.head.appendChild(ld);
 
-// ✅ Hero section
 if (h1 && !document.querySelector(".post-hero")) {
   const hero = document.createElement("section");
   hero.className = "post-hero";
@@ -111,7 +100,6 @@ if (h1 && !document.querySelector(".post-hero")) {
   article.insertAdjacentElement("afterbegin", hero);
 }
 
-// ✅ Table of Contents
 const headings = article.querySelectorAll("h2, h3");
 if (headings.length && !document.querySelector("#toc")) {
   const toc = document.createElement("div");
@@ -128,36 +116,6 @@ if (headings.length && !document.querySelector("#toc")) {
   article.insertAdjacentElement("afterbegin", toc);
 }
 
-// ✅ Related Posts
-if (!document.querySelector("#related-posts") && window.postMetadata) {
-  const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
-  const related = Object.entries(window.postMetadata)
-    .filter(([key, data]) =>
-      key !== slug &&
-      (data.title.toLowerCase().includes(currentKeywords) ||
-       data.description.toLowerCase().includes(currentKeywords))
-    )
-    .slice(0, 3);
-
-  if (related.length) {
-    const relatedBlock = document.createElement("section");
-    relatedBlock.id = "related-posts";
-    relatedBlock.innerHTML = `
-      <h2>🔗 Related Posts</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-        ${related.map(([slug, data]) => `
-          <a href="/posts/${slug}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;">
-            <strong>${data.title}</strong><br/>
-            <small style="color:#777;">${data.description.slice(0, 100)}...</small>
-          </a>
-        `).join("")}
-      </div>
-    `;
-    article.appendChild(relatedBlock);
-  }
-}
-
-// ✅ Footer
 if (!document.querySelector("footer.site-footer")) {
   const footer = document.createElement("footer");
   footer.className = "site-footer";
@@ -170,7 +128,6 @@ if (!document.querySelector("footer.site-footer")) {
   document.body.appendChild(footer);
 }
 
-// ✅ Dark mode support
 if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
   document.body.classList.add("dark-theme");
 }
