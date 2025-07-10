@@ -35,11 +35,11 @@
       header.className = "site-header";
       header.innerHTML = `
         <nav style="display:flex;justify-content:space-between;align-items:center;padding:1rem;border-bottom:1px solid #eee;background:#fff;">
-          <a href="/" style="font-weight:700;font-size:1.3rem;color:#333;text-decoration:none;">MaxClickEmpire</a>
+          <a href="/" style="font-weight:700;font-size:1.3rem;color:#333;text-decoration:none;">🧠MaxClickEmpire</a>
           <ul style="display:flex;gap:1.2rem;list-style:none;margin:0;padding:0;">
-            <li><a href="/" style="text-decoration:none;color:#333;">🏠 Home</a></li>
-            <li><a href="/about.html" style="text-decoration:none;color:#333;">📖 About</a></li>
-            <li><a href="/contact.html" style="text-decoration:none;color:#333;">📬 Contact</a></li>
+            <li><a href="/" style="text-decoration:none;color:#333;">Home</a></li>
+            <li><a href="/about.html" style="text-decoration:none;color:#333;">About</a></li>
+            <li><a href="/contact.html" style="text-decoration:none;color:#333;">Contact</a></li>
           </ul>
         </nav>
       `;
