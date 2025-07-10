@@ -8,31 +8,38 @@
   }
 
   waitForDom(() => {
-    const slug = location.pathname.split("/").pop()?.replace(".html", "");
-    const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
-
+    const slug = location.pathname.split("/").pop()?.replace(".html", "") || "index";
+    const pathSlug = slug.toLowerCase();
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
 
-    // 📦 Load metadata
-    const meta = (window.postMetadata && window.postMetadata[slug]) || {
-      title: document.title,
-      description: document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.",
-      image: document.querySelector("img")?.src || "/assets/og-image.jpg",
-      published: new Date().toISOString(),
-    };
+    const article = document.querySelector("article");
+    if (!article) return;
 
-    // 🧼 Remove old tags
+    // Extract metadata from first h1 and p
+    const firstH1 = article.querySelector("h1");
+    const firstP = article.querySelector("p");
+    const title = firstH1?.textContent.trim() || document.title;
+    const description = firstP?.textContent.trim().replace(/\s+/g, " ").slice(0, 160) || "Digital strategy and free tools.";
+    const published = new Date().toISOString();
+    const image = document.querySelector("img")?.src || "/assets/og-image.jpg";
+
+    // Remove the first <h1> and <p> to avoid visual + semantic repetition
+    if (firstH1) firstH1.remove();
+    if (firstP) firstP.remove();
+
+    const meta = { title, description, image, published };
+
+    // 🧼 Remove old meta tags
     [
-      "og:title", "og:description", "og:url", "og:type",
-      "twitter:title", "twitter:description", "twitter:image", "twitter:card",
-      "keywords"
+      "description", "keywords",
+      "og:title", "og:description", "og:url", "og:type", "og:image",
+      "twitter:card", "twitter:title", "twitter:description", "twitter:image"
     ].forEach(name => {
-      const tag = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
+      const tag = document.querySelector(`meta[name='${name}'], meta[property='${name}']`);
       if (tag) tag.remove();
     });
 
-    // 🧠 Inject meta
     function injectMeta(name, content, attr = "name") {
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
@@ -40,6 +47,7 @@
       document.head.appendChild(tag);
     }
 
+    // Ensure charset and viewport
     if (!document.querySelector("meta[charset]")) {
       const charset = document.createElement("meta");
       charset.setAttribute("charset", "UTF-8");
@@ -50,23 +58,23 @@
       injectMeta("viewport", "width=device-width, initial-scale=1.0");
     }
 
+    // Inject dynamic metadata
     document.title = meta.title;
     injectMeta("description", meta.description);
 
-    // 📊 Keywords
     const keywordList = meta.title
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/gi, "")
+      .replace(/[^a-z0-9\s]/g, "")
       .split(/\s+/)
       .filter(w => w.length > 2)
       .slice(0, 10)
       .join(", ");
     injectMeta("keywords", keywordList);
 
-    // 🧷 Social
+    // OpenGraph + Twitter
+    injectMeta("og:type", "article", "property");
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
-    injectMeta("og:type", "article", "property");
     injectMeta("og:url", location.href, "property");
     injectMeta("og:image", meta.image, "property");
     injectMeta("twitter:card", "summary_large_image");
@@ -74,7 +82,7 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // 📚 JSON-LD
+    // JSON-LD Structured Data
     const schema = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -95,10 +103,7 @@
     ld.textContent = JSON.stringify(schema);
     document.head.appendChild(ld);
 
-    const article = document.querySelector("article");
-    if (!article) return;
-
-    // 🎨 Hero Section
+    // 🎨 Hero section
     if (!document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
@@ -120,7 +125,7 @@
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // 🧭 TOC
+    // 🧭 Table of Contents
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
@@ -137,65 +142,12 @@
       article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // 💡 (Optional) Internal Link Injection
-    /*
-    if (window.relatedLinks) {
-      article.querySelectorAll("p").forEach(p => {
-        window.relatedLinks.forEach(({ keyword, url }) => {
-          const regex = new RegExp("\\b(" + keyword + ")\\b", "gi");
-          if (!p.innerHTML.includes(url)) {
-            p.innerHTML = p.innerHTML.replace(regex, `<a href="${url}" title="Learn more about $1">$1</a>`);
-          }
-        });
-      });
-    }
-    */
-
-    // 📣 Ads
-    const paras = article.querySelectorAll("p");
-    if (paras.length >= 5) {
-      const idx = Math.floor(Math.random() * 3) + 2;
-      const ad = `
-        <div style="text-align:center;margin:2rem 0">
-          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="0000000000" data-ad-format="auto"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>`;
-      paras[idx]?.insertAdjacentHTML("afterend", ad);
-    }
-
-    // 🧠 Related Posts
-    if (!document.querySelector("#related-posts") && window.postMetadata) {
-      const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
-      const related = Object.entries(window.postMetadata)
-        .filter(([key, data]) =>
-          key !== slug &&
-          (data.title.toLowerCase().includes(currentKeywords) ||
-           data.description.toLowerCase().includes(currentKeywords))
-        )
-        .slice(0, 3);
-
-      if (related.length) {
-        const relatedBlock = document.createElement("div");
-        relatedBlock.id = "related-posts";
-        relatedBlock.innerHTML = `<h3>🔗 Related Posts</h3><ul>
-          ${related.map(([slug, data]) => `<li><a href="/posts/${slug}.html">${data.title}</a></li>`).join("")}
-        </ul>`;
-        article.appendChild(relatedBlock);
-      }
-    }
-
-    // 🌗 Dark Mode Toggle (auto detect)
-    const darkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (darkMode) {
+    // 🌗 Dark Mode
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
 
-    // 🧪 Debug
-    if (location.search.includes("debugSEO")) {
-      console.log("🔍 SEO Meta Loaded:", meta);
-    }
-
-    // 🔄 Refresh description
+    // 🔄 Refresh description after 30s (optional)
     setTimeout(() => {
       const desc = document.querySelector("meta[name='description']");
       if (desc) desc.setAttribute("content", meta.description + " 🔄 Refreshed");
