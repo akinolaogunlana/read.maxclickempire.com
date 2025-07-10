@@ -24,7 +24,7 @@
       published: new Date().toISOString()
     };
 
-    // Remove duplicate meta tags
+    // 🔁 Remove duplicate meta tags
     [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -34,6 +34,7 @@
       if (tag) tag.remove();
     });
 
+    // 🔧 Inject meta tags
     function injectMeta(name, content, attr = "name") {
       if (!content) return;
       const tag = document.createElement("meta");
@@ -42,20 +43,23 @@
       document.head.appendChild(tag);
     }
 
-    document.title = meta.title;
     injectMeta("description", meta.description);
     injectMeta("keywords", meta.title.toLowerCase().replace(/[^a-z0-9\s]/gi, "").split(/\s+/).filter(w => w.length > 2).slice(0, 10).join(", "));
+
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
     injectMeta("og:type", "article", "property");
     injectMeta("og:url", location.href, "property");
     injectMeta("og:image", meta.image, "property");
+
     injectMeta("twitter:card", "summary_large_image");
     injectMeta("twitter:title", meta.title);
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // JSON-LD
+    document.title = meta.title;
+
+    // 🧠 JSON-LD Schema
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -84,11 +88,9 @@
     });
     document.head.appendChild(ld);
 
+    // 🎨 Hero Section
     const article = document.querySelector("article");
-    if (!article) return;
-
-    // Hero section
-    if (h1 && !document.querySelector(".post-hero")) {
+    if (article && h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
@@ -104,75 +106,51 @@
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
         </div>
       `;
-      h1.remove();
+      h1.remove(); // remove original H1
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // Sticky TOC
-    const headings = article.querySelectorAll("h2, h3");
-    if (headings.length && !document.querySelector("#toc")) {
+    // 🧭 Table of Contents
+    const headings = article?.querySelectorAll("h2, h3");
+    if (headings && headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
-      toc.style.cssText = `
-        position: sticky;
-        top: 1rem;
-        background: #fff;
-        border-left: 4px solid #4b6cb7;
-        padding: 1rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        border-radius: 8px;
-        max-width: 300px;
-        font-size: 0.95rem;
-      `;
-      toc.innerHTML = `<h2 style="margin-top:0;">📚 Table of Contents</h2><ul style="padding-left:1rem;margin:0;"></ul>`;
+      toc.innerHTML = `<h2 style="margin-bottom:0.5rem;">📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
       const ul = toc.querySelector("ul");
 
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
         h.id = id;
         const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}" style="text-decoration:none;color:#2a2a2a;">${h.textContent}</a>`;
+        li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
         ul.appendChild(li);
       });
 
       article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // Related post cards
-    if (!document.querySelector("#related-posts") && window.postMetadata) {
-      const related = Object.entries(window.postMetadata)
-        .filter(([key, data]) =>
-          key !== slug &&
-          (meta.title.toLowerCase().includes(key) ||
-           data.title.toLowerCase().includes(meta.title.toLowerCase()))
-        )
-        .slice(0, 3);
-
-      if (related.length) {
-        const relatedSection = document.createElement("section");
-        relatedSection.id = "related-posts";
-        relatedSection.innerHTML = `
-          <h2 style="margin-top:3rem;">🔗 Related Posts</h2>
-          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-            ${related.map(([key, data]) => `
-              <a href="/posts/${key}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;transition:0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                <strong>${data.title}</strong><br/>
-                <small style="color:#777;">${data.description.slice(0, 100)}...</small>
-              </a>
-            `).join("")}
-          </div>
-        `;
-        article.appendChild(relatedSection);
-      }
+    // 📣 Optional: Insert ad inside content
+    const paras = article?.querySelectorAll("p");
+    if (paras && paras.length >= 5) {
+      const idx = Math.floor(Math.random() * 3) + 2;
+      const ad = `
+        <div style="text-align:center;margin:2rem 0">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-XXXX"
+               data-ad-slot="0000000000"
+               data-ad-format="auto"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>`;
+      paras[idx]?.insertAdjacentHTML("afterend", ad);
     }
 
-    // Dark Mode
+    // 🌗 Auto Dark Mode
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
 
-    // Debug
+    // 🧪 Debug mode
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
