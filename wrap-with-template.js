@@ -10,13 +10,19 @@ const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure output directory exists
+// Ensure required folders exist
+if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir, { recursive: true });
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-// Read HTML template
+// Read template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Helper: Slugify title
+// Hash generator for deduplication
+function generateHash(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
+}
+
+// Slugify title for filename
 function slugify(text) {
   return text
     .toLowerCase()
@@ -26,35 +32,23 @@ function slugify(text) {
     .replace(/^-+|-+$/g, "");
 }
 
-// Helper: Hash to detect duplicates
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
-}
-
 const seenHashes = new Set();
 
+// Process HTML files
 const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
-
 files.forEach(file => {
   const rawPath = path.join(rawDir, file);
   const rawHtml = fs.readFileSync(rawPath, "utf8");
   const $ = cheerio.load(rawHtml);
 
   const title = $("h1").first().text().trim() || "Untitled Post";
-  const description = $("p").first().text().trim().replace(/\s+/g, " ") || "A helpful post from MaxClickEmpire.";
-  const rawContent = $("article").html() || $("body").html() || rawHtml;
+  const description = $("meta[name='description']").attr("content") || $("p").first().text().trim() || "Post from MaxClickEmpire.";
+  const bodyContent = $("article").html() || $("body").html() || rawHtml;
+  const cleanContent = bodyContent
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/style="[^"]*"/g, "");
 
-  // Remove <script> tags and inline styles
-  const $clean = cheerio.load(rawContent);
-  $clean("script").remove();
-  $clean("[style]").removeAttr("style");
-
-  // ❌ Remove first <h1> and <p> (they go in the hero)
-  $clean("h1").first().remove();
-  $clean("p").first().remove();
-
-  const finalContent = $clean.html();
-  const hash = generateHash(finalContent);
+  const hash = generateHash(cleanContent);
   if (seenHashes.has(hash)) {
     console.log(`⚠️ Duplicate skipped: ${file}`);
     return;
@@ -62,17 +56,25 @@ files.forEach(file => {
   seenHashes.add(hash);
 
   const date = new Date().toISOString().split("T")[0];
-  const slug = slugify(title);
-  const outputPath = path.join(distDir, `${slug}.html`);
+  const filename = slugify(title);
+  const outputPath = path.join(distDir, `${filename}.html`);
+
+  const keywordList = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter(w => w.length > 2)
+    .slice(0, 10)
+    .join(", ");
 
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, title.toLowerCase().split(/\s+/).filter(w => w.length > 2).join(", "))
-    .replace(/{{FILENAME}}/g, slug)
+    .replace(/{{KEYWORDS}}/g, keywordList)
+    .replace(/{{FILENAME}}/g, filename)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, finalContent);
+    .replace(/{{CONTENT}}/g, cleanContent);
 
   fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Wrapped & Cleaned: ${slug}.html`);
+  console.log(`✅ Wrapped & Cleaned: ${filename}.html`);
 });
