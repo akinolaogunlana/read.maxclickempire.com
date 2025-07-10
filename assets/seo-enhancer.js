@@ -10,19 +10,21 @@
   waitForDom(() => {
     const slug = location.pathname.split("/").pop()?.replace(".html", "");
     const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
-
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
 
-    // Load metadata
-    const meta = (window.postMetadata && window.postMetadata[slug]) || {
-      title: document.title,
-      description: document.querySelector("meta[name='description']")?.content || "",
-      image: document.querySelector("img")?.src || "/assets/og-image.jpg",
-      published: new Date().toISOString(),
+    const h1 = document.querySelector("article h1");
+    const descMeta = document.querySelector("meta[name='description']");
+    const image = document.querySelector("img")?.src || "/assets/og-image.jpg";
+
+    const meta = {
+      title: h1?.textContent.trim() || document.title,
+      description: descMeta?.content || "Digital strategy and free tools.",
+      image,
+      published: new Date().toISOString()
     };
 
-    // Remove old meta tags
+    // Remove duplicate meta tags
     [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -32,8 +34,8 @@
       if (tag) tag.remove();
     });
 
-    // Inject new meta tags
     function injectMeta(name, content, attr = "name") {
+      if (!content) return;
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
       tag.setAttribute("content", content);
@@ -42,7 +44,7 @@
 
     document.title = meta.title;
     injectMeta("description", meta.description);
-    injectMeta("keywords", meta.title.toLowerCase().split(/\s+/).slice(0, 10).join(", "));
+    injectMeta("keywords", meta.title.toLowerCase().replace(/[^a-z0-9\s]/gi, "").split(/\s+/).filter(w => w.length > 2).slice(0, 10).join(", "));
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
     injectMeta("og:type", "article", "property");
@@ -53,34 +55,39 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // JSON-LD Schema
-    const schema = {
+    // JSON-LD
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       headline: meta.title,
       description: meta.description,
       image: meta.image,
-      author: { "@type": "Person", name: "Ogunlana Akinola Okikiola" },
+      author: {
+        "@type": "Person",
+        name: "Ogunlana Akinola Okikiola"
+      },
       datePublished: meta.published,
       publisher: {
         "@type": "Organization",
         name: "MaxClickEmpire",
-        logo: { "@type": "ImageObject", url: "/assets/favicon.png" }
+        logo: {
+          "@type": "ImageObject",
+          url: "/assets/favicon.png"
+        }
       },
-      mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
-    };
-    const ld = document.createElement("script");
-    ld.type = "application/ld+json";
-    ld.textContent = JSON.stringify(schema);
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": location.href
+      }
+    });
     document.head.appendChild(ld);
 
     const article = document.querySelector("article");
     if (!article) return;
 
-    // 🧠 Do NOT create a new hero; just style existing h1 and intro if needed
-    const h1 = article.querySelector("h1");
-    const firstPara = article.querySelector("p");
-
+    // Hero section
     if (h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
@@ -90,63 +97,84 @@
           border-radius: 20px;
           padding: 2rem;
           text-align: center;
-          box-shadow: 0 4px 25px rgba(0,0,0,0.05);
           margin-bottom: 2.5rem;
         ">
-          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${h1.textContent}</h1>
+          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
-          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${firstPara?.textContent || meta.description}</p>
-          <img src="${meta.image}" alt="${h1.textContent}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
         </div>
       `;
-      article.insertBefore(hero, h1);
-      h1.remove(); // Move h1 into hero
-      if (firstPara?.textContent === meta.description) firstPara.remove(); // Optional
+      h1.remove();
+      article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // TOC
+    // Sticky TOC
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
       toc.id = "toc";
-      toc.innerHTML = `<h2 style="margin-bottom:0.5rem;">📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
+      toc.style.cssText = `
+        position: sticky;
+        top: 1rem;
+        background: #fff;
+        border-left: 4px solid #4b6cb7;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        max-width: 300px;
+        font-size: 0.95rem;
+      `;
+      toc.innerHTML = `<h2 style="margin-top:0;">📚 Table of Contents</h2><ul style="padding-left:1rem;margin:0;"></ul>`;
       const ul = toc.querySelector("ul");
+
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
         h.id = id;
         const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
+        li.innerHTML = `<a href="#${id}" style="text-decoration:none;color:#2a2a2a;">${h.textContent}</a>`;
         ul.appendChild(li);
       });
-      article.insertBefore(toc, article.firstChild);
+
+      article.insertAdjacentElement("afterbegin", toc);
     }
 
-    // Footer (append once only)
-    if (!document.querySelector("footer")) {
-      const footer = document.createElement("footer");
-      footer.style = "margin-top:4rem;padding:2rem 0;text-align:center;color:#666;font-size:0.9rem;border-top:1px solid #ddd";
-      footer.innerHTML = `© ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. <a href="/privacy-policy.html">Privacy Policy</a>`;
-      document.body.appendChild(footer);
+    // Related post cards
+    if (!document.querySelector("#related-posts") && window.postMetadata) {
+      const related = Object.entries(window.postMetadata)
+        .filter(([key, data]) =>
+          key !== slug &&
+          (meta.title.toLowerCase().includes(key) ||
+           data.title.toLowerCase().includes(meta.title.toLowerCase()))
+        )
+        .slice(0, 3);
+
+      if (related.length) {
+        const relatedSection = document.createElement("section");
+        relatedSection.id = "related-posts";
+        relatedSection.innerHTML = `
+          <h2 style="margin-top:3rem;">🔗 Related Posts</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+            ${related.map(([key, data]) => `
+              <a href="/posts/${key}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;transition:0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <strong>${data.title}</strong><br/>
+                <small style="color:#777;">${data.description.slice(0, 100)}...</small>
+              </a>
+            `).join("")}
+          </div>
+        `;
+        article.appendChild(relatedSection);
+      }
     }
 
-    // Navigation (prepend once only)
-    if (!document.querySelector("nav")) {
-      const nav = document.createElement("nav");
-      nav.style = "background:#fff;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05)";
-      nav.innerHTML = `
-        <div style="font-weight:700;font-size:1.2rem;color:#333;">📘 MaxClickEmpire</div>
-        <div style="display:flex;gap:1rem;">
-          <a href="/" style="color:#333;">Home</a>
-          <a href="/about.html" style="color:#333;">About</a>
-          <a href="/contact.html" style="color:#333;">Contact</a>
-        </div>`;
-      document.body.insertBefore(nav, document.body.firstChild);
-    }
-
-    // Dark mode auto
-    const darkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (darkMode) {
+    // Dark Mode
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
+    }
+
+    // Debug
+    if (location.search.includes("debugSEO")) {
+      console.log("🔍 SEO Meta Loaded:", meta);
     }
   });
 })();
