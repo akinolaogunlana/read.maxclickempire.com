@@ -25,47 +25,89 @@ fs.readdirSync(POSTS_DIR).forEach(file => {
   const filePath = path.join(POSTS_DIR, file);
   let html = fs.readFileSync(filePath, "utf8");
 
+  // Skip already wrapped files
   if (html.includes("<!-- WRAPPED -->")) {
     console.log(`⚠️ Already wrapped: ${file}`);
     return;
   }
 
-  const title = (html.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1];
-  const firstParagraph = (html.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1];
-  const dateMatch = html.match(/datetime="([^"]+)"/i);
-  const date = dateMatch ? dateMatch[1] : new Date().toISOString();
-  const slug = file.replace(/\.html$/, "");
+  // Strip <article> wrappers
+  html = html.replace(/^<article[^>]*>/i, "").replace(/<\/article>\s*$/i, "");
 
+  // Remove <meta> tags inside content
+  html = html.replace(/<meta[^>]*>/gi, "");
+
+  // Extract <h1> title
+  const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  const title = h1Match ? h1Match[1].trim() : "";
   if (!title) {
     console.warn(`⚠️ Missing <h1> in: ${file}`);
   }
 
+  // Remove repeated title lines (especially above the <h1>)
+  const rawTitleText = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const titleRegex = new RegExp(`(^|\\n)\\s*${rawTitleText}\\s*(\\n|$)`, "gi");
+  html = html.replace(titleRegex, "\n");
+
+  // Remove exact match of title inside first <p>
+  const firstPMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
+  if (firstPMatch && title && firstPMatch[1].trim() === title.trim()) {
+    html = html.replace(firstPMatch[0], "");
+  }
+
+  // Extract first paragraph for meta description
+  const firstParagraph = (html.match(/<p[^>]*>(.*?)<\/p>/i) || [])[1];
   const description = sanitize(firstParagraph || title || "A helpful resource from MaxClickEmpire.");
+
+  // Extract date from <time> tag if available
+  const dateMatch = html.match(/<time[^>]*datetime="([^"]+)"[^>]*>/i);
+  const date = dateMatch ? dateMatch[1] : new Date().toISOString();
+
+  const slug = file.replace(/\.html$/, "");
+
+  // Structured Data Injection
   const structuredData = `
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "${sanitize(title || slug)}",
-  "datePublished": "${date}",
   "description": "${description}",
-  "url": "https://maxclickempire.com/posts/${slug}.html",
+  "url": "https://read.maxclickempire.com/posts/${slug}.html",
+  "datePublished": "${date}",
+  "dateModified": "${date}",
+  "image": "https://read.maxclickempire.com/assets/og-image.jpg",
   "author": {
+    "@type": "Person",
+    "name": "Ogunlana Akinola Okikiola"
+  },
+  "publisher": {
     "@type": "Organization",
-    "name": "MaxClickEmpire"
+    "name": "MaxClickEmpire",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://read.maxclickempire.com/assets/favicon.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
   }
 }
 </script>`.trim();
 
+  // Final wrap with template
   const wrapped = `
 <!-- WRAPPED -->
 ${template
     .replace(/{{TITLE}}/g, sanitize(title || slug))
     .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{CONTENT}}/g, html)
+    .replace(/{{CONTENT}}/g, html.trim())
     .replace(/{{FILENAME}}/g, slug)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{STRUCTURED_DATA}}/g, structuredData)}
+    .replace(/{{STRUCTURED_DATA}}/g, structuredData)
+    .replace(/{{KEYWORDS}}/g, "") // Safe fallback
+}
 `;
 
   fs.writeFileSync(filePath, wrapped.trim(), "utf8");
