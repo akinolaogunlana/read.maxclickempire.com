@@ -13,42 +13,33 @@
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
 
-    // Extract meta
+    const h1 = document.querySelector("article h1");
+    const titleText = h1?.textContent.trim() || document.title;
+    const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
+    const image = document.querySelector("img")?.src || "/assets/og-image.jpg";
     const meta = (window.postMetadata && window.postMetadata[slug]) || {
-      title: document.title,
-      description: document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.",
-      image: document.querySelector("img")?.src || "/assets/og-image.jpg",
-      published: new Date().toISOString(),
+      title: titleText,
+      description: desc,
+      image,
+      published: new Date().toISOString()
     };
 
-    // Remove existing meta tags
-    const tagsToRemove = [
+    // Remove old meta
+    [
       "og:title", "og:description", "og:url", "og:type",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
-    ];
-    tagsToRemove.forEach(name => {
+    ].forEach(name => {
       const tag = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
       if (tag) tag.remove();
     });
 
-    // Inject meta
     function injectMeta(name, content, attr = "name") {
       if (!content) return;
       const tag = document.createElement("meta");
       tag.setAttribute(attr, name);
       tag.setAttribute("content", content);
       document.head.appendChild(tag);
-    }
-
-    if (!document.querySelector("meta[charset]")) {
-      const charset = document.createElement("meta");
-      charset.setAttribute("charset", "UTF-8");
-      document.head.prepend(charset);
-    }
-
-    if (!document.querySelector("meta[name='viewport']")) {
-      injectMeta("viewport", "width=device-width, initial-scale=1.0");
     }
 
     document.title = meta.title;
@@ -73,7 +64,6 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // JSON-LD Schema
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -93,32 +83,11 @@
     });
     document.head.appendChild(ld);
 
-    // DOM content enhancement
     const article = document.querySelector("article");
     if (!article) return;
 
-    const h1 = article.querySelector("h1");
-    if (h1) h1.remove();
-
-    // Add Navigation
-    if (!document.querySelector("nav.site-nav")) {
-      const nav = document.createElement("nav");
-      nav.className = "site-nav";
-      nav.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:#ffffff;border-bottom:1px solid #eee;">
-          <a href="/" style="font-weight:700;font-size:1.2rem;color:#222;text-decoration:none;">📘 MaxClickEmpire</a>
-          <div>
-            <a href="/" style="margin-right:1rem;color:#333;text-decoration:none;">Home</a>
-            <a href="/about.html" style="margin-right:1rem;color:#333;text-decoration:none;">About</a>
-            <a href="/contact.html" style="color:#333;text-decoration:none;">Contact</a>
-          </div>
-        </div>
-      `;
-      document.body.insertAdjacentElement("afterbegin", nav);
-    }
-
-    // Hero section
-    if (!document.querySelector(".post-hero")) {
+    // Move h1 into hero if not already done
+    if (h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
@@ -129,12 +98,14 @@
           text-align: center;
           margin-bottom: 2.5rem;
         ">
-          <h1 style="font-size:2.3rem;font-weight:700;color:#1a1a1a;">${meta.title}</h1>
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
           <img src="${meta.image}" alt="${meta.title}" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
         </div>
       `;
+      const h1Cloned = h1.cloneNode(true);
+      h1.remove(); // Remove from DOM
+      hero.querySelector("div").insertAdjacentElement("afterbegin", h1Cloned);
       article.insertAdjacentElement("afterbegin", hero);
     }
 
@@ -145,7 +116,6 @@
       toc.id = "toc";
       toc.innerHTML = `<h2>📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
       const ul = toc.querySelector("ul");
-
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
         h.id = id;
@@ -153,7 +123,6 @@
         li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
         ul.appendChild(li);
       });
-
       article.insertAdjacentElement("afterbegin", toc);
     }
 
@@ -199,12 +168,10 @@
       document.body.appendChild(footer);
     }
 
-    // Dark mode
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
 
-    // Debug
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
