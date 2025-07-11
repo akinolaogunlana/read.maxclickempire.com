@@ -9,26 +9,35 @@ const cheerio = require("cheerio");
 const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
-const postMetaPath = path.join(__dirname, "data", "post-meta.js");
 
-// Create dist if missing
+// Ensure dist exists
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
 // Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Utils
+// Utility: hash content
 const generateHash = (content) =>
   crypto.createHash("sha256").update(content).digest("hex");
 
+// Utility: slugify
 const slugify = (text) =>
   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "post";
 
-// Meta storage
-const postMetadata = {};
+// Track seen hashes and descriptions
 const seenHashes = new Set();
 const seenDescriptions = new Set();
 
+// Quality checker
+function isLowQuality(desc) {
+  return (
+    desc.length < 50 ||
+    /^read about/i.test(desc.toLowerCase()) ||
+    seenDescriptions.has(desc)
+  );
+}
+
+// Process posts
 const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
 let count = 0;
 
@@ -38,64 +47,61 @@ files.forEach(file => {
   const $ = cheerio.load(rawHtml);
 
   const title = $("h1").first().text().trim() || "Untitled Post";
-  const slug = slugify(title);
-  const date = new Date().toISOString();
-  const filename = `${slug}.html`;
 
-  // Get meta description if exists
-  let metaDescription = $('meta[name="description"]').attr('content')?.trim();
-  if (!metaDescription || metaDescription.length < 40) {
-    metaDescription = $("p").first().text().trim().replace(/\s+/g, " ");
+  // Prefer existing meta description in raw HTML
+  let description = $('meta[name="description"]').attr("content")?.trim();
+
+  // Fallback to first <p> or generic message
+  if (!description || isLowQuality(description)) {
+    description = $("p").first().text().trim().replace(/\s+/g, " ");
   }
-  if (!metaDescription || metaDescription.length < 40) {
-    metaDescription = "A helpful guide from MaxClickEmpire. Read more now.";
+  if (!description || isLowQuality(description)) {
+    description = `Read: ${title}. A useful article on MaxClickEmpire.`;
   }
 
-  // Remove duplicates
-  if (seenDescriptions.has(metaDescription)) {
-    console.log(`⚠️ Duplicate meta description skipped in: ${file}`);
-    return;
-  }
-  seenDescriptions.add(metaDescription);
+  seenDescriptions.add(description);
 
-  // Extract clean content
-  $("script").remove();
-  $("[style]").removeAttr("style");
-  const content = $("article").html() || $("body").html() || rawHtml;
+  const filename = slugify(title);
+  const date = new Date().toISOString().split("T")[0];
 
-  const clean = content
+  // Prefer <article> > <body> > full HTML
+  let content = $("article").html() || $("body").html() || rawHtml;
+
+  // Clean: remove inline <meta>, <script>, and inline style
+  content = content
     .replace(/<meta[^>]+>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .trim();
+    .replace(/style="[^"]*"/gi, "");
 
-  const hash = generateHash(clean);
+  // Remove duplicate title <p>
+  const rawTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const dupTitleRegex = new RegExp(`<p[^>]*>${rawTitle}</p>`, "gi");
+  content = content.replace(dupTitleRegex, "");
+
+  // Skip duplicate content
+  const hash = generateHash(content);
   if (seenHashes.has(hash)) {
-    console.log(`⚠️ Skipped duplicate content: ${file}`);
+    console.log(`⚠️ Duplicate skipped: ${file}`);
     return;
   }
   seenHashes.add(hash);
 
-  // Add to metadata object
-  postMetadata[slug] = {
-    title,
-    description: metaDescription,
-    image: "https://read.maxclickempire.com/assets/og-image.jpg",
-    published: date
-  };
-
-  // Inject Structured Data
+  // Structured Data
   const structuredData = `
-<script type="application/ld+json">
+<script type="application/ld+json">  
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "${title}",
-  "description": "${metaDescription}",
-  "url": "https://read.maxclickempire.com/posts/${slug}.html",
+  "description": "${description}",
+  "url": "https://read.maxclickempire.com/posts/${filename}.html",
   "datePublished": "${date}",
   "dateModified": "${date}",
   "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-  "author": { "@type": "Person", "name": "Ogunlana Akinola Okikiola" },
+  "author": {
+    "@type": "Person",
+    "name": "Ogunlana Akinola Okikiola"
+  },
   "publisher": {
     "@type": "Organization",
     "name": "MaxClickEmpire",
@@ -106,40 +112,31 @@ files.forEach(file => {
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
+    "@id": "https://read.maxclickempire.com/posts/${filename}.html"
   }
 }
 </script>`.trim();
 
-  // Inject into template
-  const finalHtml = template
+  // Final HTML render
+  let outputHtml = template
     .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, metaDescription)
+    .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, title.split(/\s+/).join(", "))
-    .replace(/{{FILENAME}}/g, slug)
-    .replace(/{{DATE}}/g, date.split("T")[0])
-    .replace(/{{CONTENT}}/g, clean)
+    .replace(/{{FILENAME}}/g, filename)
+    .replace(/{{DATE}}/g, date)
+    .replace(/{{CONTENT}}/g, content.trim())
     .replace(/{{STRUCTURED_DATA}}/g, structuredData);
 
-  // Save final HTML
-  const outputPath = path.join(distDir, filename);
-  fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Cleaned & Wrapped: ${filename}`);
+  // Final safety check: ensure only one meta description tag
+  outputHtml = outputHtml.replace(/<meta name="description"[^>]+>/gi, (match, offset, str) => {
+    if (str.indexOf(match) !== offset) return ""; // remove duplicates
+    return match; // keep first only
+  });
+
+  const outputPath = path.join(distDir, `${filename}.html`);
+  fs.writeFileSync(outputPath, outputHtml, "utf8");
+  console.log(`✅ Processed: ${filename}.html`);
   count++;
 });
 
-// Output post-meta.js
-const metaOutput = `// Auto-generated by Supreme SEO Engine — Do Not Edit
-
-const postMetadata = ${JSON.stringify(postMetadata, null, 2)};
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports.postMetadata = postMetadata;
-} else if (typeof window !== 'undefined') {
-  window.postMetadata = postMetadata;
-}
-`;
-
-fs.writeFileSync(postMetaPath, metaOutput, "utf8");
-console.log(`\n🧠 Saved: data/post-meta.js with ${Object.keys(postMetadata).length} posts`);
-console.log(`🎉 Done. ${count} unique posts processed.`);
+console.log(`\n🎉 Done. ${count} posts wrapped cleanly.`);
