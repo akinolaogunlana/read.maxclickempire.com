@@ -22,12 +22,12 @@
       nav.className = "site-header";
       nav.innerHTML = `
         <nav style="background:#fff;border-bottom:1px solid #eee;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;position:sticky;top:0;z-index:999;">
-          <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;"><b>🧠<b>MaxClickEmpire</a>
+          <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;">🧠MaxClickEmpire</a>
           <ul style="display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;">
             <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
             <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
             <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
-            <li><a href="/privacy-policy.html" style="color:#444;text-decoration:none;">Privacy</a></li>
+           
           </ul>
         </nav>
       `;
