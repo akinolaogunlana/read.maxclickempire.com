@@ -5,6 +5,9 @@ const path = require("path");
 const crypto = require("crypto");
 const cheerio = require("cheerio");
 
+// Load metadata from post-meta.js
+const { postMetadata } = require("./data/post-meta.js");
+
 // Paths
 const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
@@ -16,12 +19,11 @@ if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 // Read template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Hash to skip duplicates
+// Helpers
 function generateHash(content) {
   return crypto.createHash("sha256").update(content).digest("hex");
 }
 
-// Slugify filename
 function slugify(text) {
   return text
     .toLowerCase()
@@ -42,15 +44,28 @@ files.forEach(file => {
   const $ = cheerio.load(rawHtml);
 
   const title = $("h1").first().text().trim() || "Untitled Post";
-  const description = $("p").first().text().trim().replace(/\s+/g, " ") || "Post from MaxClickEmpire.";
-  const date = new Date().toISOString().split("T")[0];
   const filename = slugify(title);
+
+  // Detect existing <meta name="description">
+  let description = $("meta[name='description']").attr("content")?.trim();
+
+  // Fallback to postMetadata if no meta tag found
+  if (!description && postMetadata[filename]?.description) {
+    description = postMetadata[filename].description;
+  }
+
+  // Fallback to first <p>
+  if (!description) {
+    description = $("p").first().text().trim().replace(/\s+/g, " ") || "Post from MaxClickEmpire.";
+  }
+
+  const date = new Date().toISOString().split("T")[0];
 
   // Remove <script> and inline styles
   $("script").remove();
   $("[style]").removeAttr("style");
 
-  // Remove first <h1> inside article or body to avoid duplication
+  // Remove first <h1> inside article or body
   $("article h1").first().remove();
   $("body h1").first().remove();
 
@@ -58,7 +73,7 @@ files.forEach(file => {
   const content = $("article").html() || $("body").html() || rawHtml;
   const cleanContent = content.trim();
 
-  // Avoid duplicate files
+  // Avoid duplicates
   const hash = generateHash(cleanContent);
   if (seenHashes.has(hash)) {
     console.log(`⚠️ Duplicate skipped: ${file}`);
