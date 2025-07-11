@@ -9,83 +9,93 @@ const cheerio = require("cheerio");
 const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
+const postMetaPath = path.join(__dirname, "data", "post-meta.js");
 
-// Ensure dist exists
+// Create dist if missing
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
 // Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Utility: hash content
+// Utils
 const generateHash = (content) =>
   crypto.createHash("sha256").update(content).digest("hex");
 
-// Utility: slugify
 const slugify = (text) =>
-  text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "post";
+  text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "post";
 
-// Track seen hashes
+// Meta storage
+const postMetadata = {};
 const seenHashes = new Set();
+const seenDescriptions = new Set();
 
-// Process posts
 const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
 let count = 0;
 
 files.forEach(file => {
   const rawPath = path.join(rawDir, file);
-  let rawHtml = fs.readFileSync(rawPath, "utf8");
+  const rawHtml = fs.readFileSync(rawPath, "utf8");
   const $ = cheerio.load(rawHtml);
 
   const title = $("h1").first().text().trim() || "Untitled Post";
-  const description =
-    $("p").first().text().trim().replace(/\s+/g, " ") ||
-    "Post from MaxClickEmpire.";
-  const filename = slugify(title);
-  const date = new Date().toISOString().split("T")[0];
+  const slug = slugify(title);
+  const date = new Date().toISOString();
+  const filename = `${slug}.html`;
 
-  // Prefer <article> > <body> > fallback
-  let content =
-    $("article").html() ||
-    $("body").html() ||
-    rawHtml;
+  // Get meta description if exists
+  let metaDescription = $('meta[name="description"]').attr('content')?.trim();
+  if (!metaDescription || metaDescription.length < 40) {
+    metaDescription = $("p").first().text().trim().replace(/\s+/g, " ");
+  }
+  if (!metaDescription || metaDescription.length < 40) {
+    metaDescription = "A helpful guide from MaxClickEmpire. Read more now.";
+  }
 
-  // Remove inline <meta> tags, script, style
-  content = content
+  // Remove duplicates
+  if (seenDescriptions.has(metaDescription)) {
+    console.log(`⚠️ Duplicate meta description skipped in: ${file}`);
+    return;
+  }
+  seenDescriptions.add(metaDescription);
+
+  // Extract clean content
+  $("script").remove();
+  $("[style]").removeAttr("style");
+  const content = $("article").html() || $("body").html() || rawHtml;
+
+  const clean = content
     .replace(/<meta[^>]+>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/style="[^"]*"/gi, "");
+    .trim();
 
-  // Remove repeated title lines
-  const rawTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const dupTitleRegex = new RegExp(`<p[^>]*>${rawTitle}</p>`, "gi");
-  content = content.replace(dupTitleRegex, "");
-
-  const hash = generateHash(content);
+  const hash = generateHash(clean);
   if (seenHashes.has(hash)) {
-    console.log(`⚠️ Duplicate skipped: ${file}`);
+    console.log(`⚠️ Skipped duplicate content: ${file}`);
     return;
   }
   seenHashes.add(hash);
 
-  // Inject structured data
+  // Add to metadata object
+  postMetadata[slug] = {
+    title,
+    description: metaDescription,
+    image: "https://read.maxclickempire.com/assets/og-image.jpg",
+    published: date
+  };
+
+  // Inject Structured Data
   const structuredData = `
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "${title}",
-  "description": "${description}",
-  "url": "https://read.maxclickempire.com/posts/${filename}.html",
+  "description": "${metaDescription}",
+  "url": "https://read.maxclickempire.com/posts/${slug}.html",
   "datePublished": "${date}",
   "dateModified": "${date}",
   "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-  "author": {
-    "@type": "Person",
-    "name": "Ogunlana Akinola Okikiola"
-  },
+  "author": { "@type": "Person", "name": "Ogunlana Akinola Okikiola" },
   "publisher": {
     "@type": "Organization",
     "name": "MaxClickEmpire",
@@ -96,25 +106,40 @@ files.forEach(file => {
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://read.maxclickempire.com/posts/${filename}.html"
+    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
   }
 }
 </script>`.trim();
 
-  // Final HTML render
-  const outputHtml = template
+  // Inject into template
+  const finalHtml = template
     .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
+    .replace(/{{DESCRIPTION}}/g, metaDescription)
     .replace(/{{KEYWORDS}}/g, title.split(/\s+/).join(", "))
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, content.trim())
+    .replace(/{{FILENAME}}/g, slug)
+    .replace(/{{DATE}}/g, date.split("T")[0])
+    .replace(/{{CONTENT}}/g, clean)
     .replace(/{{STRUCTURED_DATA}}/g, structuredData);
 
-  const outputPath = path.join(distDir, `${filename}.html`);
-  fs.writeFileSync(outputPath, outputHtml, "utf8");
-  console.log(`✅ Processed: ${filename}.html`);
+  // Save final HTML
+  const outputPath = path.join(distDir, filename);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
+  console.log(`✅ Cleaned & Wrapped: ${filename}`);
   count++;
 });
 
-console.log(`\n🎉 Done. ${count} posts wrapped cleanly.`);
+// Output post-meta.js
+const metaOutput = `// Auto-generated by Supreme SEO Engine — Do Not Edit
+
+const postMetadata = ${JSON.stringify(postMetadata, null, 2)};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.postMetadata = postMetadata;
+} else if (typeof window !== 'undefined') {
+  window.postMetadata = postMetadata;
+}
+`;
+
+fs.writeFileSync(postMetaPath, metaOutput, "utf8");
+console.log(`\n🧠 Saved: data/post-meta.js with ${Object.keys(postMetadata).length} posts`);
+console.log(`🎉 Done. ${count} unique posts processed.`);
