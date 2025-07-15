@@ -41,14 +41,18 @@ const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
 files.forEach(file => {
   const rawPath = path.join(rawDir, file);
   let rawHtml = fs.readFileSync(rawPath, "utf8");
-  const $ = cheerio.load(rawHtml);
+
+  // 🚫 Remove hidden Unicode characters (e.g., \uE000–\uF8FF)
+  rawHtml = rawHtml.replace(/[\uE000-\uF8FF]/g, "");
+
+  const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
   // 🧼 CLEANUP SECTION
-  $("html, head, meta, link, title").remove(); // Remove unwanted elements
-  $("script").remove();                       // Remove all <script> tags
-  $("[style]").removeAttr("style");           // Remove inline styles
+  $("html, head, link, title, meta").remove(); // Remove unwanted tags
+  $("script").remove();                        // Remove scripts
+  $("[style]").removeAttr("style");            // Remove inline styles
 
-  // Remove all inline event handlers (onclick, onmouseover, etc.)
+  // Remove inline JS event handlers (onclick, etc.)
   $("*").each((_, el) => {
     const attribs = el.attribs || {};
     Object.keys(attribs).forEach(attr => {
@@ -56,11 +60,14 @@ files.forEach(file => {
     });
   });
 
-  // Fix broken anchor tags
+  // Fix broken <a href> tags
   $("a").each((_, el) => {
     const href = $(el).attr("href");
     if (href && href.includes("<a")) $(el).removeAttr("href");
   });
+
+  // Remove meta description in body if any
+  $("body meta[name='description']").remove();
 
   // Metadata
   const title = $("h1").first().text().trim() || "Untitled Post";
@@ -74,15 +81,15 @@ files.forEach(file => {
 
   const date = new Date().toISOString();
 
-  // Remove <h1> from article/body
+  // Remove <h1> from <article> or <body>
   $("article h1").first().remove();
   $("body h1").first().remove();
 
-  // Extract clean content
+  // Extract main content
   let content = $("article").html()?.trim();
   if (!content) content = $("body").html()?.trim() || rawHtml;
 
-  // Prevent duplicate content
+  // Prevent duplicate output
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
     console.log(`⚠️  Duplicate skipped: ${file}`);
@@ -117,7 +124,7 @@ files.forEach(file => {
 }
 </script>`.trim();
 
-  // Final HTML output
+  // Replace tokens in template
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
@@ -127,6 +134,7 @@ files.forEach(file => {
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
 
+  // Write to output directory
   const outputPath = path.join(distDir, `${filename}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
 
