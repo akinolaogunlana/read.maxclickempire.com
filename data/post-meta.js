@@ -3,9 +3,9 @@
 const postMetadata = {
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates",
-    "description": "Discover the best free Google Docs resume templates: ATS‑friendly, professional, modern &amp; creative. Learn how to customize, upload and download polished resumes easily.",
+    "description": "Discover the best free Google Docs resume templates to land your dream job. Browse modern, professional, and ATS-friendly designs you can edit instantly in Google Docs.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-17T07:34:28.800Z"
+    "published": "2025-07-17T08:13:49.168Z"
   }
 };
 
