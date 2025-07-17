@@ -16,21 +16,20 @@ const distDir = path.join(__dirname, "dist");
 // Create dist if needed
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-// Load base template
-const template = fs.readFileSync(templatePath, "utf8");
+// Load template
+const baseTemplate = fs.readFileSync(templatePath, "utf8");
 
 // Helpers
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
-}
-function slugify(text) {
-  return text
+const generateHash = content =>
+  crypto.createHash("sha256").update(content).digest("hex");
+
+const slugify = text =>
+  text
     .toLowerCase()
     .replace(/[^a-z0-9 -]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
-}
 
 const seenHashes = new Set();
 
@@ -40,12 +39,12 @@ files.forEach(file => {
   const rawPath = path.join(rawDir, file);
   let rawHtml = fs.readFileSync(rawPath, "utf8");
 
-  // Strip invisible Unicode
+  // Clean invisible chars
   rawHtml = rawHtml.replace(/[\uE000-\uF8FF]/g, "");
 
   const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
-  // CLEANUP
+  // Cleanup: strip problematic tags
   $("html, head, link, title, meta, script").remove();
   $("[style]").removeAttr("style");
 
@@ -62,7 +61,7 @@ files.forEach(file => {
 
   $("body meta[name='description']").remove();
 
-  // Metadata
+  // Extract metadata
   const title = $("h1").first().text().trim() || "Untitled Post";
   const filename = slugify(title);
 
@@ -74,48 +73,56 @@ files.forEach(file => {
 
   const date = new Date().toISOString();
 
-  // Remove repeated <h1>
+  // Remove duplicate h1
   $("article h1").first().remove();
   $("body h1").first().remove();
 
-  // Extract content
+  // Final content
   let content = $("article").html()?.trim();
   if (!content) content = $("body").html()?.trim() || rawHtml;
 
-  // Skip duplicates
+  if (!content || content.length < 10) {
+    console.warn(`⚠️ Empty or invalid content in: ${file}`);
+    return;
+  }
+
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
-    console.log(`⚠️ Skipped duplicate: ${file}`);
+    console.log(`⏭️  Skipped duplicate: ${file}`);
     return;
   }
   seenHashes.add(hash);
 
-  // Structured data
+  // Structured Data
   const structuredData = `
 <script type="application/ld+json">
-${JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  headline: title,
-  description,
-  url: `https://read.maxclickempire.com/posts/${filename}.html`,
-  datePublished: date,
-  dateModified: date,
-  author: { "@type": "Organization", name: "MaxClickEmpire" },
-  publisher: {
-    "@type": "Organization",
-    name: "MaxClickEmpire",
-    logo: {
-      "@type": "ImageObject",
-      url: "https://read.maxclickempire.com/assets/og-image.jpg",
+${JSON.stringify(
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    url: `https://read.maxclickempire.com/posts/${filename}.html`,
+    datePublished: date,
+    dateModified: date,
+    author: { "@type": "Organization", name: "MaxClickEmpire" },
+    publisher: {
+      "@type": "Organization",
+      name: "MaxClickEmpire",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://read.maxclickempire.com/assets/og-image.jpg",
+      },
     },
+    mainEntityOfPage: `https://read.maxclickempire.com/posts/${filename}.html`,
   },
-  mainEntityOfPage: `https://read.maxclickempire.com/posts/${filename}.html`,
-}, null, 2)}
+  null,
+  2
+)}
 </script>`.trim();
 
-  // Final HTML
-  const finalHtml = template
+  // Replace placeholders
+  let finalHtml = baseTemplate
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, title.split(" ").join(", "))
@@ -124,9 +131,14 @@ ${JSON.stringify({
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
 
-  // Save
+  // Basic validation
+  if (!finalHtml.includes("</html>") || !finalHtml.includes("</body>")) {
+    console.error(`❌ Broken final HTML in: ${file}`);
+    return;
+  }
+
+  // Save to dist
   const outputPath = path.join(distDir, `${filename}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
-
   console.log(`✅ Generated: ${filename}.html`);
 });
