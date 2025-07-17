@@ -7,7 +7,6 @@ const natural = require("natural");
 // Config
 const postsDir = path.join(__dirname, "..", "posts");
 const LINK_LIMIT = 3;
-const CONTEXT_WINDOW = 100; // characters before and after keyword for context
 const SIMILARITY_THRESHOLD = 0.75;
 
 // Load Metadata
@@ -22,6 +21,18 @@ try {
 
 // Utils
 const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function escapeHtml(str) {
+  return str.replace(/["&<>]/g, char => {
+    switch (char) {
+      case '"': return "&quot;";
+      case "&": return "&amp;";
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      default: return char;
+    }
+  });
+}
 
 function generateKeywordVariants(keyword) {
   const base = keyword.toLowerCase();
@@ -45,7 +56,7 @@ const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 posts.forEach((filename) => {
   const filePath = path.join(postsDir, filename);
   const htmlRaw = fs.readFileSync(filePath, "utf8");
-  const $ = cheerio.load(htmlRaw);
+  const $ = cheerio.load(htmlRaw, { decodeEntities: false });
   const slug = filename.replace(".html", "").toLowerCase();
   const currentMeta = metadata[slug] || {};
   const currentTitle = currentMeta.title || slug;
@@ -64,7 +75,6 @@ posts.forEach((filename) => {
   const usedLinks = new Set();
   let inserted = 0;
 
-  // Rank potential internal links
   const potentialLinks = Object.entries(metadata)
     .filter(([slug2, data]) => slug2 !== slug && data?.title)
     .map(([slug2, data]) => {
@@ -86,38 +96,41 @@ posts.forEach((filename) => {
     .filter(link => link.score >= SIMILARITY_THRESHOLD)
     .sort((a, b) => b.score - a.score);
 
-  // Insert links
   $("p").each((_, el) => {
     if (inserted >= LINK_LIMIT) return;
 
-    let content = $(el).html();
-    if (!content || /<a\s/i.test(content)) return;
+    $(el).contents().each((i, node) => {
+      if (node.type !== "text" || inserted >= LINK_LIMIT) return;
 
-    for (const link of potentialLinks) {
-      if (usedLinks.has(link.href)) continue;
+      let text = node.data;
+      let replaced = false;
 
-      for (const variant of link.variants) {
-        const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
-        const match = content.match(regex);
-        if (match) {
-          const anchorText = match[1];
-          content = content.replace(
-            regex,
-            `<a href="${link.href}" title="${link.title}">${anchorText}</a>`
-          );
-          usedLinks.add(link.href);
-          inserted++;
-          break;
+      for (const link of potentialLinks) {
+        if (usedLinks.has(link.href)) continue;
+
+        for (const variant of link.variants) {
+          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+          const match = text.match(regex);
+
+          if (match) {
+            const anchorText = match[1];
+            const before = text.substring(0, match.index);
+            const after = text.substring(match.index + anchorText.length);
+            const safeTitle = escapeHtml(link.title);
+            const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
+            $(node).replaceWith(before + anchor + after);
+            usedLinks.add(link.href);
+            inserted++;
+            replaced = true;
+            break;
+          }
         }
+
+        if (replaced || inserted >= LINK_LIMIT) break;
       }
-
-      if (inserted >= LINK_LIMIT) break;
-    }
-
-    $(el).html(content);
+    });
   });
 
-  // Output
   fs.writeFileSync(filePath, $.html(), "utf8");
   console.log(`🔗 [${filename}] — inserted ${inserted} smart links`);
 });
