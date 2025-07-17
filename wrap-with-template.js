@@ -5,25 +5,24 @@ const path = require("path");
 const crypto = require("crypto");
 const cheerio = require("cheerio");
 
-// Load metadata from post-meta.js
+// Load metadata
 const { postMetadata } = require("./data/post-meta.js");
 
-// Define paths
+// Paths
 const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure output directory exists
+// Create dist if needed
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-// Load template HTML
+// Load base template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Helper functions
+// Helpers
 function generateHash(content) {
   return crypto.createHash("sha256").update(content).digest("hex");
 }
-
 function slugify(text) {
   return text
     .toLowerCase()
@@ -35,45 +34,39 @@ function slugify(text) {
 
 const seenHashes = new Set();
 
-// Get all raw .html files
 const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
 
 files.forEach(file => {
   const rawPath = path.join(rawDir, file);
   let rawHtml = fs.readFileSync(rawPath, "utf8");
 
-  // 🚫 Remove hidden Unicode characters (e.g., \uE000–\uF8FF)
+  // Strip invisible Unicode
   rawHtml = rawHtml.replace(/[\uE000-\uF8FF]/g, "");
 
   const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
-  // 🧼 CLEANUP SECTION
-  $("html, head, link, title, meta").remove(); // Remove unwanted tags
-  $("script").remove();                        // Remove scripts
-  $("[style]").removeAttr("style");            // Remove inline styles
+  // CLEANUP
+  $("html, head, link, title, meta, script").remove();
+  $("[style]").removeAttr("style");
 
-  // Remove inline JS event handlers (onclick, etc.)
   $("*").each((_, el) => {
-    const attribs = el.attribs || {};
-    Object.keys(attribs).forEach(attr => {
+    for (const attr in el.attribs) {
       if (attr.startsWith("on")) $(el).removeAttr(attr);
-    });
+    }
   });
 
-  // Fix broken <a href> tags
   $("a").each((_, el) => {
     const href = $(el).attr("href");
     if (href && href.includes("<a")) $(el).removeAttr("href");
   });
 
-  // Remove meta description in body if any
   $("body meta[name='description']").remove();
 
   // Metadata
   const title = $("h1").first().text().trim() || "Untitled Post";
   const filename = slugify(title);
 
-  let description =
+  const description =
     $("meta[name='description']").attr("content")?.trim() ||
     postMetadata[filename]?.description ||
     $("p").first().text().trim().replace(/\s+/g, " ") ||
@@ -81,50 +74,47 @@ files.forEach(file => {
 
   const date = new Date().toISOString();
 
-  // Remove <h1> from <article> or <body>
+  // Remove repeated <h1>
   $("article h1").first().remove();
   $("body h1").first().remove();
 
-  // Extract main content
+  // Extract content
   let content = $("article").html()?.trim();
   if (!content) content = $("body").html()?.trim() || rawHtml;
 
-  // Prevent duplicate output
+  // Skip duplicates
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
-    console.log(`⚠️  Duplicate skipped: ${file}`);
+    console.log(`⚠️ Skipped duplicate: ${file}`);
     return;
   }
   seenHashes.add(hash);
 
-  // Structured Data (JSON-LD)
+  // Structured data
   const structuredData = `
 <script type="application/ld+json">
-{
+${JSON.stringify({
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "${title}",
-  "description": "${description}",
-  "url": "https://read.maxclickempire.com/posts/${filename}.html",
-  "datePublished": "${date}",
-  "dateModified": "${date}",
-  "author": {
+  headline: title,
+  description,
+  url: `https://read.maxclickempire.com/posts/${filename}.html`,
+  datePublished: date,
+  dateModified: date,
+  author: { "@type": "Organization", name: "MaxClickEmpire" },
+  publisher: {
     "@type": "Organization",
-    "name": "MaxClickEmpire"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "MaxClickEmpire",
-    "logo": {
+    name: "MaxClickEmpire",
+    logo: {
       "@type": "ImageObject",
-      "url": "https://read.maxclickempire.com/assets/og-image.jpg"
-    }
+      url: "https://read.maxclickempire.com/assets/og-image.jpg",
+    },
   },
-  "mainEntityOfPage": "https://read.maxclickempire.com/posts/${filename}.html"
-}
+  mainEntityOfPage: `https://read.maxclickempire.com/posts/${filename}.html`,
+}, null, 2)}
 </script>`.trim();
 
-  // Replace tokens in template
+  // Final HTML
   const finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
@@ -134,9 +124,9 @@ files.forEach(file => {
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
 
-  // Write to output directory
+  // Save
   const outputPath = path.join(distDir, `${filename}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
 
-  console.log(`✅ Wrapped & Cleaned: ${filename}.html`);
+  console.log(`✅ Generated: ${filename}.html`);
 });
