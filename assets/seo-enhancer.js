@@ -1,4 +1,14 @@
 (function () {
+  function waitFor(conditionFn, callback, interval = 50, timeout = 2000) {
+    const start = Date.now();
+    const poll = () => {
+      if (conditionFn()) return callback();
+      if (Date.now() - start >= timeout) return console.warn("⏳ postMetadata not loaded in time.");
+      setTimeout(poll, interval);
+    };
+    poll();
+  }
+
   function waitForDom(callback) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", callback);
@@ -8,6 +18,10 @@
   }
 
   waitForDom(() => {
+    waitFor(() => !!window.postMetadata, initSeoEnhancer);
+  });
+
+  function initSeoEnhancer() {
     const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
     const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
     const skip = ["about", "contact", "privacy-policy", "terms"];
@@ -27,7 +41,6 @@
             <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
             <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
             <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
-           
           </ul>
         </nav>
       `;
@@ -41,14 +54,13 @@
     const firstImg = article.querySelector("img");
     const image = firstImg?.src || "/assets/og-image.jpg";
 
-    const meta = (window.postMetadata && window.postMetadata[slug]) || {
+    const meta = window.postMetadata?.[slug] || {
       title: titleText,
       description: desc,
       image,
       published: new Date().toISOString()
     };
 
-    // ✅ Remove existing meta tags
     [
       "og:title", "og:description", "og:url", "og:type", "og:image",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
@@ -89,7 +101,6 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // ✅ Structured Data (JSON-LD)
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -109,18 +120,12 @@
     });
     document.head.appendChild(ld);
 
-    // ✅ Hero Section
+    // ✅ Hero
     if (h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
       hero.innerHTML = `
-        <div style="
-          background: linear-gradient(to right, #f5f7fa, #e4ecf3);
-          border-radius: 20px;
-          padding: 2rem;
-          text-align: center;
-          margin-bottom: 2.5rem;
-        ">
+        <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
           <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
@@ -132,7 +137,7 @@
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // ✅ Table of Contents
+    // ✅ TOC
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
@@ -191,7 +196,7 @@
       document.body.appendChild(footer);
     }
 
-    // ✅ Dark mode support
+    // ✅ Dark Mode
     if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
@@ -200,5 +205,5 @@
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
-  });
+  }
 })();
