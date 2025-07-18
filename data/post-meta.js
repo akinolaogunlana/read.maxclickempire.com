@@ -5,13 +5,13 @@ const postMetadata = {
     "title": "How to Create an ATS‑Friendly Resume on Google Docs",
     "description": "A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-18T08:30:42.147Z"
+    "published": "2025-07-18T08:33:28.926Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates",
     "description": "Discover the best free Google Docs resume templates to create a standout, ATS-friendly resume. Choose from professionally designed templates ideal for job seekers in 2025 and beyond.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-18T08:30:42.149Z"
+    "published": "2025-07-18T08:33:28.928Z"
   }
 };
 
