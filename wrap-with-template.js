@@ -31,6 +31,14 @@ const slugify = (text) =>
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const escapeHtml = (text) =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const extractFirstParagraph = ($) => {
   const p = $("p").first().text().trim();
   return p.replace(/\s+/g, " ");
@@ -131,9 +139,13 @@ ${JSON.stringify(
     .filter((word) => word.length > 3)
     .join(", ");
 
+  // Escape description for meta tags ({{DESCRIPTION_ESCAPED}})
+  const descriptionEscaped = escapeHtml(description);
+
   // Inject into template
   const finalHtml = baseTemplate
     .replace(/{{TITLE}}/g, title)
+    .replace(/{{DESCRIPTION_ESCAPED}}/g, descriptionEscaped)
     .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, keywords)
     .replace(/{{FILENAME}}/g, filename)
