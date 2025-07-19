@@ -3,21 +3,21 @@
 const postMetadata = {
   "ats-friendly-resume-google-docs": {
     "title": "How to Create an ATS‑Friendly Resume on Google Docs",
-    "description": "Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scene",
+    "description": "A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:18:32.172Z"
+    "published": "2025-07-19T10:28:32.549Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates",
-    "description": "Imagine landing your dream job without spending a dime on resume design software. That’s the power of Google Docs — a free, easy-to-use tool that allows you to ",
+    "description": "Discover the best free Google Docs resume templates to create a standout, ATS-friendly resume. Choose from professionally designed templates ideal for job seekers in 2025 and beyond.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:18:32.174Z"
+    "published": "2025-07-19T10:28:32.551Z"
   },
   "modern-resume-templates-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
-    "description": "Picture this: You spot your dream job, hit ",
+    "description": "Discover the best modern resume templates in Google Docs designed to land you interviews. Step-by-step guidance, real samples, and ATS-friendly designs to elevate your job search in 2025.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:18:32.175Z"
+    "published": "2025-07-19T10:28:32.552Z"
   }
 };
 
