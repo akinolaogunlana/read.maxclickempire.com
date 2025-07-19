@@ -1,38 +1,43 @@
+// wrap-with-template.js
+
 const fs = require("fs");
 const path = require("path");
 
-const TEMPLATE_PATH = path.join(__dirname, "template.html");
-const OUTPUT_DIR = path.join(__dirname, "dist");
-const POSTS_DIR = path.join(__dirname, "posts");
+const templatePath = path.join(__dirname, "template.html");
+const outputDir = path.join(__dirname, "dist");
+const rawDir = path.join(__dirname, "raw");
 
-const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
+// Load the base HTML template
+const baseTemplate = fs.readFileSync(templatePath, "utf8");
 
-fs.readdirSync(POSTS_DIR).forEach((filename) => {
-  if (!filename.endsWith(".html")) return;
+// Loop through each raw HTML file
+fs.readdirSync(rawDir).forEach(file => {
+  if (path.extname(file) === ".html") {
+    const slug = path.basename(file, ".html");
+    const rawPath = path.join(rawDir, file);
+    let rawHtml = fs.readFileSync(rawPath, "utf8")
+      .replace(/[\uE000-\uF8FF]/g, "") // Remove private use unicode
+      .replace(/{{\s*STRUCTURED_DATA\s*}}/gi, ""); // Remove STRUCTURED_DATA from raw
 
-  const filePath = path.join(POSTS_DIR, filename);
-  let content = fs.readFileSync(filePath, "utf-8");
+    // Extract title, description, and JSON-LD structured data
+    const titleMatch = rawHtml.match(/<title>(.*?)<\/title>/);
+    const descriptionMatch = rawHtml.match(/<meta\s+name="description"\s+content="(.*?)"\s*\/?>/i);
+    const structuredDataMatch = rawHtml.match(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/);
 
-  // Extract title from <h1> or fallback to filename
-  const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  const title = titleMatch ? titleMatch[1].trim() : filename.replace(/\.html$/, "");
+    const title = titleMatch ? titleMatch[1] : "";
+    const description = descriptionMatch ? descriptionMatch[1] : "";
+    const structuredData = structuredDataMatch ? structuredDataMatch[1].trim() : "";
 
-  // Extract meta description from comment block OR first <p>
-  const descMatch = content.match(/<!--\s*desc:(.*?)-->/i);
-  const description = descMatch
-    ? descMatch[1].trim()
-    : (content.match(/<p[^>]*>(.*?)<\/p>/i)?.[1].trim().replace(/<[^>]+>/g, "") || "").slice(0, 160);
+    // Inject metadata and content into the template
+    const finalHtml = baseTemplate
+      .replace(/{{\s*TITLE\s*}}/g, title)
+      .replace(/{{\s*DESCRIPTION\s*}}/g, description)
+      .replace(/{{\s*STRUCTURED_DATA\s*}}/g, structuredData)
+      .replace(/{{\s*CONTENT\s*}}/g, rawHtml);
 
-  // SEO-safe slug for URL path or ID
-  const slug = filename.replace(/\.html$/, "");
-
-  // Fill in template
-  let finalHTML = template
-    .replace(/{{\s*TITLE\s*}}/gi, title)
-    .replace(/{{\s*DESCRIPTION\s*}}/gi, description)
-    .replace(/{{\s*SLUG\s*}}/gi, slug)
-    .replace(/{{\s*CONTENT\s*}}/gi, content);
-
-  // Output file
-  fs.writeFileSync(path.join(OUTPUT_DIR, filename), finalHTML, "utf-8");
+    // Write the final file
+    const outputPath = path.join(outputDir, `${slug}.html`);
+    fs.writeFileSync(outputPath, finalHtml, "utf8");
+    console.log(`✅ Wrapped ${file} into ${outputPath}`);
+  }
 });
