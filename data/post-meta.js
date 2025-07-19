@@ -5,19 +5,19 @@ const postMetadata = {
     "title": "How to Create an ATS‑Friendly Resume on Google Docs",
     "description": "Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scene",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:16:04.603Z"
+    "published": "2025-07-19T10:18:32.172Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates",
     "description": "Imagine landing your dream job without spending a dime on resume design software. That’s the power of Google Docs — a free, easy-to-use tool that allows you to ",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:16:04.605Z"
+    "published": "2025-07-19T10:18:32.174Z"
   },
   "modern-resume-templates-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
     "description": "Picture this: You spot your dream job, hit ",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-19T10:16:04.605Z"
+    "published": "2025-07-19T10:18:32.175Z"
   }
 };
 
