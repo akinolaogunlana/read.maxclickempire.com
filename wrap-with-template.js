@@ -4,22 +4,15 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const cheerio = require("cheerio");
-
-// Load metadata
 const { postMetadata } = require("./data/post-meta.js");
 
-// Paths
 const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist exists
 if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
-
-// Load template once
 const baseTemplate = fs.readFileSync(templatePath, "utf8");
 
-// Utilities
 const generateHash = (content) =>
   crypto.createHash("sha256").update(content).digest("hex");
 
@@ -45,7 +38,6 @@ const extractFirstParagraph = ($) => {
 };
 
 const seenHashes = new Set();
-
 const files = fs.readdirSync(rawDir).filter((f) => f.endsWith(".html"));
 
 files.forEach((file) => {
@@ -54,13 +46,12 @@ files.forEach((file) => {
 
   const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
-  // Clean up dangerous or unwanted elements
   $("html, head, link, title, meta, script").remove();
   $("[style]").removeAttr("style");
 
   $("*").each((_, el) => {
     for (const attr in el.attribs) {
-      if (attr.startsWith("on")) $(el).removeAttr(attr); // remove inline JS
+      if (attr.startsWith("on")) $(el).removeAttr(attr);
     }
   });
 
@@ -71,11 +62,9 @@ files.forEach((file) => {
 
   $("body meta[name='description']").remove();
 
-  // Extract title
   const title = $("h1").first().text().trim() || "Untitled Post";
   const filename = slugify(title);
 
-  // Extract description
   const description =
     $("meta[name='description']").attr("content")?.trim() ||
     postMetadata[filename]?.description ||
@@ -84,7 +73,6 @@ files.forEach((file) => {
 
   const date = new Date().toISOString();
 
-  // Remove duplicate <h1> from content
   $("article h1").first().remove();
   $("body h1").first().remove();
 
@@ -103,7 +91,6 @@ files.forEach((file) => {
   }
   seenHashes.add(hash);
 
-  // Structured Data JSON-LD
   const structuredData = `
 <script type="application/ld+json">
 ${JSON.stringify(
@@ -131,7 +118,6 @@ ${JSON.stringify(
 )}
 </script>`.trim();
 
-  // Generate keywords from title
   const keywords = title
     .toLowerCase()
     .replace(/[^\w\s]/g, "")
@@ -139,10 +125,8 @@ ${JSON.stringify(
     .filter((word) => word.length > 3)
     .join(", ");
 
-  // Escape description for meta tags ({{DESCRIPTION_ESCAPED}})
   const descriptionEscaped = escapeHtml(description);
 
-  // Inject into template
   const finalHtml = baseTemplate
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION_ESCAPED}}/g, descriptionEscaped)
@@ -152,11 +136,6 @@ ${JSON.stringify(
     .replace(/{{DATE}}/g, date)
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
-
-  if (!finalHtml.includes("</html>") || !finalHtml.includes("</body>")) {
-    console.error(`❌ Broken final HTML in: ${file}`);
-    return;
-  }
 
   const outputPath = path.join(distDir, `${filename}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
