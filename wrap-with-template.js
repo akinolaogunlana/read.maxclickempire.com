@@ -10,7 +10,12 @@ const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+// Ensure dist directory exists
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+
+// Load HTML template
 const baseTemplate = fs.readFileSync(templatePath, "utf8");
 
 const generateHash = (content) =>
@@ -46,25 +51,20 @@ files.forEach((file) => {
 
   const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
-  $("html, head, link, title, meta, script").remove();
+  // Clean potentially dangerous content
+  $("script, link, title, meta").remove();
   $("[style]").removeAttr("style");
-
   $("*").each((_, el) => {
     for (const attr in el.attribs) {
       if (attr.startsWith("on")) $(el).removeAttr(attr);
     }
   });
 
-  $("a").each((_, el) => {
-    const href = $(el).attr("href");
-    if (href && href.includes("<a")) $(el).removeAttr("href");
-  });
-
-  $("body meta[name='description']").remove();
-
+  // Extract title from <h1>
   const title = $("h1").first().text().trim() || "Untitled Post";
   const filename = slugify(title);
 
+  // Extract or generate description
   const description =
     $("meta[name='description']").attr("content")?.trim() ||
     postMetadata[filename]?.description ||
@@ -73,17 +73,17 @@ files.forEach((file) => {
 
   const date = new Date().toISOString();
 
-  $("article h1").first().remove();
-  $("body h1").first().remove();
+  // Remove duplicate <h1>
+  $("h1").first().remove();
 
-  let content = $("article").html()?.trim();
-  if (!content) content = $("body").html()?.trim() || rawHtml;
-
+  // Get meaningful content
+  let content = $("article").html()?.trim() || $("body").html()?.trim() || rawHtml;
   if (!content || content.length < 10) {
     console.warn(`⚠️  Empty or invalid content in: ${file}`);
     return;
   }
 
+  // Skip duplicates
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
     console.log(`⏭️  Skipped duplicate: ${file}`);
@@ -91,6 +91,7 @@ files.forEach((file) => {
   }
   seenHashes.add(hash);
 
+  // Build JSON-LD structured data
   const structuredData = `
 <script type="application/ld+json">
 ${JSON.stringify(
@@ -102,7 +103,10 @@ ${JSON.stringify(
     url: `https://read.maxclickempire.com/posts/${filename}.html`,
     datePublished: date,
     dateModified: date,
-    author: { "@type": "Organization", name: "MaxClickEmpire" },
+    author: {
+      "@type": "Organization",
+      name: "MaxClickEmpire",
+    },
     publisher: {
       "@type": "Organization",
       name: "MaxClickEmpire",
@@ -111,13 +115,17 @@ ${JSON.stringify(
         url: "https://read.maxclickempire.com/assets/og-image.jpg",
       },
     },
-    mainEntityOfPage: `https://read.maxclickempire.com/posts/${filename}.html`,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://read.maxclickempire.com/posts/${filename}.html`,
+    },
   },
   null,
   2
 )}
 </script>`.trim();
 
+  // Generate keywords from title
   const keywords = title
     .toLowerCase()
     .replace(/[^\w\s]/g, "")
@@ -127,6 +135,7 @@ ${JSON.stringify(
 
   const descriptionEscaped = escapeHtml(description);
 
+  // Final output HTML
   const finalHtml = baseTemplate
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION_ESCAPED}}/g, descriptionEscaped)
