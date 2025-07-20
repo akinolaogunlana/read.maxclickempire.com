@@ -10,12 +10,10 @@ const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist directory exists
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Load HTML template
 const baseTemplate = fs.readFileSync(templatePath, "utf8");
 
 const generateHash = (content) =>
@@ -42,6 +40,15 @@ const extractFirstParagraph = ($) => {
   return p.replace(/\s+/g, " ");
 };
 
+const formatDate = (isoDate) => {
+  const d = new Date(isoDate);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 const seenHashes = new Set();
 const files = fs.readdirSync(rawDir).filter((f) => f.endsWith(".html"));
 
@@ -51,7 +58,7 @@ files.forEach((file) => {
 
   const $ = cheerio.load(rawHtml, { decodeEntities: false });
 
-  // Clean potentially dangerous content
+  // Remove unsafe tags/attributes
   $("script, link, title, meta").remove();
   $("[style]").removeAttr("style");
   $("*").each((_, el) => {
@@ -60,30 +67,30 @@ files.forEach((file) => {
     }
   });
 
-  // Extract title from <h1>
+  // Extract title and generate filename
   const title = $("h1").first().text().trim() || "Untitled Post";
   const filename = slugify(title);
+  const filenameEncoded = encodeURIComponent(filename);
 
-  // Extract or generate description
+  // Description logic
   const description =
     $("meta[name='description']").attr("content")?.trim() ||
     postMetadata[filename]?.description ||
     extractFirstParagraph($) ||
     "Post from MaxClickEmpire.";
 
-  const date = new Date().toISOString();
+  const dateISO = new Date().toISOString();
+  const dateHuman = formatDate(dateISO);
 
-  // Remove duplicate <h1>
   $("h1").first().remove();
 
-  // Get meaningful content
+  // Extract article content
   let content = $("article").html()?.trim() || $("body").html()?.trim() || rawHtml;
   if (!content || content.length < 10) {
-    console.warn(`⚠️  Empty or invalid content in: ${file}`);
+    console.warn(`⚠️  Skipping empty or invalid: ${file}`);
     return;
   }
 
-  // Skip duplicates
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
     console.log(`⏭️  Skipped duplicate: ${file}`);
@@ -91,7 +98,7 @@ files.forEach((file) => {
   }
   seenHashes.add(hash);
 
-  // Build JSON-LD structured data
+  // JSON-LD structured data
   const structuredData = `
 <script type="application/ld+json">
 ${JSON.stringify(
@@ -100,9 +107,9 @@ ${JSON.stringify(
     "@type": "BlogPosting",
     headline: title,
     description,
-    url: `https://read.maxclickempire.com/posts/${filename}.html`,
-    datePublished: date,
-    dateModified: date,
+    url: `https://read.maxclickempire.com/posts/${filenameEncoded}.html`,
+    datePublished: dateISO,
+    dateModified: dateISO,
     author: {
       "@type": "Organization",
       name: "MaxClickEmpire",
@@ -117,7 +124,7 @@ ${JSON.stringify(
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://read.maxclickempire.com/posts/${filename}.html`,
+      "@id": `https://read.maxclickempire.com/posts/${filenameEncoded}.html`,
     },
   },
   null,
@@ -125,7 +132,6 @@ ${JSON.stringify(
 )}
 </script>`.trim();
 
-  // Generate keywords from title
   const keywords = title
     .toLowerCase()
     .replace(/[^\w\s]/g, "")
@@ -135,14 +141,16 @@ ${JSON.stringify(
 
   const descriptionEscaped = escapeHtml(description);
 
-  // Final output HTML
+  // Inject data into the template
   const finalHtml = baseTemplate
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION_ESCAPED}}/g, descriptionEscaped)
     .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, keywords)
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{DATE}}/g, date)
+    .replace(/{{FILENAME}}/g, filename) // if still used
+    .replace(/{{FILENAME_ENCODED}}/g, filenameEncoded)
+    .replace(/{{PUBLISHED_DATE_ISO}}/g, dateISO)
+    .replace(/{{PUBLISHED_DATE_HUMAN}}/g, dateHuman)
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
 

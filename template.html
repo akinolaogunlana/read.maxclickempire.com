@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xml:lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,16 +8,34 @@
   <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="Ogunlana Akinola Okikiola" />
-  <link rel="canonical" href="https://read.maxclickempire.com/posts/{{FILENAME}}.html" />
+  <link rel="canonical" href="https://read.maxclickempire.com/posts/{{FILENAME_ENCODED}}.html" />
   <link rel="icon" href="https://read.maxclickempire.com/assets/favicon.png" type="image/png" />
 
-  {{STRUCTURED_DATA}}
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{TITLE}}",
+    "description": "{{DESCRIPTION_ESCAPED}}",
+    "author": {
+      "@type": "Person",
+      "name": "Ogunlana Akinola Okikiola"
+    },
+    "datePublished": "{{PUBLISHED_DATE_ISO}}",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://read.maxclickempire.com/posts/{{FILENAME_ENCODED}}.html"
+    },
+    "image": "https://read.maxclickempire.com/assets/og-image.jpg"
+  }
+  </script>
 
   <!-- Open Graph -->
   <meta property="og:type" content="article" />
   <meta property="og:title" content="{{TITLE}}" />
   <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta property="og:url" content="https://read.maxclickempire.com/posts/{{FILENAME}}.html" />
+  <meta property="og:url" content="https://read.maxclickempire.com/posts/{{FILENAME_ENCODED}}.html" />
   <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
   <meta property="og:site_name" content="MaxClickEmpire" />
 
@@ -34,6 +52,10 @@
 <body>
   <main>
     <article>
+      <header>
+        <h1>{{TITLE}}</h1>
+        <p><time datetime="{{PUBLISHED_DATE_ISO}}">Published on {{PUBLISHED_DATE_HUMAN}}</time></p>
+      </header>
       {{CONTENT}}
     </article>
   </main>
