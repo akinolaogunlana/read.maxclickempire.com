@@ -2,60 +2,44 @@
 
 const fs = require("fs");
 const path = require("path");
+const cheerio = require("cheerio");
+const { postMetadata } = require("./data/post-meta.js");
 
-// Paths
 const rawDir = path.join(__dirname, "raw");
-const distDir = path.join(__dirname, "dist");
 const templatePath = path.join(__dirname, "template.html");
+const distDir = path.join(__dirname, "dist");
 
-// Load base template
-const template = fs.readFileSync(templatePath, "utf-8");
-
-// Ensure dist directory exists
 if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
+  fs.mkdirSync(distDir);
 }
 
-// Build posts
-fs.readdirSync(rawDir).forEach((file) => {
-  if (path.extname(file) !== ".html") return;
+const template = fs.readFileSync(templatePath, "utf-8");
 
-  const filePath = path.join(rawDir, file);
-  let raw = fs.readFileSync(filePath, "utf-8");
+fs.readdirSync(rawDir).forEach(file => {
+  if (file.endsWith(".html")) {
+    const rawHtml = fs.readFileSync(path.join(rawDir, file), "utf-8");
+    const $ = cheerio.load(rawHtml);
 
-  // Extract inline metadata
-  const titleMatch = raw.match(/<!--\s*title:\s*(.*?)\s*-->/i);
-  const descMatch = raw.match(/<!--\s*desc:\s*(.*?)\s*-->/i);
-  const keywordsMatch = raw.match(/<!--\s*keywords:\s*(.*?)\s*-->/i);
+    const title = $("h1").first().text().trim();
+    const description = $("p").first().text().trim();
+    const keywords = postMetadata[file]?.keywords || "";
+    const author = postMetadata[file]?.author || "MaxClickEmpire";
+    const canonical = `https://read.maxclickempire.com/${file}`;
+    const ogImage = postMetadata[file]?.ogImage || "https://read.maxclickempire.com/default-og.jpg";
 
-  const title = titleMatch ? titleMatch[1].trim() : "Untitled";
-  const description = descMatch ? descMatch[1].trim() : "";
-  const keywords = keywordsMatch ? keywordsMatch[1].trim() : "";
+    const contentHtml = $.html(); // get full HTML from raw file
 
-  // Remove <title>, <meta>, and all metadata comments from post
-  let cleanContent = raw
-    .replace(/<title>[\s\S]*?<\/title>/gi, "")
-    .replace(/<meta[^>]*>/gi, "")
-    .replace(/<!--\s*(title|desc|keywords):.*?-->/gi, "")
-    .trim();
+    const finalHtml = template
+      .replace("{{TITLE}}", title)
+      .replace("{{DESCRIPTION_ESCAPED}}", description.replace(/"/g, '&quot;'))
+      .replace("{{DESCRIPTION}}", description)
+      .replace("{{KEYWORDS}}", keywords)
+      .replace("{{AUTHOR}}", author)
+      .replace("{{CANONICAL}}", canonical)
+      .replace("{{OG_IMAGE}}", ogImage)
+      .replace("{{CONTENT}}", contentHtml);
 
-  // Wrap in <main><article>...</article></main>
-  const wrappedContent = `<main><article>\n${cleanContent}\n</article></main>`;
-
-  // Create post slug (filename without extension)
-  const postSlug = path.basename(file, ".html");
-
-  // Replace placeholders
-  let finalHtml = template
-    .replace("{{TITLE}}", title)
-    .replace("{{DESCRIPTION}}", description)
-    .replace("{{KEYWORDS}}", keywords)
-    .replace("{{POST_SLUG}}", postSlug)
-    .replace("{{CONTENT}}", wrappedContent);
-
-  // Write to /dist/
-  const outputFilePath = path.join(distDir, file);
-  fs.writeFileSync(outputFilePath, finalHtml, "utf-8");
-
-  console.log(`✅ Built: ${file}`);
+    fs.writeFileSync(path.join(distDir, file), finalHtml, "utf-8");
+    console.log(`✅ Built ${file}`);
+  }
 });
