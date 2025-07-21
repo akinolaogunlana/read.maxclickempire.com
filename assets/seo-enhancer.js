@@ -4,8 +4,7 @@
     const start = Date.now();
     const poll = () => {
       if (conditionFn()) return callback();
-      if (Date.now() - start >= timeout)
-        return console.warn("⏳ postMetadata not loaded in time.");
+      if (Date.now() - start >= timeout) return console.warn("⏳ postMetadata not loaded in time.");
       setTimeout(poll, interval);
     };
     poll();
@@ -59,16 +58,17 @@
       title: titleText,
       description: desc,
       image,
-      published: new Date().toISOString(),
+      published: new Date().toISOString()
     };
 
-    // Remove existing meta tags to avoid duplicates
     [
       "og:title", "og:description", "og:url", "og:type", "og:image",
-      "twitter:title", "twitter:description", "twitter:image", "twitter:card", "keywords"
+      "twitter:title", "twitter:description", "twitter:image", "twitter:card",
+      "keywords"
     ].forEach(name => {
-      const el = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
-      if (el) el.remove();
+      const selector = `meta[property='${name}'], meta[name='${name}']`;
+      const tag = document.querySelector(selector);
+      if (tag) tag.remove();
     });
 
     function injectMeta(name, content, attr = "name") {
@@ -102,7 +102,6 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // ✅ Structured Data
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -122,7 +121,7 @@
     });
     document.head.appendChild(ld);
 
-    // ✅ Hero Section
+    // ✅ Hero
     if (h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
@@ -131,15 +130,14 @@
           <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
           <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
           <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
-        </div>
-      `;
+        </div>`;
       const h1Clone = h1.cloneNode(true);
       h1.remove();
       hero.querySelector("div").insertAdjacentElement("afterbegin", h1Clone);
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // ✅ Table of Contents (TOC)
+    // ✅ TOC
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
@@ -163,7 +161,7 @@
         .filter(([key, data]) =>
           key !== slug &&
           (data.title.toLowerCase().includes(currentKeywords) ||
-           data.description.toLowerCase().includes(currentKeywords))
+            data.description.toLowerCase().includes(currentKeywords))
         )
         .slice(0, 3);
 
@@ -173,14 +171,17 @@
         relatedBlock.innerHTML = `
           <h2>🔗 Related Posts</h2>
           <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-            ${related.map(([slug, data]) => `
+            ${related
+              .map(
+                ([slug, data]) => `
               <a href="/posts/${slug}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;">
                 <strong>${data.title}</strong><br/>
                 <small style="color:#777;">${data.description.slice(0, 100)}...</small>
               </a>
-            `).join("")}
-          </div>
-        `;
+            `
+              )
+              .join("")}
+          </div>`;
         article.appendChild(relatedBlock);
       }
     }
@@ -197,12 +198,12 @@
       document.body.appendChild(footer);
     }
 
-    // ✅ Dark Mode (optional)
+    // ✅ Dark Mode
     if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
       document.body.classList.add("dark-theme");
     }
 
-    // ✅ Debug Info
+    // ✅ Debug
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
