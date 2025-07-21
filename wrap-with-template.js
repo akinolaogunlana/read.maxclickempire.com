@@ -1,109 +1,76 @@
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
-const cheerio = require("cheerio");
 
-const rawDir = path.join(__dirname, "raw");
-const templatePath = path.join(__dirname, "template.html");
-const distDir = path.join(__dirname, "dist");
+const TEMPLATE_PATH = path.join(__dirname, "template.html");
+const OUTPUT_DIR = path.join(__dirname, "dist");
+const POSTS_DIR = path.join(__dirname, "posts");
 
-// Ensure directories exist
-if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir, { recursive: true });
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
-
-// Load template
-const template = fs.readFileSync(templatePath, "utf8");
-
-// Hash to avoid duplicates
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
+if (!fs.existsSync(OUTPUT_DIR)) {
+fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-// Slugify title
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
+const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
 
-const seenHashes = new Set();
+fs.readdirSync(POSTS_DIR).forEach((filename) => {
+if (!filename.endsWith(".html")) return;
 
-// Process each file in "raw"
-const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
+const filePath = path.join(POSTS_DIR, filename);
+const content = fs.readFileSync(filePath, "utf-8");
 
-files.forEach(file => {
-  const rawPath = path.join(rawDir, file);
-  const rawHtml = fs.readFileSync(rawPath, "utf8");
-  const $ = cheerio.load(rawHtml);
+// Title from <h1>
+const titleMatch = content.match(/<h1[^>]>(.?)</h1>/i);
+const title = titleMatch ? titleMatch[1].trim() : filename.replace(/.html$/, "");
 
-  const title = $("h1").first().text().trim() || "Untitled Post";
-  const description = $("meta[name='description']").attr("content") || $("p").first().text().trim().replace(/\s+/g, " ") || "Post from MaxClickEmpire.";
+// Description from <!-- desc: ... --> or fallback <p>
+const descMatch = content.match(/<!--\s*desc:(.*?)-->/i);
+const description = descMatch
+? descMatch[1].trim()
+: (content.match(/<p[^>]>(.?)</p>/i)?.[1].replace(/<[^>]+>/g, "").trim().slice(0, 160) || "");
 
-  // Remove scripts and inline styles
-  $("script").remove();
-  $("[style]").removeAttr("style");
+// Keywords from <!-- keywords: ... -->
+const keywordMatch = content.match(/<!--\s*keywords:(.*?)-->/i);
+const keywords = keywordMatch ? keywordMatch[1].trim() : "";
 
-  // Remove duplicated h1s inside content
-  $("article h1").first().remove();
-  $("body h1").first().remove();
+// FILENAME slug (no .html)
+const filenameSlug = filename.replace(/.html$/, "");
 
-  // Extract content
-  const mainContent = $("article").html() || $("body").html() || rawHtml;
-  const content$ = cheerio.load(mainContent);
+// Structured Data
+const structuredData = `
 
-  // Remove repeated h1 if present again
-  content$("h1").each((i, el) => {
-    if (content$(el).text().trim() === title && i === 0) {
-      content$(el).remove();
-    }
-  });
+<script type="application/ld+json">  
+{  
+  "@context": "https://schema.org",  
+  "@type": "BlogPosting",  
+  "headline": "${title}",  
+  "description": "${description}",  
+  "author": {  
+    "@type": "Person",  
+    "name": "Ogunlana Akinola Okikiola"  
+  },  
+  "mainEntityOfPage": {  
+    "@type": "WebPage",  
+    "@id": "https://read.maxclickempire.com/posts/${filenameSlug}.html"  
+  },  
+  "publisher": {  
+    "@type": "Organization",  
+    "name": "MaxClickEmpire",  
+    "logo": {  
+      "@type": "ImageObject",  
+      "url": "https://read.maxclickempire.com/assets/favicon.png"  
+    }  
+  }  
+}  
+</script>`.trim();  // Replace placeholders in template
+const finalHTML = template
+.replace(/{{\sTITLE\s}}/gi, title)
+.replace(/{{\sDESCRIPTION\s}}/gi, description)
+.replace(/{{\sKEYWORDS\s}}/gi, keywords)
+.replace(/{{\sFILENAME\s}}/gi, filenameSlug)
+.replace(/{{\sSTRUCTURED_DATA\s}}/gi, structuredData)
+.replace(/{{\sCONTENT\s}}/gi, content);
 
-  // Optional: remove heading "Introduction"
-  const firstTag = content$.root().children().first();
-  if (
-    firstTag.text().trim().toLowerCase() === "introduction" &&
-    firstTag[0]?.tagName?.match(/^h\d$/)
-  ) {
-    firstTag.remove();
-  }
-
-  const cleanedContent = content$
-    .html()
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/style="[^"]*"/g, "")
-    .trim();
-
-  const hash = generateHash(cleanedContent);
-  if (seenHashes.has(hash)) {
-    console.log(`⚠️ Skipped duplicate: ${file}`);
-    return;
-  }
-  seenHashes.add(hash);
-
-  const date = new Date().toISOString().split("T")[0];
-  const filename = slugify(title);
-
-  // Generate keywords from title
-  const keywords = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/gi, "")
-    .split(/\s+/)
-    .filter(w => w.length > 2)
-    .slice(0, 10)
-    .join(", ");
-
-  const finalHtml = template
-    .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, keywords)
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, cleanedContent);
-
-  const outputPath = path.join(distDir, `${filename}.html`);
-  fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Processed: ${filename}.html`);
+const outputPath = path.join(OUTPUT_DIR, filename);
+fs.writeFileSync(outputPath, finalHTML, "utf-8");
+console.log(✅ Generated: ${outputPath});
 });
+
