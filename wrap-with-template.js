@@ -6,37 +6,39 @@ const OUTPUT_DIR = path.join(__dirname, "dist");
 const POSTS_DIR = path.join(__dirname, "posts");
 
 if (!fs.existsSync(OUTPUT_DIR)) {
-fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
 
 fs.readdirSync(POSTS_DIR).forEach((filename) => {
-if (!filename.endsWith(".html")) return;
+  if (!filename.endsWith(".html")) return;
 
-const filePath = path.join(POSTS_DIR, filename);
-const content = fs.readFileSync(filePath, "utf-8");
+  const filePath = path.join(POSTS_DIR, filename);
+  const content = fs.readFileSync(filePath, "utf-8");
 
-// Title from <h1>
-const titleMatch = content.match(/<h1[^>]>(.?)</h1>/i);
-const title = titleMatch ? titleMatch[1].trim() : filename.replace(/.html$/, "");
+  // ✅ Title from <h1>
+  const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  const title = titleMatch ? titleMatch[1].trim() : filename.replace(/\.html$/, "");
 
-// Description from <!-- desc: ... --> or fallback <p>
-const descMatch = content.match(/<!--\s*desc:(.*?)-->/i);
-const description = descMatch
-? descMatch[1].trim()
-: (content.match(/<p[^>]>(.?)</p>/i)?.[1].replace(/<[^>]+>/g, "").trim().slice(0, 160) || "");
+  // ✅ Description from <!-- desc: ... --> or fallback <p>
+  const descMatch = content.match(/<!--\s*desc:(.*?)-->/i);
+  const description = descMatch
+    ? descMatch[1].trim()
+    : (
+        content.match(/<p[^>]*>(.*?)<\/p>/i)?.[1]
+          .replace(/<[^>]+>/g, "") // remove nested HTML tags
+          .trim()
+          .slice(0, 160) || ""
+      );
 
-// Keywords from <!-- keywords: ... -->
-const keywordMatch = content.match(/<!--\s*keywords:(.*?)-->/i);
-const keywords = keywordMatch ? keywordMatch[1].trim() : "";
+  // ✅ Keywords from <!-- keywords: ... -->
+  const keywordMatch = content.match(/<!--\s*keywords:(.*?)-->/i);
+  const keywords = keywordMatch ? keywordMatch[1].trim() : "";
 
-// FILENAME slug (no .html)
-const filenameSlug = filename.replace(/.html$/, "");
+  const filenameSlug = filename.replace(/\.html$/, "");
 
-// Structured Data
-const structuredData = `
-
+  const structuredData = `
 <script type="application/ld+json">  
 {  
   "@context": "https://schema.org",  
@@ -59,18 +61,19 @@ const structuredData = `
       "url": "https://read.maxclickempire.com/assets/favicon.png"  
     }  
   }  
-}  
-</script>`.trim();  // Replace placeholders in template
-const finalHTML = template
-.replace(/{{\sTITLE\s}}/gi, title)
-.replace(/{{\sDESCRIPTION\s}}/gi, description)
-.replace(/{{\sKEYWORDS\s}}/gi, keywords)
-.replace(/{{\sFILENAME\s}}/gi, filenameSlug)
-.replace(/{{\sSTRUCTURED_DATA\s}}/gi, structuredData)
-.replace(/{{\sCONTENT\s}}/gi, content);
+}
+</script>`.trim();
 
-const outputPath = path.join(OUTPUT_DIR, filename);
-fs.writeFileSync(outputPath, finalHTML, "utf-8");
-console.log(✅ Generated: ${outputPath});
+  // ✅ Replace placeholders
+  const finalHTML = template
+    .replace(/{{\s*TITLE\s*}}/gi, title)
+    .replace(/{{\s*DESCRIPTION\s*}}/gi, description)
+    .replace(/{{\s*KEYWORDS\s*}}/gi, keywords)
+    .replace(/{{\s*FILENAME\s*}}/gi, filenameSlug)
+    .replace(/{{\s*STRUCTURED_DATA\s*}}/gi, structuredData)
+    .replace(/{{\s*CONTENT\s*}}/gi, content);
+
+  const outputPath = path.join(OUTPUT_DIR, filename);
+  fs.writeFileSync(outputPath, finalHTML, "utf-8");
+  console.log(`✅ Generated: ${outputPath}`);
 });
-
