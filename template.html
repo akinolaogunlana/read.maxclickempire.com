@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>{{TITLE}}</title>
-  <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta name="keywords" content="{{KEYWORDS}}" />
-  <meta name="author" content="MaxClickEmpire" />
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="keywords" content="{{KEYWORDS}}">
+  <link rel="canonical" href="https://read.maxclickempire.com/posts/{{POST_SLUG}}.html">
+  {{STRUCTURED_DATA}}
 </head>
 <body>
-  <main>
-    <article>
-      {{CONTENT}}
-    </article>
-  </main>
+  {{CONTENT}}
 
-  <!-- Injected Scripts -->
-  <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
+  <!-- Scripts must go here, inside body, for them to work -->
   <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
+  <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
 </body>
 </html>
