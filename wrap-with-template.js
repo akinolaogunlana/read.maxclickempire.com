@@ -1,49 +1,81 @@
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
-const cheerio = require("cheerio");
 
-const rawDir = path.join(__dirname, "raw");
-const templatePath = path.join(__dirname, "template.html");
-const distDir = path.join(__dirname, "dist");
+// Paths
+const TEMPLATE_PATH = path.join(__dirname, "template.html");
+const OUTPUT_DIR = path.join(__dirname, "dist");
+const POSTS_DIR = path.join(__dirname, "posts");
 
-// Ensure dist directory exists
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir);
+// Create dist/ if it doesn't exist
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-// Load template
-const template = fs.readFileSync(templatePath, "utf8");
+// Read base template
+const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
 
-// Process each file in raw/
-fs.readdirSync(rawDir).forEach((file) => {
-  const filePath = path.join(rawDir, file);
-  if (fs.lstatSync(filePath).isFile() && file.endsWith(".html")) {
-    const rawContent = fs.readFileSync(filePath, "utf8");
+// Process each post file
+fs.readdirSync(POSTS_DIR).forEach((filename) => {
+  if (!filename.endsWith(".html")) return;
 
-    // Load the raw HTML content with Cheerio
-    const $ = cheerio.load(rawContent);
+  const filePath = path.join(POSTS_DIR, filename);
+  const rawContent = fs.readFileSync(filePath, "utf-8");
 
-    // Extract title, description, and keywords from content
-    const title = $("h1").first().text().trim() || "Untitled";
-    const description = $("p").first().text().trim() || "Default description";
-    const keywords = $("meta[name='keywords']").attr("content") || "default,keywords";
+  // Extract meta info
+  const titleMatch = rawContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  const title = titleMatch ? titleMatch[1].trim() : filename.replace(/\.html$/, "");
 
-    // Wrap content in <main><article>
-    const wrappedContent = `<main><article>${rawContent}</article></main>`;
+  const descMatch = rawContent.match(/<!--\s*desc:(.*?)-->/i);
+  const description = descMatch
+    ? descMatch[1].trim()
+    : rawContent.match(/<p[^>]*>(.*?)<\/p>/i)?.[1].replace(/<[^>]+>/g, "").trim().slice(0, 160) || "";
 
-    // Replace placeholders in template
-    let finalHtml = template
-      .replace("{{TITLE}}", title)
-      .replace("{{DESCRIPTION_ESCAPED}}", description.replace(/"/g, "&quot;"))
-      .replace("{{KEYWORDS}}", keywords)
-      .replace("{{CONTENT}}", wrappedContent);
+  const keywordMatch = rawContent.match(/<!--\s*keywords:(.*?)-->/i);
+  const keywords = keywordMatch ? keywordMatch[1].trim() : "";
 
-    // Write final HTML to dist
-    const outputFilePath = path.join(distDir, file);
-    fs.writeFileSync(outputFilePath, finalHtml, "utf8");
+  const filenameSlug = filename.replace(/\.html$/, "");
 
-    console.log(`✅ Processed: ${file}`);
-  }
+  // Structured Data
+  const structuredData = `
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "${title}",
+  "description": "${description}",
+  "url": "https://read.maxclickempire.com/posts/${filenameSlug}.html",
+  "datePublished": "${new Date().toISOString()}",
+  "dateModified": "${new Date().toISOString()}",
+  "author": {
+    "@type": "Organization",
+    "name": "MaxClickEmpire"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MaxClickEmpire",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://read.maxclickempire.com/assets/og-image.jpg"
+    }
+  },
+  "mainEntityOfPage": "https://read.maxclickempire.com/posts/${filenameSlug}.html"
+}
+</script>`.trim();
+
+  // Wrap post content
+  const wrappedContent = `<main><article>\n${rawContent}\n</article></main>`;
+
+  // Inject into template
+  const finalHTML = template
+    .replace(/{{\s*TITLE\s*}}/gi, title)
+    .replace(/{{\s*DESCRIPTION\s*}}/gi, description.replace(/"/g, "&quot;"))
+    .replace(/{{\s*KEYWORDS\s*}}/gi, keywords)
+    .replace(/{{\s*STRUCTURED_DATA\s*}}/gi, structuredData)
+    .replace(/{{\s*CONTENT\s*}}/gi, wrappedContent)
+    .replace(/{{\s*POST_SLUG\s*}}/gi, filenameSlug); // optional if needed
+
+  // Output final file
+  const outputPath = path.join(OUTPUT_DIR, filename);
+  fs.writeFileSync(outputPath, finalHTML, "utf-8");
+  console.log(`✅ Generated: ${outputPath}`);
 });
