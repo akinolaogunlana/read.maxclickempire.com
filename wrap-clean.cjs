@@ -22,17 +22,15 @@ const generateHash = (content) => crypto.createHash("sha256").update(content).di
 const slugify = (text) =>
   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "post";
 
-// Memory
+const isLowQuality = (desc) =>
+  !desc || desc.length < 50 || /^read about/i.test(desc.toLowerCase());
+
 const seenHashes = new Set();
 const seenDescriptions = new Set();
 
-// Helpers
-const isLowQuality = (desc) =>
-  !desc || desc.length < 50 || /^read about/i.test(desc.toLowerCase()) || seenDescriptions.has(desc);
-
-// Start
-const files = fs.readdirSync(rawDir).filter((f) => f.endsWith(".html"));
 let count = 0;
+
+const files = fs.readdirSync(rawDir).filter((f) => f.endsWith(".html"));
 
 files.forEach((file) => {
   const filePath = path.join(rawDir, file);
@@ -42,9 +40,9 @@ files.forEach((file) => {
   // Extract title
   const title = $("h1").first().text().trim() || "Untitled Post";
 
-  // Try to get valid description
+  // Get description
   let description = $('meta[name="description"]').attr("content")?.trim();
-  if (!description || isLowQuality(description)) {
+  if (!description || isLowQuality(description) || seenDescriptions.has(description)) {
     description = $("p").first().text().trim().replace(/\s+/g, " ");
   }
   if (!description || isLowQuality(description)) {
@@ -52,30 +50,50 @@ files.forEach((file) => {
   }
   seenDescriptions.add(description);
 
-  const filename = slugify(title);
+  const slug = slugify(title);
   const date = new Date().toISOString().split("T")[0];
 
   // Extract main content
-  let content = $("article").html() || $("body").html() || rawHtml;
+  let content =
+    $("article").html() ||
+    $("main").html() ||
+    $("body").html() ||
+    rawHtml;
 
-  // Clean content: remove meta, script, style
+  if (!content) {
+    console.warn(`⚠️  No valid content found in: ${file}`);
+    return;
+  }
+
+  // Clean up content
   content = content
     .replace(/<meta[^>]+>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/style="[^"]*"/gi, "");
 
-  // Remove repeated title
+  // Remove repeated <p>Title</p>
   const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const titleDupRegex = new RegExp(`<p[^>]*>${safeTitle}</p>`, "gi");
   content = content.replace(titleDupRegex, "");
 
-  // Skip if duplicate
+  // Skip duplicate hashes
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
     console.log(`⚠️ Skipped duplicate: ${file}`);
     return;
   }
   seenHashes.add(hash);
+
+  // Wrap in main + article
+  content = `<main><article>\n${content.trim()}\n</article></main>`;
+
+  // Generate keywords
+  const keywords = title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(/\s+/)
+    .filter((word) => word.length > 3)
+    .join(", ");
 
   // Structured data
   const structuredData = `
@@ -85,7 +103,7 @@ files.forEach((file) => {
   "@type": "BlogPosting",
   "headline": "${title}",
   "description": "${description}",
-  "url": "https://read.maxclickempire.com/posts/${filename}.html",
+  "url": "https://read.maxclickempire.com/posts/${slug}.html",
   "datePublished": "${date}",
   "dateModified": "${date}",
   "image": "https://read.maxclickempire.com/assets/og-image.jpg",
@@ -103,33 +121,33 @@ files.forEach((file) => {
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://read.maxclickempire.com/posts/${filename}.html"
+    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
   }
 }
 </script>
 `.trim();
 
-  // Final HTML
+  // Build final HTML
   let finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, title.split(/\s+/).join(", "))
-    .replace(/{{FILENAME}}/g, filename)
+    .replace(/{{KEYWORDS}}/g, keywords)
+    .replace(/{{POST_SLUG}}/g, slug)
     .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, content.trim())
-    .replace(/{{STRUCTURED_DATA}}/g, structuredData);
+    .replace(/{{STRUCTURED_DATA}}/g, structuredData)
+    .replace(/{{CONTENT}}/g, content);
 
-  // Safety cleanup: allow only 1 <meta name="description">
-  const metaMatch = finalHtml.match(/<meta name="description"[^>]+>/gi) || [];
-  if (metaMatch.length > 1) {
+  // Ensure only one meta description
+  const metaMatches = finalHtml.match(/<meta name="description"[^>]+>/gi) || [];
+  if (metaMatches.length > 1) {
     finalHtml = finalHtml.replace(/<meta name="description"[^>]+>/gi, (match, i) =>
       i === 0 ? match : ""
     );
   }
 
-  const outputPath = path.join(distDir, `${filename}.html`);
+  const outputPath = path.join(distDir, `${slug}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Processed: ${filename}.html`);
+  console.log(`✅ Processed: ${slug}.html`);
   count++;
 });
 
