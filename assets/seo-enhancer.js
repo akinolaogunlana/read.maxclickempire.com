@@ -1,5 +1,6 @@
 (function () {
 function waitFor(conditionFn, callback, interval = 50, timeout = 2000) {
+console.log("✅ seo-enhancer.js is running");
 const start = Date.now();
 const poll = () => {
 if (conditionFn()) return callback();
