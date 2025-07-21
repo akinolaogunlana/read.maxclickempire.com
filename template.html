@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{TITLE}}</title>
-  <meta name="description" content="{{DESCRIPTION}}">
-  <meta name="keywords" content="{{KEYWORDS}}">
-  <link rel="canonical" href="https://read.maxclickempire.com/posts/{{POST_SLUG}}.html">
-  {{STRUCTURED_DATA}}
+  <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
+  <meta name="keywords" content="{{KEYWORDS}}" />
+  <meta name="author" content="{{AUTHOR}}" />
+  <link rel="canonical" href="{{CANONICAL}}" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{{CANONICAL}}" />
+  <meta property="og:image" content="{{OG_IMAGE}}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{TITLE}}" />
+  <meta name="twitter:description" content="{{DESCRIPTION_ESCAPED}}" />
+  <meta name="twitter:image" content="{{OG_IMAGE}}" />
+  <link rel="stylesheet" href="/assets/style.css" />
 </head>
 <body>
-  {{CONTENT}}
+  <main>
+    <article>
+      {{CONTENT}}
+    </article>
+  </main>
 
-  <!-- Scripts must go here, inside body, for them to work -->
   <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
   <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
 </body>
