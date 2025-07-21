@@ -18,39 +18,22 @@
   }
 
   waitForDom(() => {
-    waitFor(() => !!window.postMetadata, initSeoEnhancer);
+    waitFor(() => typeof window.postMetadata !== "undefined", initSeoEnhancer);
   });
 
   function initSeoEnhancer() {
-    const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
-    const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
+    const slug = location.pathname.replace(/^\/+|\.html$/g, "");
     const skip = ["about", "contact", "privacy-policy", "terms"];
-    if (skip.includes(pathSlug)) return;
+    if (skip.includes(slug)) return;
 
     const article = document.querySelector("article");
     if (!article) return;
 
-    // ✅ Insert Navigation
-    if (!document.querySelector("header.site-header")) {
-      const nav = document.createElement("header");
-      nav.className = "site-header";
-      nav.innerHTML = `
-        <nav style="background:#fff;border-bottom:1px solid #eee;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;position:sticky;top:0;z-index:999;">
-          <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;">🧠MaxClickEmpire</a>
-          <ul style="display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;">
-            <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
-            <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
-            <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
-          </ul>
-        </nav>
-      `;
-      document.body.insertAdjacentElement("afterbegin", nav);
-    }
-
-    // ✅ SEO Metadata
-    let h1 = article.querySelector("h1");
+    // 🧠 Grab metadata
+    const h1 = article.querySelector("h1");
     const titleText = h1?.textContent.trim() || document.title;
-    const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
+    const descTag = document.querySelector("meta[name='description']");
+    const desc = descTag?.content || "Digital strategy and free tools.";
     const firstImg = article.querySelector("img");
     const image = firstImg?.src || "/assets/og-image.jpg";
 
@@ -61,15 +44,17 @@
       published: new Date().toISOString()
     };
 
+    // 💡 Remove existing meta
     [
       "og:title", "og:description", "og:url", "og:type", "og:image",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
     ].forEach(name => {
-      const tag = document.querySelector(`meta[property='${name}'], meta[name='${name}']`);
-      if (tag) tag.remove();
+      document.querySelectorAll(`meta[name="${name}"], meta[property="${name}"]`)
+        .forEach(tag => tag.remove());
     });
 
+    // ✅ Inject SEO tags
     function injectMeta(name, content, attr = "name") {
       if (!content) return;
       const tag = document.createElement("meta");
@@ -101,6 +86,7 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
+    // ✅ JSON-LD Schema
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
     ld.textContent = JSON.stringify({
@@ -120,7 +106,24 @@
     });
     document.head.appendChild(ld);
 
-    // ✅ Hero
+    // ✅ Add nav bar
+    if (!document.querySelector("header.site-header")) {
+      const nav = document.createElement("header");
+      nav.className = "site-header";
+      nav.innerHTML = `
+        <nav style="background:#fff;border-bottom:1px solid #eee;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;position:sticky;top:0;z-index:999;">
+          <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;">🧠MaxClickEmpire</a>
+          <ul style="display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;">
+            <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
+            <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
+            <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
+          </ul>
+        </nav>
+      `;
+      document.body.insertAdjacentElement("afterbegin", nav);
+    }
+
+    // ✅ Hero section
     if (h1 && !document.querySelector(".post-hero")) {
       const hero = document.createElement("section");
       hero.className = "post-hero";
@@ -137,7 +140,7 @@
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // ✅ TOC
+    // ✅ Table of Contents
     const headings = article.querySelectorAll("h2, h3");
     if (headings.length && !document.querySelector("#toc")) {
       const toc = document.createElement("div");
@@ -201,9 +204,9 @@
       document.body.classList.add("dark-theme");
     }
 
-    // ✅ Debug
+    // ✅ Debugging
     if (location.search.includes("debugSEO")) {
-      console.log("🔍 SEO Meta Loaded:", meta);
+      console.log("🔍 SEO Metadata Loaded:", meta);
     }
   }
 })();
