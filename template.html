@@ -24,6 +24,71 @@
   <meta name="twitter:image" content="{{OG_IMAGE}}" />
 
   <link rel="stylesheet" href="/assets/style.css" />
+
+  <style>
+    /* Responsive Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background-color: #fff;
+      color: #222;
+      padding: 20px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+      background: #fff;
+    }
+
+    #post-content {
+      word-wrap: break-word;
+    }
+
+    #post-content img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 1rem 0;
+    }
+
+    #post-content iframe {
+      max-width: 100%;
+    }
+
+    #post-content h1,
+    #post-content h2,
+    #post-content h3 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    #post-content p {
+      margin: 1em 0;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      main {
+        padding: 1rem 0.5rem;
+      }
+
+      #post-content p {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <main>
@@ -34,7 +99,6 @@
 
   <!-- Inject postMetadata first so seo-enhancer can use it -->
   <script>
-    // Fallback in case the JS file fails
     window.postMetadata = window.postMetadata || {};
   </script>
   <script src="/data/post-meta.js"></script>
