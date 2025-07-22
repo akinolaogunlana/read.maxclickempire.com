@@ -3,49 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="{{AUTHOR}}" />
-  <link rel="canonical" href="{{CANONICAL}}" />
+  <link rel="canonical" href="{{URL}}" />
 
-  <!-- Open Graph for Facebook -->
-  <meta property="og:title" content="{{TITLE}}" />
-  <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta property="og:type" content="article" />
-  <meta property="og:url" content="{{CANONICAL}}" />
-  <meta property="og:image" content="{{OG_IMAGE}}" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{TITLE}}" />
-  <meta name="twitter:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta name="twitter:image" content="{{OG_IMAGE}}" />
-
-  <link rel="stylesheet" href="/assets/style.css" />
-
+  <!-- Styles -->
   <style>
-    /* Responsive Reset & Base */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
       background-color: #fff;
       color: #222;
-      padding: 20px;
+    }
+
+    body {
+      padding: 0 16px;
     }
 
     main {
+      width: 100%;
       max-width: 800px;
-      margin: auto;
-      padding: 1rem;
-      background: #fff;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      background-color: #fff;
     }
 
     #post-content {
@@ -63,11 +53,10 @@
       max-width: 100%;
     }
 
-    #post-content h1,
-    #post-content h2,
-    #post-content h3 {
-      margin-top: 1.5em;
+    #post-content h1, h2, h3 {
+      margin-top: 1.25em;
       margin-bottom: 0.5em;
+      font-weight: 600;
     }
 
     #post-content p {
@@ -75,9 +64,14 @@
       font-size: 1rem;
     }
 
+    #post-content ul, #post-content ol {
+      padding-left: 1.5em;
+      margin-bottom: 1em;
+    }
+
     @media (max-width: 600px) {
       body {
-        padding: 10px;
+        padding: 0 12px;
       }
 
       main {
@@ -85,23 +79,17 @@
       }
 
       #post-content p {
-        font-size: 1rem;
+        font-size: 0.95rem;
       }
     }
   </style>
 </head>
 <body>
   <main>
-    <article id="post-content">
+    <h1>{{TITLE}}</h1>
+    <div id="post-content">
       {{CONTENT}}
-    </article>
+    </div>
   </main>
-
-  <!-- Inject postMetadata first so seo-enhancer can use it -->
-  <script>
-    window.postMetadata = window.postMetadata || {};
-  </script>
-  <script src="/data/post-meta.js"></script>
-  <script src="/assets/seo-enhancer.js"></script>
 </body>
 </html>
