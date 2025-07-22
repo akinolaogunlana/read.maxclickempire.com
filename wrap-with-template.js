@@ -15,7 +15,7 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Load template once
+// Load template
 let template;
 try {
   template = fs.readFileSync(templatePath, "utf8");
@@ -24,41 +24,38 @@ try {
   process.exit(1);
 }
 
-// Hash tracker to avoid duplicates
+// Hash tracker to skip duplicates
 const seenHashes = new Set();
 
-// Generate SHA-256 hash
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
+// Generate content hash
+function generateHash(str) {
+  return crypto.createHash("sha256").update(str).digest("hex");
 }
 
-// Clean raw HTML content
+// Clean and extract content
 function cleanUpContent(rawHtml, postTitle) {
   const $ = cheerio.load(rawHtml);
 
-  // Remove <title> tag
-  $("title").remove();
-
-  // Remove any <h1> that exactly matches the post title
-  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
-
-  // Remove script tags and inline styles
-  $("script").remove();
+  // Remove <title>, <script>, and inline styles
+  $("title, script").remove();
   $("[style]").removeAttr("style");
 
-  // Remove common hero titles
+  // Remove any <h1> matching the post title
+  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
+
+  // Remove known duplicate classes
   $(".hero-title, .post-title, .title-heading").remove();
 
   // Remove first <h1> inside article or body
   $("article h1").first().remove();
   $("body h1").first().remove();
 
-  // Use <article> or fallback to <body> or raw HTML
+  // Extract article or body HTML or fallback
   const content = $("article").html() || $("body").html() || rawHtml;
   return content.trim();
 }
 
-// Inject metadata into the template
+// Inject into template
 function injectMetadata(template, metadata, cleanedContent) {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -71,7 +68,7 @@ function injectMetadata(template, metadata, cleanedContent) {
     .replace(/{{CONTENT}}/g, cleanedContent || "");
 }
 
-// Get all post files
+// Get all HTML post files
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
 
 if (postFiles.length === 0) {
@@ -94,6 +91,7 @@ postFiles.forEach(file => {
     const rawContent = fs.readFileSync(filePath, "utf8");
     const cleanedContent = cleanUpContent(rawContent, metadata.title);
 
+    // Skip if content is a duplicate
     const hash = generateHash(cleanedContent);
     if (seenHashes.has(hash)) {
       console.log(`⚠️ Duplicate skipped: ${file}`);
@@ -101,16 +99,16 @@ postFiles.forEach(file => {
     }
     seenHashes.add(hash);
 
-    // Remove previous version if it exists
+    // Cleanup old version if exists
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
-      console.log(`🧹 Removed old wrapped file: ${file}`);
+      console.log(`🧹 Removed old version of: ${file}`);
     }
 
+    // Inject and write to dist
     const finalHtml = injectMetadata(template, metadata, cleanedContent);
     fs.writeFileSync(outputPath, finalHtml);
-
-    console.log(`✅ Wrapped clean content into: ${file}`);
+    console.log(`✅ Processed and saved: ${file}`);
   } catch (err) {
     console.error(`❌ Failed processing ${file}:`, err.message);
   }
