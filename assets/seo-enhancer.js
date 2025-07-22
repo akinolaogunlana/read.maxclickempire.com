@@ -92,36 +92,30 @@
     });
     document.head.appendChild(ld);
 
-    // ✅ Hero Section (No Title)
+    // ✅ Hero Section (No title, with social sharing)
     const hero = document.createElement("section");
     hero.className = "post-hero";
+    const encodedURL = encodeURIComponent(location.href);
+    const encodedTitle = encodeURIComponent(meta.title);
     hero.innerHTML = `
       <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2rem;">
         <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
         <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+        <div class="social-share" style="margin-top:1rem;">
+          <a href="https://twitter.com/intent/tweet?url=${encodedURL}&text=${encodedTitle}" target="_blank" style="margin:0 0.5rem;">🐦 Twitter</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" style="margin:0 0.5rem;">🔗 Facebook</a>
+          <a href="https://www.linkedin.com/shareArticle?url=${encodedURL}&title=${encodedTitle}" target="_blank" style="margin:0 0.5rem;">💼 LinkedIn</a>
+        </div>
         <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
-      </div>`;
+      </div>
+    `;
     article.insertAdjacentElement("afterbegin", hero);
 
-    // ✅ Title (above TOC only)
+    // ✅ Title (only once, above TOC)
     const titleH1 = document.createElement("h1");
     titleH1.textContent = meta.title;
     titleH1.style = "font-size:2rem;margin-bottom:1rem;color:#222;";
-    article.insertBefore(titleH1, article.firstElementChild.nextElementSibling);
-
-    // ✅ Social Share Buttons
-    const share = document.createElement("div");
-    share.className = "social-share";
-    share.style = "text-align:center;margin:1.5rem 0;font-size:1rem;";
-    const encodedURL = encodeURIComponent(location.href);
-    const encodedTitle = encodeURIComponent(meta.title);
-    share.innerHTML = `
-      <strong>Share:</strong>
-      <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" style="margin:0 0.5rem;">🔗 Facebook</a>
-      <a href="https://twitter.com/intent/tweet?url=${encodedURL}&text=${encodedTitle}" target="_blank" style="margin:0 0.5rem;">🐦 Twitter</a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodedURL}" target="_blank" style="margin:0 0.5rem;">💼 LinkedIn</a>
-    `;
-    article.insertBefore(share, article.firstElementChild.nextElementSibling.nextElementSibling);
+    article.insertBefore(titleH1, hero.nextElementSibling);
 
     // ✅ TOC
     const headings = article.querySelectorAll("h2, h3");
@@ -135,7 +129,7 @@
         h.id = id;
         ul.innerHTML += `<li><a href="#${id}">${h.textContent}</a></li>`;
       });
-      article.insertBefore(toc, titleH1.nextElementSibling.nextElementSibling);
+      article.insertBefore(toc, titleH1.nextElementSibling);
     }
 
     // ✅ Footer (if missing)
