@@ -9,41 +9,48 @@ const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure output directory exists
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir);
+// Create dist folder if it doesn't exist
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir);
+}
 
-// Load the HTML template
-const template = fs.readFileSync(templatePath, "utf-8");
+// Load HTML template
+let template = fs.readFileSync(templatePath, "utf-8");
 
-// Loop through each post file
+// Loop through all files in raw directory
 fs.readdirSync(rawDir).forEach((file) => {
-  if (!file.endsWith(".html")) return;
+  const rawFilePath = path.join(rawDir, file);
 
-  const slug = path.basename(file, ".html");
-  const meta = postMetadata[slug];
+  if (path.extname(file) === ".html") {
+    const content = fs.readFileSync(rawFilePath, "utf-8");
 
-  if (!meta) {
-    console.warn(`⚠️  No metadata found for slug: ${slug}`);
-    return;
+    const $ = cheerio.load(content);
+    const slug = path.basename(file, ".html");
+    const metadata = postMetadata[slug] || {};
+
+    const title = metadata.title || $("title").text() || slug;
+    const description = metadata.description || $("meta[name='description']").attr("content") || "";
+    const keywords = metadata.keywords || $("meta[name='keywords']").attr("content") || "";
+    const author = metadata.author || "Cryptego Team";
+    const canonical = metadata.canonical || `https://cryptego.com/${slug}.html`;
+    const ogImage = metadata.image || "https://cryptego.com/default-og-image.jpg";
+
+    // Escape description for safety in HTML
+    const escapedDescription = description.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // Inject metadata into template
+    const finalHtml = template
+      .replace(/{{TITLE}}/g, title)
+      .replace(/{{DESCRIPTION_ESCAPED}}/g, escapedDescription)
+      .replace(/{{KEYWORDS}}/g, keywords)
+      .replace(/{{AUTHOR}}/g, author)
+      .replace(/{{CANONICAL}}/g, canonical)
+      .replace(/{{OG_IMAGE}}/g, ogImage)
+      .replace(/{{CONTENT}}/g, $("body").html() || "");
+
+    const outputPath = path.join(distDir, file);
+    fs.writeFileSync(outputPath, finalHtml, "utf-8");
+
+    console.log(`✅ Generated: ${file}`);
   }
-
-  const rawHtml = fs.readFileSync(path.join(rawDir, file), "utf-8");
-  const $ = cheerio.load(rawHtml);
-
-  // Extract body content only
-  const bodyContent = $("body").length ? $("body").html() : $.root().html();
-
-  // Inject metadata and content into the template
-  const finalHtml = template
-    .replace(/{{TITLE}}/g, meta.title)
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, meta.description)
-    .replace(/{{KEYWORDS}}/g, meta.keywords || "")
-    .replace(/{{AUTHOR}}/g, meta.author || "MaxClickEmpire")
-    .replace(/{{CANONICAL}}/g, meta.canonical || `https://read.maxclickempire.com/${slug}.html`)
-    .replace(/{{OG_IMAGE}}/g, meta.og_image || "https://read.maxclickempire.com/assets/default-og.jpg")
-    .replace("{{CONTENT}}", bodyContent);
-
-  // Write the final HTML to dist folder
-  fs.writeFileSync(path.join(distDir, `${slug}.html`), finalHtml, "utf-8");
-  console.log(`✅ Generated: ${slug}.html`);
 });
