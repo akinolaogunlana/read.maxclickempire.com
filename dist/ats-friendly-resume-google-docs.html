@@ -1,4 +1,86 @@
-#!/usr/bin/env node
+<!DOCTYPE html>  <html lang="en">    <head>    
+  <meta charset="UTF-8" />    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />    <title>How to Create an ATS‑Friendly Resume on Google Docs</title>    
+  <meta name="description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips." />    
+  <meta name="keywords" content="" />    
+  <meta name="author" content="Unknown" />    
+  <link rel="canonical" href="" />    <!-- Open Graph for Facebook -->    <meta property="og:title" content="How to Create an ATS‑Friendly Resume on Google Docs" />    
+  <meta property="og:description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips." />    
+  <meta property="og:type" content="article" />    
+  <meta property="og:url" content="" />    
+  <meta property="og:image" content="" />    <!-- Twitter Card -->    <meta name="twitter:card" content="summary_large_image" />    
+  <meta name="twitter:title" content="How to Create an ATS‑Friendly Resume on Google Docs" />    
+  <meta name="twitter:description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips." />    
+  <meta name="twitter:image" content="" />    <link rel="stylesheet" href="/assets/style.css" />    
+  <style>    
+    :root {    
+      --max-char-width: 70ch;    
+      --content-padding: 1rem;    
+      --main-margin: 2rem auto;    
+    }  body {    
+  margin: 0;    
+  padding: 0;    
+  font-family: Arial, sans-serif;    
+  background-color: #ffffff;    
+  color: #222;    
+}    main {
+max-width: var(--max-char-width);
+margin: var(--main-margin);
+padding: var(--content-padding);
+box-sizing: border-box;
+background-color: #fff;
+}
+
+h1.post-title {
+font-size: 2rem;
+font-weight: bold;
+margin-bottom: 1rem;
+text-align: center;
+line-height: 1.3;
+}
+
+#post-content {
+line-height: 1.6;
+font-size: 1rem;
+word-wrap: break-word;
+}
+
+img {
+max-width: 100%;
+height: auto;
+display: block;
+margin: 1rem auto;
+}
+
+iframe {
+max-width: 100%;
+}
+
+pre, code {
+background-color: #f5f5f5;
+padding: 0.5rem;
+overflow-x: auto;
+display: block;
+}
+
+@media (max-width: 768px) {
+main {
+padding: 1rem;
+margin: 1rem;
+}
+
+#post-content {
+font-size: 0.95rem;
+}
+}
+
+  </style>    
+</head>    
+<body>    
+  <main>    
+    <!-- Title above the content -->    
+    <h1 class="post-title">How to Create an ATS‑Friendly Resume on Google Docs</h1>  <article id="post-content">    
+  <html><head></head><body>#!/usr/bin/env node
 
 const fs = require("fs");
 const path = require("path");
@@ -30,7 +112,7 @@ function cleanUpContent(rawHtml, postTitle) {
 
   // Remove potential duplicates or irrelevant tags
   $("title").remove();
-  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
+  $("h1").filter((_, el) =&gt; $(el).text().trim() === postTitle).remove();
   $(".hero-title, .post-title, .title-heading").remove();
 
   return $("body").html() || ""; // Return only body content if available
@@ -46,7 +128,7 @@ function injectMetadata(template, metadata, cleanedContent) {
     .replace(//g, metadata.canonical || "")
     .replace(//g, metadata.ogImage || "")
     .replace(/{{SLUG}}/g, metadata.slug || "")
-    .replace(/<html><head></head><body><h1>How to Create an ATS‑Friendly Resume on Google Docs</h1><!-- for meta tag use only --><meta name="description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips."><p>Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scenes filter: the Applicant Tracking System (ATS).</p><p>Over 90% of companies now use ATS software to scan resumes before a human even glances at them. That means even the most polished resume can be rejected simply because it’s formatted oddly or uses fancy visuals.</p><p>Fortunately, Google Docs offers everything you need to build a clean, simple, and powerful ATS‑friendly resume — with zero cost and zero design skills.</p><p>In this guide, you’ll get a proven, step‑by‑step system to:</p>
+    .replace(/<h1>How to Create an ATS‑Friendly Resume on Google Docs</h1><!-- for meta tag use only --><meta name="description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips."><p>Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scenes filter: the Applicant Tracking System (ATS).</p><p>Over 90% of companies now use ATS software to scan resumes before a human even glances at them. That means even the most polished resume can be rejected simply because it’s formatted oddly or uses fancy visuals.</p><p>Fortunately, Google Docs offers everything you need to build a clean, simple, and powerful ATS‑friendly resume — with zero cost and zero design skills.</p><p>In this guide, you’ll get a proven, step‑by‑step system to:</p>
 <ul>
   <li>Create a resume that passes ATS scans</li>
   <li>Showcase your skills and achievements clearly</li>
@@ -200,20 +282,18 @@ Graduated 2017
   <li>https://zety.com/blog/ats-resume</li>
   <li>https://www.indeed.com/career-advice/resumes-cover-letters/resume-formats</li>
   <li>https://topresume.com/career-advice/what-is-an-ats-applicant-tracking-system</li>
-</ul><script src="https://read.maxclickempire.com/data/post-meta.js" defer=""></script>
-<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer=""></script>
-</body></html>/g, cleanedContent || "");
+</ul>/g, cleanedContent || "");
 }
 
 // Get all post HTML files
-const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+const postFiles = fs.readdirSync(postsDir).filter(file =&gt; file.endsWith(".html"));
 
 if (postFiles.length === 0) {
   console.warn("⚠️ No HTML posts found in /posts.");
 }
 
 // Process each post
-postFiles.forEach(file => {
+postFiles.forEach(file =&gt; {
   const slug = file.replace(/\.html$/, "");
   const metadata = postMetadata[slug];
 
@@ -245,4 +325,10 @@ postFiles.forEach(file => {
   } catch (err) {
     console.error(`❌ Error processing ${file}:`, err.message);
   }
-});
+});<script src="https://read.maxclickempire.com/data/post-meta.js" defer=""></script>
+<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer=""></script>
+</body></html>    
+</article>    </main>    <!-- Inject postMetadata first so seo-enhancer can use it -->    <script>    
+    window.postMetadata = window.postMetadata || {};    
+  </script>    <script src="/data/post-meta.js"></script>    <script src="/assets/seo-enhancer.js"></script>  </body>    
+</html>  
