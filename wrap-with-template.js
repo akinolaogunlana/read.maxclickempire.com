@@ -2,11 +2,11 @@
 
 const fs = require("fs");
 const path = require("path");
-const { postMetadata } = require("../data/post-meta.js");
+const { postMetadata } = require("./data/post-meta.js"); // ✅ Fixed path
 
-const templatePath = path.join(__dirname, "..", "template.html");
-const postsDir = path.join(__dirname, "..", "posts");
-const distDir = path.join(__dirname, "..", "dist");
+const templatePath = path.join(__dirname, "template.html");
+const postsDir = path.join(__dirname, "posts");
+const distDir = path.join(__dirname, "dist");
 
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir);
@@ -14,19 +14,10 @@ if (!fs.existsSync(distDir)) {
 
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Escape HTML for attributes like description
-function escapeHTML(str) {
-  return (str || "").replace(/&/g, "&amp;")
-                   .replace(/</g, "&lt;")
-                   .replace(/>/g, "&gt;")
-                   .replace(/"/g, "&quot;")
-                   .replace(/'/g, "&#39;");
-}
-
 const placeholderReplacer = (template, metadata, content) => {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, escapeHTML(metadata.description || ""))
+    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
     .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
     .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
     .replace(/{{CANONICAL}}/g, metadata.canonical || "")
