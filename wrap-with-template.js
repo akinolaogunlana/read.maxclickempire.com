@@ -14,16 +14,32 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Load and cache the HTML template
+// Load template once
 let template;
 try {
   template = fs.readFileSync(templatePath, "utf8");
 } catch (err) {
-  console.error(`❌ Failed to read template.html:`, err.message);
+  console.error("❌ Failed to load template.html:", err.message);
   process.exit(1);
 }
 
-// Inject metadata and cleaned content
+// Clean raw HTML content and eliminate duplication
+function cleanUpContent(rawHtml, postTitle) {
+  const $ = cheerio.load(rawHtml);
+
+  // Remove <title> if present
+  $("title").remove();
+
+  // Remove any <h1> that exactly matches the post title
+  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
+
+  // Remove hero titles or known duplicate classes
+  $(".hero-title, .post-title, .title-heading").remove();
+
+  return $.html();
+}
+
+// Inject metadata into the template
 function injectMetadata(template, metadata, cleanedContent) {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -36,26 +52,11 @@ function injectMetadata(template, metadata, cleanedContent) {
     .replace(/{{CONTENT}}/g, cleanedContent || "");
 }
 
-// Get .html files from posts/
+// Get all post files
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+
 if (postFiles.length === 0) {
-  console.warn("⚠️ No post files found in /posts.");
-}
-
-// Remove duplicate <h1>, title, and hero sections
-function cleanUpContent(rawHtml, postTitle) {
-  const $ = cheerio.load(rawHtml);
-
-  // Remove <title> if it exists in content
-  $("title").remove();
-
-  // Remove duplicated hero/header sections with post title
-  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
-
-  // Optional: Remove TOC-injected titles or extra H1s
-  $(".hero-title, .post-title, .title-heading").remove();
-
-  return $.html();
+  console.warn("⚠️ No HTML posts found in /posts.");
 }
 
 postFiles.forEach(file => {
@@ -63,7 +64,7 @@ postFiles.forEach(file => {
   const metadata = postMetadata[slug];
 
   if (!metadata) {
-    console.warn(`⚠️ Skipping "${file}" – no metadata found for slug: "${slug}"`);
+    console.warn(`⚠️ Skipping ${file} — no metadata found.`);
     return;
   }
 
@@ -71,12 +72,23 @@ postFiles.forEach(file => {
   const outputPath = path.join(distDir, file);
 
   try {
+    // Cleanup old version if it exists
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath);
+      console.log(`🧹 Removed old wrapped file: ${file}`);
+    }
+
+    // Load and clean raw HTML
     const rawContent = fs.readFileSync(filePath, "utf8");
     const cleanedContent = cleanUpContent(rawContent, metadata.title);
+
+    // Inject cleaned content into template
     const finalHtml = injectMetadata(template, metadata, cleanedContent);
+
+    // Write to dist
     fs.writeFileSync(outputPath, finalHtml);
-    console.log(`✅ Injected clean content into: ${file}`);
+    console.log(`✅ Wrapped clean content into: ${file}`);
   } catch (err) {
-    console.error(`❌ Error processing ${file}:`, err.message);
+    console.error(`❌ Failed processing ${file}:`, err.message);
   }
 });
