@@ -2,115 +2,64 @@
 
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
-const cheerio = require("cheerio");
+const { postMetadata } = require("./data/post-meta.js");
 
-// Directories
-const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
+const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dirs exist
-if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir, { recursive: true });
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
-
-// Load template
-const template = fs.readFileSync(templatePath, "utf8");
-
-// Utility: Slugify
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
+// Ensure dist directory exists
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Utility: Generate SHA256 hash
-function generateHash(content) {
-  return crypto.createHash("sha256").update(content).digest("hex");
+// Load and cache the HTML template
+let template;
+try {
+  template = fs.readFileSync(templatePath, "utf8");
+} catch (err) {
+  console.error(`❌ Failed to read template.html:`, err.message);
+  process.exit(1);
 }
 
-const seenHashes = new Set();
+// Replace placeholders with post-specific content
+function injectMetadata(template, metadata, content) {
+  return template
+    .replace(/{{TITLE}}/g, metadata.title || "")
+    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
+    .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
+    .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
+    .replace(/{{CANONICAL}}/g, metadata.canonical || "")
+    .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
+    .replace(/{{SLUG}}/g, metadata.slug || "")
+    .replace(/{{CONTENT}}/g, content || "");
+}
 
-// Process HTML files
-const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
+// Get all .html files in posts/
+const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
 
-files.forEach(file => {
-  const filePath = path.join(rawDir, file);
-  const rawHtml = fs.readFileSync(filePath, "utf8");
-  const $ = cheerio.load(rawHtml);
+if (postFiles.length === 0) {
+  console.warn("⚠️ No post files found in /posts.");
+}
 
-  // Extract title
-  const title = $("h1").first().text().trim() || "Untitled Post";
+postFiles.forEach(file => {
+  const slug = file.replace(/\.html$/, "");
+  const metadata = postMetadata[slug];
 
-  // Description from meta or first paragraph
-  const description =
-    $("meta[name='description']").attr("content") ||
-    $("p").first().text().trim().replace(/\s+/g, " ") ||
-    "Post from MaxClickEmpire.";
-
-  // Clean up raw HTML
-  $("script").remove();
-  $("[style]").removeAttr("style");
-  $("article h1").first().remove();
-  $("body h1").first().remove();
-
-  // Extract main content
-  const contentHTML = $("article").html() || $("body").html() || rawHtml;
-  const content$ = cheerio.load(contentHTML);
-
-  // Remove repeated title again if inside article
-  content$("h1").each((i, el) => {
-    if (content$(el).text().trim() === title && i === 0) {
-      content$(el).remove();
-    }
-  });
-
-  // Remove "Introduction" heading
-  const firstTag = content$.root().children().first();
-  if (
-    firstTag.text().trim().toLowerCase() === "introduction" &&
-    firstTag[0]?.tagName?.match(/^h\d$/)
-  ) {
-    firstTag.remove();
-  }
-
-  const cleanedContent = content$
-    .html()
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/style="[^"]*"/g, "")
-    .trim();
-
-  const hash = generateHash(cleanedContent);
-  if (seenHashes.has(hash)) {
-    console.log(`⚠️ Skipped duplicate: ${file}`);
+  if (!metadata) {
+    console.warn(`⚠️ Skipping "${file}" – no metadata found for slug: "${slug}"`);
     return;
   }
-  seenHashes.add(hash);
 
-  const date = new Date().toISOString().split("T")[0];
-  const filename = slugify(title);
+  const filePath = path.join(postsDir, file);
+  const outputPath = path.join(distDir, file);
 
-  // Generate keywords
-  const keywords = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/gi, "")
-    .split(/\s+/)
-    .filter(w => w.length > 2)
-    .slice(0, 10)
-    .join(", ");
-
-  // Build final HTML
-  const finalHtml = template
-    .replace(/{{TITLE}}/g, title)
-    .replace(/{{DESCRIPTION}}/g, description)
-    .replace(/{{KEYWORDS}}/g, keywords)
-    .replace(/{{FILENAME}}/g, filename)
-    .replace(/{{DATE}}/g, date)
-    .replace(/{{CONTENT}}/g, cleanedContent);
-
-  // Output
-  const outputPath = path.join(distDir, `${filename}.html`);
-  fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Processed: ${filename}.html`);
+  try {
+    const content = fs.readFileSync(filePath, "utf8");
+    const finalHtml = injectMetadata(template, metadata, content);
+    fs.writeFileSync(outputPath, finalHtml);
+    console.log(`✅ Processed: ${file}`);
+  } catch (err) {
+    console.error(`❌ Failed to process ${file}:`, err.message);
+  }
 });
