@@ -14,16 +14,25 @@ if (!fs.existsSync(distDir)) {
 
 const template = fs.readFileSync(templatePath, "utf8");
 
+// Escape HTML for attributes like description
+function escapeHTML(str) {
+  return (str || "").replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#39;");
+}
+
 const placeholderReplacer = (template, metadata, content) => {
   return template
-    .replace("{{TITLE}}", metadata.title || "")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
-    .replace("{{KEYWORDS}}", metadata.keywords || "")
-    .replace("{{AUTHOR}}", metadata.author || "MaxClickEmpire")
+    .replace(/{{TITLE}}/g, metadata.title || "")
+    .replace(/{{DESCRIPTION_ESCAPED}}/g, escapeHTML(metadata.description || ""))
+    .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
+    .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
     .replace(/{{CANONICAL}}/g, metadata.canonical || "")
     .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
-    .replace("{{SLUG}}", metadata.slug || "")
-    .replace("{{CONTENT}}", content || "");
+    .replace(/{{SLUG}}/g, metadata.slug || "")
+    .replace(/{{CONTENT}}/g, content || "");
 };
 
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
