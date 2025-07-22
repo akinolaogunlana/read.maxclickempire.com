@@ -1,77 +1,93 @@
-#!/usr/bin/env node
-
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const cheerio = require("cheerio");
 const { postMetadata } = require("./data/post-meta.js");
 
+const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
-const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist directory exists
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir);
-
-// Load template.html once
-const rawTemplate = fs.readFileSync(templatePath, "utf8");
-
-// To prevent duplicate posts
 const seenHashes = new Set();
 
-fs.readdirSync(postsDir).forEach((fileName) => {
-  if (!fileName.endsWith(".html")) return;
+function generateHash(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
+}
 
-  const filePath = path.join(postsDir, fileName);
-  const rawHtml = fs.readFileSync(filePath, "utf8");
+function cleanUpContentStrict(rawHtml, postTitle) {
   const $ = cheerio.load(rawHtml);
 
-  // Strict cleanup: remove scripts, inline styles, classes, events
-  $("script").remove();
-  $("[style]").removeAttr("style");
-  $("[class]").removeAttr("class");
-  $("[onclick],[onload],[onmouseover],[onerror]").removeAttr("onclick onload onmouseover onerror");
+  // Remove all unnecessary elements
+  $("script, style, link[rel='stylesheet'], meta, title").remove();
+  $("[style], [class], [id], [onclick], [onload]").removeAttr("style class id onclick onload");
 
-  // Remove first h1 inside article/body to prevent duplication
+  // Remove common noisy blocks
+  $("header, footer, nav, aside, .hero-title, .post-title, .entry-title, .main-heading").remove();
+
+  // Remove all <h1> that look like post titles or are short
+  $("h1").each((_, el) => {
+    const text = $(el).text().trim().toLowerCase();
+    if (text === postTitle.toLowerCase() || text.length < 10) {
+      $(el).remove();
+    }
+  });
+
+  // Ensure article/body-level duplicate <h1> gone
   $("article h1").first().remove();
   $("body h1").first().remove();
 
-  // Use content from article or body
-  const contentHtml = $("article").html() || $("body").html() || rawHtml;
-  const content = contentHtml.trim();
+  // Extract clean main content
+  let content = $("article").html() || $("main").html() || $("body").html() || rawHtml;
+  return content.trim();
+}
 
-  // Generate hash for duplicate check
-  const hash = crypto.createHash("sha256").update(content).digest("hex");
-  if (seenHashes.has(hash)) {
-    console.log(`⚠️ Duplicate skipped: ${fileName}`);
+// Load the template
+const template = fs.readFileSync(templatePath, "utf-8");
+
+// Ensure dist folder exists
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir);
+}
+
+// Process each file
+fs.readdirSync(rawDir).forEach((file) => {
+  if (!file.endsWith(".html")) return;
+
+  const rawFilePath = path.join(rawDir, file);
+  const rawHtml = fs.readFileSync(rawFilePath, "utf-8");
+
+  const metadata = postMetadata[file];
+  if (!metadata) {
+    console.warn(`⚠️ No metadata for ${file}`);
     return;
   }
+
+  const cleanContent = cleanUpContentStrict(rawHtml, metadata.title);
+  const hash = generateHash(cleanContent);
+
+  if (seenHashes.has(hash)) {
+    console.log(`⚠️ Duplicate skipped: ${file}`);
+    return;
+  }
+
   seenHashes.add(hash);
 
-  const postId = path.basename(fileName, ".html");
-  const meta = postMetadata[postId] || {};
+  // Prepare output file path
+  const outputFilePath = path.join(distDir, file);
 
-  // Basic text content for fallback description and keywords
-  const plainText = cheerio.load(content).text().replace(/\s+/g, " ").trim();
-  const fallbackDescription = plainText.slice(0, 160);
-  const fallbackKeywords = [...new Set(plainText.match(/\b[a-z]{5,}\b/gi) || [])]
-    .slice(0, 10)
-    .join(", ");
+  // Remove old version if it exists
+  if (fs.existsSync(outputFilePath)) {
+    fs.unlinkSync(outputFilePath);
+  }
 
-  const escapedDescription = (meta.description || fallbackDescription || "").replace(/"/g, "&quot;");
-  const escapedKeywords = (meta.keywords || fallbackKeywords || "").replace(/"/g, "&quot;");
+  // Inject into template
+  const finalHtml = template
+    .replace("{{TITLE}}", metadata.title)
+    .replace("{{DESCRIPTION_ESCAPED}}", metadata.description.replace(/"/g, "&quot;"))
+    .replace("{{KEYWORDS}}", metadata.keywords)
+    .replace("{{POST_CONTENT}}", cleanContent);
 
-  const finalHtml = rawTemplate
-    .replace(/{{TITLE}}/g, meta.title || "Untitled")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, escapedDescription)
-    .replace(/{{KEYWORDS}}/g, escapedKeywords)
-    .replace(/{{AUTHOR}}/g, meta.author || "Unknown")
-    .replace(/{{CANONICAL}}/g, meta.canonical || "")
-    .replace(/{{OG_IMAGE}}/g, meta.ogImage || "")
-    .replace(/{{CONTENT}}/g, content);
-
-  const outputPath = path.join(distDir, fileName);
-  fs.writeFileSync(outputPath, finalHtml, "utf8");
-
-  console.log(`✅ Wrapped and saved: ${fileName}`);
+  // Save to dist
+  fs.writeFileSync(outputFilePath, finalHtml);
+  console.log(`✅ Generated: ${file}`);
 });
