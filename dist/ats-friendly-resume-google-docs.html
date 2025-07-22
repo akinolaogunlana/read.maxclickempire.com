@@ -1,4 +1,52 @@
-<h1>How to Create an ATS‑Friendly Resume on Google Docs</h1><!-- for meta tag use only --><meta name="description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips." /><p>Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scenes filter: the Applicant Tracking System (ATS).</p><p>Over 90% of companies now use ATS software to scan resumes before a human even glances at them. That means even the most polished resume can be rejected simply because it’s formatted oddly or uses fancy visuals.</p><p>Fortunately, Google Docs offers everything you need to build a clean, simple, and powerful ATS‑friendly resume — with zero cost and zero design skills.</p><p>In this guide, you’ll get a proven, step‑by‑step system to:</p>
+#!/usr/bin/env node
+
+const fs = require("fs");
+const path = require("path");
+const cheerio = require("cheerio");
+const { postMetadata } = require("./data/post-meta.js");
+
+// Define paths
+const templatePath = path.join(__dirname, "template.html");
+const postsDir = path.join(__dirname, "posts");
+const distDir = path.join(__dirname, "dist");
+
+// Ensure dist directory exists
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+
+// Load template.html once
+let template;
+try {
+  template = fs.readFileSync(templatePath, "utf8");
+} catch (err) {
+  console.error("❌ Failed to load template.html:", err.message);
+  process.exit(1);
+}
+
+// Function to sanitize and clean raw HTML content
+function cleanUpContent(rawHtml, postTitle) {
+  const $ = cheerio.load(rawHtml);
+
+  // Remove potential duplicates or irrelevant tags
+  $("title").remove();
+  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
+  $(".hero-title, .post-title, .title-heading").remove();
+
+  return $("body").html() || ""; // Return only body content if available
+}
+
+// Function to inject metadata into the HTML template
+function injectMetadata(template, metadata, cleanedContent) {
+  return template
+    .replace(/How to Create an ATS‑Friendly Resume on Google Docs/g, metadata.title || "")
+    .replace(/A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips./g, metadata.description || "")
+    .replace(//g, metadata.keywords || "")
+    .replace(/Unknown/g, metadata.author || "MaxClickEmpire")
+    .replace(//g, metadata.canonical || "")
+    .replace(//g, metadata.ogImage || "")
+    .replace(/{{SLUG}}/g, metadata.slug || "")
+    .replace(/<html><head></head><body><h1>How to Create an ATS‑Friendly Resume on Google Docs</h1><!-- for meta tag use only --><meta name="description" content="A step‑by‑step guide to building a clean, ATS‑friendly resume in Google Docs that lands interviews. Learn formatting best practices, templates, examples, and download tips."><p>Have you ever submitted a resume that you’re proud of — only to never hear back? You might not be up against stronger candidates, but a silent, behind‑the‑scenes filter: the Applicant Tracking System (ATS).</p><p>Over 90% of companies now use ATS software to scan resumes before a human even glances at them. That means even the most polished resume can be rejected simply because it’s formatted oddly or uses fancy visuals.</p><p>Fortunately, Google Docs offers everything you need to build a clean, simple, and powerful ATS‑friendly resume — with zero cost and zero design skills.</p><p>In this guide, you’ll get a proven, step‑by‑step system to:</p>
 <ul>
   <li>Create a resume that passes ATS scans</li>
   <li>Showcase your skills and achievements clearly</li>
@@ -65,8 +113,7 @@
 <p>List your contact details in plain text, not a header or footer.</p><h3>Step 5: Write a Professional Summary</h3>
 <p>Focus on what you’ve achieved, who you are, and what you bring — in two to four lines.</p><h3>Step 6: Add Your Experience</h3>
 <p>Follow this structure:</p>
-<pre>
-<b>Marketing Manager</b>
+<pre><b>Marketing Manager</b>
 Acme Inc. – Seattle, WA
 01/2020 – Present
 • Developed SEO campaigns that increased organic leads by 75%.
@@ -74,7 +121,7 @@ Acme Inc. – Seattle, WA
 </pre><h3>Step 7: List Your Skills</h3>
 <p>Digested into a readable bulleted list:</p>
 <ul>
-  <li>SEO & SEM</li>
+  <li>SEO &amp; SEM</li>
   <li>Google Analytics, AdWords</li>
   <li>Budget Management</li>
   <li>Team Leadership</li>
@@ -88,8 +135,7 @@ Acme Inc. – Seattle, WA
 <p>File → Download → <strong>Microsoft Word (.docx)</strong> or PDF (only if allowed). DOCX is safer for ATS.</p>
 ---
 
-<h2>5. Sample ATS‑Friendly Resume Layout</h2><pre>
-Jane Doe
+<h2>5. Sample ATS‑Friendly Resume Layout</h2><pre>Jane Doe
 (123) 456-7890 | jane.doe@email.com | linkedin.com/in/janedoe | Denver, CO
 
 Professional Summary
@@ -144,7 +190,7 @@ Graduated 2017
 <p>Aside from the Notepad test, use tools like Jobscan or Resume Worded to check ATS compatibility and keyword optimization.</p>
 ---
 
-<h2>Conclusion & CTA</h2><p>Building an ATS-friendly resume in Google Docs doesn’t require design chops — just a focus on clarity, simplicity, and structure. By using the right format, standard headings, and measurable accomplishments, you increase your odds of bypassing automated filters and landing in front of real people.</p><p><strong>Take action today:</strong> open Google Docs, grab a clean template, and apply these steps. Then download your polished resume and start submitting with confidence.</p><p>Did this guide help you? <strong>Leave a comment</strong> sharing your next interview step. Or, <strong>share this article</strong> with someone sending applications. Want more career tips? <strong>Subscribe</strong> to get updates on resume strategies, cover letters, and job search tactics.</p>
+<h2>Conclusion &amp; CTA</h2><p>Building an ATS-friendly resume in Google Docs doesn’t require design chops — just a focus on clarity, simplicity, and structure. By using the right format, standard headings, and measurable accomplishments, you increase your odds of bypassing automated filters and landing in front of real people.</p><p><strong>Take action today:</strong> open Google Docs, grab a clean template, and apply these steps. Then download your polished resume and start submitting with confidence.</p><p>Did this guide help you? <strong>Leave a comment</strong> sharing your next interview step. Or, <strong>share this article</strong> with someone sending applications. Want more career tips? <strong>Subscribe</strong> to get updates on resume strategies, cover letters, and job search tactics.</p>
 ---
 
 <h2>Authoritative External URLs</h2>
@@ -154,4 +200,49 @@ Graduated 2017
   <li>https://zety.com/blog/ats-resume</li>
   <li>https://www.indeed.com/career-advice/resumes-cover-letters/resume-formats</li>
   <li>https://topresume.com/career-advice/what-is-an-ats-applicant-tracking-system</li>
-</ul>
+</ul><script src="https://read.maxclickempire.com/data/post-meta.js" defer=""></script>
+<script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer=""></script>
+</body></html>/g, cleanedContent || "");
+}
+
+// Get all post HTML files
+const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+
+if (postFiles.length === 0) {
+  console.warn("⚠️ No HTML posts found in /posts.");
+}
+
+// Process each post
+postFiles.forEach(file => {
+  const slug = file.replace(/\.html$/, "");
+  const metadata = postMetadata[slug];
+
+  if (!metadata) {
+    console.warn(`⚠️ Skipping ${file} — no metadata found.`);
+    return;
+  }
+
+  const filePath = path.join(postsDir, file);
+  const outputPath = path.join(distDir, file);
+
+  try {
+    // Remove existing version if any
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath);
+      console.log(`🧹 Removed existing version of: ${file}`);
+    }
+
+    // Read and sanitize raw content
+    const rawContent = fs.readFileSync(filePath, "utf8");
+    const cleanedContent = cleanUpContent(rawContent, metadata.title);
+
+    // Inject content into template
+    const finalHtml = injectMetadata(template, metadata, cleanedContent);
+
+    // Save to dist directory
+    fs.writeFileSync(outputPath, finalHtml);
+    console.log(`✅ Successfully wrapped and saved: ${file}`);
+  } catch (err) {
+    console.error(`❌ Error processing ${file}:`, err.message);
+  }
+});
