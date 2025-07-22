@@ -3,30 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="{{AUTHOR}}" />
   <link rel="canonical" href="{{CANONICAL}}" />
+
+  <!-- Open Graph for Facebook -->
   <meta property="og:title" content="{{TITLE}}" />
   <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="{{CANONICAL}}" />
   <meta property="og:image" content="{{OG_IMAGE}}" />
+
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{{TITLE}}" />
   <meta name="twitter:description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta name="twitter:image" content="{{OG_IMAGE}}" />
+
   <link rel="stylesheet" href="/assets/style.css" />
 </head>
 <body>
   <main>
-    <article>
+    <article id="post-content">
       {{CONTENT}}
     </article>
   </main>
 
-  <script src="https://read.maxclickempire.com/data/post-meta.js" defer></script>
-  <script src="https://read.maxclickempire.com/assets/seo-enhancer.js" defer></script>
+  <!-- SEO Enhancer and Metadata Injection Scripts -->
+  <script src="/data/post-meta.js" defer></script>
+  <script src="/assets/seo-enhancer.js" defer></script>
 </body>
 </html>
