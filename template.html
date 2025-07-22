@@ -3,109 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>{{TITLE}}</title>
   <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
   <meta name="keywords" content="{{KEYWORDS}}" />
   <meta name="author" content="{{AUTHOR}}" />
   <link rel="canonical" href="{{CANONICAL}}" />
-
-  <!-- Open Graph for Facebook -->
   <meta property="og:title" content="{{TITLE}}" />
   <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta property="og:type" content="article" />
-  <meta property="og:url" content="{{CANONICAL}}" />
   <meta property="og:image" content="{{OG_IMAGE}}" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{TITLE}}" />
-  <meta name="twitter:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta name="twitter:image" content="{{OG_IMAGE}}" />
-
-  <link rel="stylesheet" href="/assets/style.css" />
+  <meta property="og:url" content="{{CANONICAL}}" />
+  <meta name="robots" content="index, follow" />
   <style>
-    :root {
-      --max-char-width: 70ch;
-      --content-padding: 1rem;
-      --main-margin: 2rem auto;
-    }
-
     body {
-      margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      color: #222;
-    }
-
-    main {
-      max-width: var(--max-char-width);
-      margin: var(--main-margin);
-      padding: var(--content-padding);
-      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
       background-color: #fff;
+      color: #000;
+      display: flex;
+      justify-content: center;
     }
 
-    h1.post-title {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      text-align: center;
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      border-left: 1px solid #eee;
+      border-right: 1px solid #eee;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-top: 0;
       line-height: 1.3;
-    }
-
-    #post-content {
-      line-height: 1.6;
-      font-size: 1rem;
-      word-wrap: break-word;
     }
 
     img {
       max-width: 100%;
       height: auto;
-      display: block;
-      margin: 1rem auto;
     }
 
-    iframe {
-      max-width: 100%;
+    table {
+      width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
     }
 
     pre, code {
-      background-color: #f5f5f5;
-      padding: 0.5rem;
-      overflow-x: auto;
-      display: block;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
-    @media (max-width: 768px) {
-      main {
-        padding: 1rem;
-        margin: 1rem;
-      }
-
-      #post-content {
-        font-size: 0.95rem;
-      }
+    /* Prevent overflow */
+    * {
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
-  <main>
-    <!-- Title above the content -->
-    <h1 class="post-title">{{TITLE}}</h1>
+  <div class="container">
+    <!-- ✅ Show title once -->
+    <h1>{{TITLE}}</h1>
 
-    <article id="post-content">
-      {{CONTENT}}
-    </article>
-  </main>
-
-  <!-- Inject postMetadata first so seo-enhancer can use it -->
-  <script>
-    window.postMetadata = window.postMetadata || {};
-  </script>
-  <script src="/data/post-meta.js"></script>
-  <script src="/assets/seo-enhancer.js"></script>
+    <!-- ✅ Inject entire content body here -->
+    {{CONTENT}}
+  </div>
 </body>
 </html>
