@@ -31,6 +31,10 @@
     const article = document.querySelector("article");
     if (!article) return;
 
+    // ✅ Remove previous h1s and hero
+    article.querySelectorAll("h1").forEach(el => el.remove());
+    article.querySelector(".post-hero")?.remove();
+
     // ✅ Insert Navigation
     if (!document.querySelector("header.site-header")) {
       const nav = document.createElement("header");
@@ -48,27 +52,23 @@
     }
 
     // ✅ SEO Metadata
-    let h1 = article.querySelector("h1");
-    const titleText = h1?.textContent.trim() || document.title;
-    const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
-    const firstImg = article.querySelector("img");
-    const image = firstImg?.src || "/assets/og-image.jpg";
-
-    const meta = window.postMetadata?.[slug] || {
+    const titleText = window.postMetadata?.[slug]?.title || document.title;
+    const desc = window.postMetadata?.[slug]?.description || "Digital strategy and free tools.";
+    const image = window.postMetadata?.[slug]?.image || document.querySelector("img")?.src || "/assets/og-image.jpg";
+    const meta = {
       title: titleText,
       description: desc,
       image,
-      published: new Date().toISOString()
+      published: window.postMetadata?.[slug]?.published || new Date().toISOString()
     };
 
+    // Remove old meta tags
     [
       "og:title", "og:description", "og:url", "og:type", "og:image",
       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
       "keywords"
     ].forEach(name => {
-      const selector = `meta[property='${name}'], meta[name='${name}']`;
-      const tag = document.querySelector(selector);
-      if (tag) tag.remove();
+      document.querySelectorAll(`meta[property='${name}'], meta[name='${name}']`).forEach(el => el.remove());
     });
 
     function injectMeta(name, content, attr = "name") {
@@ -81,15 +81,7 @@
 
     document.title = meta.title;
     injectMeta("description", meta.description);
-
-    const keywords = meta.title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/gi, "")
-      .split(/\s+/)
-      .filter(w => w.length > 2)
-      .slice(0, 10)
-      .join(", ");
-    injectMeta("keywords", keywords);
+    injectMeta("keywords", meta.title.toLowerCase().split(/\s+/).slice(0, 10).join(", "));
 
     injectMeta("og:title", meta.title, "property");
     injectMeta("og:description", meta.description, "property");
@@ -121,38 +113,42 @@
     });
     document.head.appendChild(ld);
 
-    // ✅ Hero
-    if (h1 && !document.querySelector(".post-hero")) {
-      const hero = document.createElement("section");
-      hero.className = "post-hero";
-      hero.innerHTML = `
-        <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
-          <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
-          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
-          <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
-        </div>`;
-      const h1Clone = h1.cloneNode(true);
-      h1.remove();
-      hero.querySelector("div").insertAdjacentElement("afterbegin", h1Clone);
-      article.insertAdjacentElement("afterbegin", hero);
-    }
-
     // ✅ TOC
     const headings = article.querySelectorAll("h2, h3");
-    if (headings.length && !document.querySelector("#toc")) {
-      const toc = document.createElement("div");
+    let toc = document.querySelector("#toc");
+    if (!toc && headings.length) {
+      toc = document.createElement("div");
       toc.id = "toc";
       toc.innerHTML = `<h2>📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
       const ul = toc.querySelector("ul");
       headings.forEach((h, i) => {
         const id = `toc-${i}`;
         h.id = id;
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
-        ul.appendChild(li);
+        ul.innerHTML += `<li><a href="#${id}">${h.textContent}</a></li>`;
       });
       article.insertAdjacentElement("afterbegin", toc);
     }
+
+    // ✅ Add h1 (title) above TOC
+    const titleH1 = document.createElement("h1");
+    titleH1.textContent = meta.title;
+    titleH1.style = "font-size:2rem;margin-bottom:1rem;color:#222;";
+    if (toc) {
+      article.insertBefore(titleH1, toc);
+    } else {
+      article.insertAdjacentElement("afterbegin", titleH1);
+    }
+
+    // ✅ Clean Hero (no title)
+    const hero = document.createElement("section");
+    hero.className = "post-hero";
+    hero.innerHTML = `
+      <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
+        <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
+        <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+        <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+      </div>`;
+    article.insertAdjacentElement("afterbegin", hero);
 
     // ✅ Related Posts
     if (!document.querySelector("#related-posts") && window.postMetadata) {
@@ -203,7 +199,6 @@
       document.body.classList.add("dark-theme");
     }
 
-    // ✅ Debug
     if (location.search.includes("debugSEO")) {
       console.log("🔍 SEO Meta Loaded:", meta);
     }
