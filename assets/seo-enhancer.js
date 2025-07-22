@@ -23,7 +23,7 @@
   });
 
   function initSeoEnhancer() {
-    const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
+    const slug = location.pathname.replace(/^\/|\/$/g, "").split("/").pop().replace(".html", "");
     const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
     const skip = ["about", "contact", "privacy-policy", "terms"];
     if (skip.includes(pathSlug)) return;
