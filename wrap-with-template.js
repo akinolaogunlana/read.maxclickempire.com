@@ -1,92 +1,80 @@
-#!/usr/bin/env node
+# !/usr/bin/env node
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const cheerio = require("cheerio");
-const { postMetadata } = require("./data/post-meta.js");
 
-// Define paths
+// Paths
+const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
-const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist directory exists
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
+// Ensure dist exists
+if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+
+// Read template
+const template = fs.readFileSync(templatePath, "utf8");
+
+// Hash to skip duplicates
+function generateHash(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
 }
 
-// Load template.html once
-let template;
-try {
-  template = fs.readFileSync(templatePath, "utf8");
-} catch (err) {
-  console.error("❌ Failed to load template.html:", err.message);
-  process.exit(1);
+// Slugify filename
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-// Function to sanitize and clean raw HTML content
-function cleanUpContent(rawHtml, postTitle) {
+const seenHashes = new Set();
+
+// Process each raw file
+const files = fs.readdirSync(rawDir).filter(f => f.endsWith(".html"));
+
+files.forEach(file => {
+  const rawPath = path.join(rawDir, file);
+  let rawHtml = fs.readFileSync(rawPath, "utf8");
   const $ = cheerio.load(rawHtml);
 
-  // Remove potential duplicates or irrelevant tags
-  $("title").remove();
-  $("h1").filter((_, el) => $(el).text().trim() === postTitle).remove();
-  $(".hero-title, .post-title, .title-heading").remove();
+  const title = $("h1").first().text().trim() || "Untitled Post";
+  const description = $("p").first().text().trim().replace(/\s+/g, " ") || "Post from MaxClickEmpire.";
+  const date = new Date().toISOString().split("T")[0];
+  const filename = slugify(title);
 
-  return $("body").html() || ""; // Return only body content if available
-}
+  // Remove <script> and inline styles
+  $("script").remove();
+  $("[style]").removeAttr("style");
 
-// Function to inject metadata into the HTML template
-function injectMetadata(template, metadata, cleanedContent) {
-  return template
-    .replace(/{{TITLE}}/g, metadata.title || "")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
-    .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
-    .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
-    .replace(/{{CANONICAL}}/g, metadata.canonical || "")
-    .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
-    .replace(/{{SLUG}}/g, metadata.slug || "")
-    .replace(/{{CONTENT}}/g, cleanedContent || "");
-}
+  // Remove first <h1> inside article or body to avoid duplication
+  $("article h1").first().remove();
+  $("body h1").first().remove();
 
-// Get all post HTML files
-const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+  // Use article HTML or fallback
+  const content = $("article").html() || $("body").html() || rawHtml;
+  const cleanContent = content.trim();
 
-if (postFiles.length === 0) {
-  console.warn("⚠️ No HTML posts found in /posts.");
-}
-
-// Process each post
-postFiles.forEach(file => {
-  const slug = file.replace(/\.html$/, "");
-  const metadata = postMetadata[slug];
-
-  if (!metadata) {
-    console.warn(`⚠️ Skipping ${file} — no metadata found.`);
+  // Avoid duplicate files
+  const hash = generateHash(cleanContent);
+  if (seenHashes.has(hash)) {
+    console.log(`⚠️ Duplicate skipped: ${file}`);
     return;
   }
+  seenHashes.add(hash);
 
-  const filePath = path.join(postsDir, file);
-  const outputPath = path.join(distDir, file);
+  const finalHtml = template
+    .replace(/{{TITLE}}/g, title)
+    .replace(/{{DESCRIPTION}}/g, description)
+    .replace(/{{KEYWORDS}}/g, title.split(" ").join(", "))
+    .replace(/{{FILENAME}}/g, filename)
+    .replace(/{{DATE}}/g, date)
+    .replace(/{{CONTENT}}/g, cleanContent);
 
-  try {
-    // Remove existing version if any
-    if (fs.existsSync(outputPath)) {
-      fs.unlinkSync(outputPath);
-      console.log(`🧹 Removed existing version of: ${file}`);
-    }
-
-    // Read and sanitize raw content
-    const rawContent = fs.readFileSync(filePath, "utf8");
-    const cleanedContent = cleanUpContent(rawContent, metadata.title);
-
-    // Inject content into template
-    const finalHtml = injectMetadata(template, metadata, cleanedContent);
-
-    // Save to dist directory
-    fs.writeFileSync(outputPath, finalHtml);
-    console.log(`✅ Successfully wrapped and saved: ${file}`);
-  } catch (err) {
-    console.error(`❌ Error processing ${file}:`, err.message);
-  }
+  const outputPath = path.join(distDir, `${filename}.html`);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
+  console.log(`✅ Wrapped & Cleaned: ${filename}.html`);
 });
