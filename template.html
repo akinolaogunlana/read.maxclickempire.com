@@ -32,8 +32,12 @@
     </article>
   </main>
 
-  <!-- SEO Enhancer and Metadata Injection Scripts -->
-  <script src="/data/post-meta.js" defer></script>
-  <script src="/assets/seo-enhancer.js" defer></script>
+  <!-- Inject postMetadata first so seo-enhancer can use it -->
+  <script>
+    // Fallback in case the JS file fails
+    window.postMetadata = window.postMetadata || {};
+  </script>
+  <script src="/data/post-meta.js"></script>
+  <script src="/assets/seo-enhancer.js"></script>
 </body>
 </html>
