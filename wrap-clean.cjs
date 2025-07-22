@@ -152,3 +152,55 @@ files.forEach((file) => {
 });
 
 console.log(`\n🎉 Done. ${count} posts processed and wrapped.`);
+// Strip unwanted tags
+$("script").remove();
+$("[style]").removeAttr("style");
+
+// Remove ALL duplicate <h1> inside article or body, only keep one
+let seenHeadings = new Set();
+$("article h1, body h1").each((i, el) => {
+  const text = $(el).text().trim();
+  if (seenHeadings.has(text)) {
+    $(el).remove();
+  } else {
+    seenHeadings.add(text);
+  }
+});
+
+// Remove nested <article> tags: keep only the outermost
+$("article article").remove();
+
+// Prefer content from clean article
+let contentHtml = $("article").first().html() || $("body").first().html() || rawHtml;
+const cleanContent = contentHtml.trim();
+
+// Generate hash based on normalized content (remove whitespace, lowercase, etc.)
+function normalize(text) {
+  return text
+    .replace(/\s+/g, " ")   // collapse whitespace
+    .replace(/<[^>]+>/g, "") // remove tags
+    .toLowerCase()
+    .trim();
+}
+const hash = generateHash(normalize(cleanContent));
+
+// Deduplicate
+if (seenHashes.has(hash)) {
+  console.log(`⚠️ Duplicate skipped: ${file}`);
+  return;
+}
+seenHashes.add(hash);
+
+// If <meta name="description"> or <meta name="keywords"> is missing, try injecting from content
+function ensureMetaTag(name, fallbackText) {
+  const selector = `meta[name="${name}"]`;
+  if ($(selector).length === 0 && fallbackText) {
+    const contentSnippet = fallbackText.substring(0, 160);
+    $("head").append(`<meta name="${name}" content="${contentSnippet}">`);
+  }
+}
+
+// Generate fallback description/keywords from content if needed
+const contentText = normalize(cleanContent);
+ensureMetaTag("description", contentText);
+ensureMetaTag("keywords", contentText.split(/\s+/).slice(0, 15).join(", "));
