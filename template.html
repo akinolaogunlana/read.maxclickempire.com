@@ -1,82 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{TITLE}}</title>
-  <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta name="keywords" content="{{KEYWORDS}}" />
-  <meta name="author" content="{{AUTHOR}}" />
-  <link rel="canonical" href="{{CANONICAL}}" />
-  <meta property="og:title" content="{{TITLE}}" />
-  <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
-  <meta property="og:image" content="{{OG_IMAGE}}" />
-  <meta property="og:url" content="{{CANONICAL}}" />
-  <meta name="robots" content="index, follow" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #fff;
-      color: #000;
-      display: flex;
-      justify-content: center;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{TITLE}}</title>
+    <meta name="description" content="{{DESCRIPTION_ESCAPED}}" />
+    <meta name="keywords" content="{{KEYWORDS}}" />
+    <meta name="author" content="{{AUTHOR}}" />
+    <link rel="canonical" href="{{CANONICAL}}" />
+    <meta property="og:title" content="{{TITLE}}" />
+    <meta property="og:description" content="{{DESCRIPTION_ESCAPED}}" />
+    <meta property="og:image" content="{{OG_IMAGE}}" />
+    <meta property="og:url" content="{{CANONICAL}}" />
+    <meta name="robots" content="index, follow" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        padding: 1rem;
+        margin: 0;
+        background-color: #fff;
+        color: #000;
+      }
 
-    .container {
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-      box-sizing: border-box;
-      border-left: 1px solid #eee;
-      border-right: 1px solid #eee;
-    }
+      .container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 1rem;
+        box-sizing: border-box;
+        word-wrap: break-word;
+      }
 
-    h1 {
-      font-size: 2em;
-      margin-top: 0;
-      line-height: 1.3;
-    }
+      h1.page-title {
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        color: #222;
+      }
 
-    img {
-      max-width: 100%;
-      height: auto;
-    }
+      main {
+        margin-top: 2rem;
+      }
 
-    table {
-      width: 100%;
-      overflow-x: auto;
-      border-collapse: collapse;
-    }
+      img {
+        max-width: 100%;
+        height: auto;
+      }
 
-    table, th, td {
-      border: 1px solid #ddd;
-    }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+      }
 
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+      }
 
-    pre, code {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
+      code {
+        background: #f4f4f4;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+      }
 
-    /* Prevent overflow */
-    * {
-      box-sizing: border-box;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <!-- ✅ Show title once -->
-    <h1>{{TITLE}}</h1>
+      pre {
+        background: #f4f4f4;
+        padding: 1rem;
+        overflow-x: auto;
+        border-radius: 6px;
+      }
 
-    <!-- ✅ Inject entire content body here -->
-    {{CONTENT}}
-  </div>
-</body>
+      .toc {
+        background-color: #f9f9f9;
+        padding: 1rem;
+        border-left: 4px solid #ccc;
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="page-title">{{TITLE}}</h1>
+
+      <!-- The post content including TOC and body -->
+      <main>
+        {{CONTENT}}
+      </main>
+    </div>
+  </body>
 </html>
