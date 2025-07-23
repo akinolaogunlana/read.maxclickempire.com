@@ -8,15 +8,15 @@ const templatePath = path.join(__dirname, "template.html");
 const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure output directory exists
+// Ensure dist directory exists
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir);
 }
 
-// Load the base HTML template
+// Load the HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Replace placeholders
+// Replace placeholders in the template
 const placeholderReplacer = (template, metadata, content) => {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -41,18 +41,20 @@ postFiles.forEach(file => {
     return;
   }
 
-  const contentPath = path.join(postsDir, file);
-  let content = fs.readFileSync(contentPath, "utf8");
+  const rawPath = path.join(postsDir, file);
+  let content = fs.readFileSync(rawPath, "utf8");
 
-  // Clean previous wrapping if accidentally already wrapped
+  // Remove old <html>, <head>, <body>, </html>, </body>, meta tags if any
   content = content
-    .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, "")
-    .replace(/<\/body>\s*<\/html>/i, "");
+    .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, "") // remove everything before <body>
+    .replace(/<\/body>\s*<\/html>/i, "")                // remove everything after </body>
+    .replace(/<meta[^>]*name=["']description["'][^>]*>/gi, "") // remove duplicate description tags
+    .trim();
 
-  const finalHtml = placeholderReplacer(template, metadata, content.trim());
+  const finalHtml = placeholderReplacer(template, metadata, content);
 
-  const outputPath = path.join(distDir, file);
-  fs.writeFileSync(outputPath, finalHtml);
+  const distPath = path.join(distDir, file);
+  fs.writeFileSync(distPath, finalHtml);
   console.log(`✅ Wrapped and saved to dist/: ${file}`);
 });
 
@@ -60,7 +62,7 @@ postFiles.forEach(file => {
 postFiles.forEach(file => {
   const filePath = path.join(postsDir, file);
   fs.unlinkSync(filePath);
-  console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
+  console.log(`🧹 Deleted raw post from posts/: ${file}`);
 });
 
 console.log("🎉 All posts wrapped and cleaned successfully.");
