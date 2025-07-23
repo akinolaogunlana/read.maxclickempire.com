@@ -31,7 +31,7 @@ function sanitizeHTMLContent(content) {
   // Remove any injected postMetadata script block
   content = content.replace(/<script[^>]*>[\s\S]*?window\.postMetadata[\s\S]*?<\/script>/gi, "");
 
-  // Remove extra <html>, <head>, <meta>, <title>, <link>, <style> blocks if present
+  // Remove extra <html>, <head>, <meta>, <title>, <link>, <style>, <main> blocks if present
   content = content.replace(/<\/?(html|head|meta|title|link|style|main)[^>]*>/gi, "");
 
   // Only keep the first <h1>
@@ -45,28 +45,6 @@ function sanitizeHTMLContent(content) {
   });
 
   return content.trim();
-}
-
-// 🦸‍♂️ Build the hero section
-function buildHeroSection(metadata) {
-  const encodedURL = encodeURIComponent(metadata.canonical || "");
-  const encodedTitle = encodeURIComponent(metadata.title || "");
-
-  return `
-<!-- HERO START -->
-<section class="hero-section">
-  <div class="hero-content">
-    <p class="post-date">${metadata.date || ""}</p>
-    <h1 class="post-title">${metadata.h1 || metadata.title || ""}</h1>
-    <p class="post-description">${metadata.description || ""}</p>
-    <div class="social-share">
-      <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedURL}" target="_blank" rel="noopener">Share on Facebook</a> |
-      <a href="https://twitter.com/intent/tweet?url=${encodedURL}&text=${encodedTitle}" target="_blank" rel="noopener">Share on Twitter</a>
-    </div>
-  </div>
-</section>
-<!-- HERO END -->
-`.trim();
 }
 
 // 🧩 Replace placeholders in the template
@@ -100,9 +78,8 @@ postFiles.forEach(file => {
   // Sanitize and clean post content
   content = sanitizeHTMLContent(content);
 
-  // Create hero and prepend to content
-  const hero = buildHeroSection(metadata);
-  const finalContent = `${hero}\n\n${content}`;
+  // No hero injected — clean content only
+  const finalContent = content;
 
   // Wrap with template
   const finalHtml = placeholderReplacer(template, metadata, finalContent);
