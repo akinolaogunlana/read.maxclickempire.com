@@ -11,13 +11,14 @@ function extractMeta(html) {
   const keywordsMatch = html.match(/<meta\s+name=["']keywords["']\s+content=["'](.*?)["']/i);
 
   return {
-    title: titleMatch?.[1] || "",
-    description: descMatch?.[1] || "",
-    keywords: keywordsMatch?.[1] || ""
+    title: titleMatch?.[1]?.trim() || "",
+    description: descMatch?.[1]?.trim() || "",
+    keywords: keywordsMatch?.[1]?.trim() || ""
   };
 }
 
 const metadata = {};
+let skipped = [];
 
 fs.readdirSync(distDir).forEach(file => {
   if (file.endsWith(".html")) {
@@ -26,6 +27,12 @@ fs.readdirSync(distDir).forEach(file => {
 
     const { title, description, keywords } = extractMeta(html);
     const slug = path.basename(file, ".html");
+
+    // Skip if title or description is missing
+    if (!title || !description) {
+      skipped.push(slug);
+      return;
+    }
 
     metadata[slug] = { title, description, keywords };
   }
@@ -43,4 +50,8 @@ if (typeof module !== 'undefined' && module.exports) {
 `;
 
 fs.writeFileSync(metaPath, finalOutput, "utf8");
-console.log("✅ post-meta.js updated successfully from /dist/*.html");
+
+console.log("✅ post-meta.js updated successfully.");
+if (skipped.length) {
+  console.warn("⚠️ Skipped posts with missing metadata:", skipped.join(", "));
+}
