@@ -14,28 +14,40 @@ if (!fs.existsSync(distDir)) {
 
 const template = fs.readFileSync(templatePath, "utf8");
 
-// 🧼 Sanitize HTML content
+// 🧼 Sanitize the post HTML content
 function sanitizeHTMLContent(content) {
-  // Remove existing HERO section
+  // Extract only the content inside <body> if present
+  const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    content = bodyMatch[1];
+  }
+
+  // Remove any existing hero section
   content = content.replace(/<!-- HERO START -->[\s\S]*?<!-- HERO END -->/gi, "");
 
-  // Remove duplicate <article> tags
+  // Remove entire <article> blocks
   content = content.replace(/<article[^>]*>[\s\S]*?<\/article>/gi, "");
 
-  // Allow only the first <h1>
+  // Remove any injected postMetadata script block
+  content = content.replace(/<script[^>]*>[\s\S]*?window\.postMetadata[\s\S]*?<\/script>/gi, "");
+
+  // Remove extra <html>, <head>, <meta>, <title>, <link>, <style> blocks if present
+  content = content.replace(/<\/?(html|head|meta|title|link|style|main)[^>]*>/gi, "");
+
+  // Only keep the first <h1>
   let h1Seen = false;
   content = content.replace(/<h1[\s\S]*?<\/h1>/gi, match => {
     if (!h1Seen) {
       h1Seen = true;
       return match;
     }
-    return ""; // Remove subsequent h1
+    return ""; // Remove subsequent h1s
   });
 
   return content.trim();
 }
 
-// 🦸‍♂️ Build hero section with social sharing
+// 🦸‍♂️ Build the hero section
 function buildHeroSection(metadata) {
   const encodedURL = encodeURIComponent(metadata.canonical || "");
   const encodedTitle = encodeURIComponent(metadata.title || "");
@@ -54,10 +66,10 @@ function buildHeroSection(metadata) {
   </div>
 </section>
 <!-- HERO END -->
-  `.trim();
+`.trim();
 }
 
-// 🧩 Replace template placeholders
+// 🧩 Replace placeholders in the template
 function placeholderReplacer(template, metadata, content) {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -70,7 +82,7 @@ function placeholderReplacer(template, metadata, content) {
     .replace(/{{CONTENT}}/g, content || "");
 }
 
-// 🧠 Process all posts
+// 🧠 Process each post
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
 
 postFiles.forEach(file => {
@@ -85,18 +97,17 @@ postFiles.forEach(file => {
   const contentPath = path.join(postsDir, file);
   let content = fs.readFileSync(contentPath, "utf8");
 
-  // Sanitize content
+  // Sanitize and clean post content
   content = sanitizeHTMLContent(content);
 
-  // Build hero section
+  // Create hero and prepend to content
   const hero = buildHeroSection(metadata);
-
-  // Inject hero after <body> tag
-  content = content.replace(/<body[^>]*>/i, match => `${match}\n${hero}`);
+  const finalContent = `${hero}\n\n${content}`;
 
   // Wrap with template
-  const finalHtml = placeholderReplacer(template, metadata, content);
+  const finalHtml = placeholderReplacer(template, metadata, finalContent);
 
+  // Save the final HTML to dist
   const outputPath = path.join(distDir, file);
   fs.writeFileSync(outputPath, finalHtml);
   console.log(`✅ Wrapped and saved: ${file}`);
