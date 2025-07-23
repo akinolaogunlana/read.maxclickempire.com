@@ -8,15 +8,15 @@ const templatePath = path.join(__dirname, "template.html");
 const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 
-// Ensure dist directory exists
+// Ensure output directory exists
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir);
 }
 
-// Load the HTML template
+// Load base HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Replace placeholders in the template
+// Replaces placeholders in the HTML template
 const placeholderReplacer = (template, metadata, content) => {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -29,7 +29,7 @@ const placeholderReplacer = (template, metadata, content) => {
     .replace(/{{CONTENT}}/g, content || "");
 };
 
-// Read all HTML files in posts/
+// Get HTML files in posts/
 const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
 
 postFiles.forEach(file => {
@@ -41,28 +41,37 @@ postFiles.forEach(file => {
     return;
   }
 
-  const rawPath = path.join(postsDir, file);
-  let content = fs.readFileSync(rawPath, "utf8");
+  const contentPath = path.join(postsDir, file);
+  let content = fs.readFileSync(contentPath, "utf8");
 
-  // Remove old <html>, <head>, <body>, </html>, </body>, meta tags if any
+  // 🧹 Step 1: Remove everything from <head>, <title>, <meta>, <script>, and duplicated tags
   content = content
-    .replace(/<!DOCTYPE html>[\s\S]*?<body[^>]*>/i, "") // remove everything before <body>
-    .replace(/<\/body>\s*<\/html>/i, "")                // remove everything after </body>
-    .replace(/<meta[^>]*name=["']description["'][^>]*>/gi, "") // remove duplicate description tags
-    .trim();
+    // Remove entire <head> blocks if any
+    .replace(/<head[\s\S]*?<\/head>/gi, "")
+    // Remove individual <title> or <meta> tags
+    .replace(/<title[\s\S]*?<\/title>/gi, "")
+    .replace(/<meta[^>]+?>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    // Remove duplicated <main> or <article>
+    .replace(/<\/?(main|article)[^>]*>/gi, "")
+    // Remove stray DOCTYPE or <html>, <body>, etc.
+    .replace(/<!DOCTYPE html>/gi, "")
+    .replace(/<\/?(html|body)[^>]*>/gi, "");
 
-  const finalHtml = placeholderReplacer(template, metadata, content);
+  // 🧱 Final wrapping
+  const finalHtml = placeholderReplacer(template, metadata, content.trim());
 
-  const distPath = path.join(distDir, file);
-  fs.writeFileSync(distPath, finalHtml);
+  // Write to dist/
+  const outputPath = path.join(distDir, file);
+  fs.writeFileSync(outputPath, finalHtml);
   console.log(`✅ Wrapped and saved to dist/: ${file}`);
 });
 
-// After wrapping, clean posts/ folder
+// 🧼 Clean posts/ folder after wrapping
 postFiles.forEach(file => {
   const filePath = path.join(postsDir, file);
   fs.unlinkSync(filePath);
-  console.log(`🧹 Deleted raw post from posts/: ${file}`);
+  console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
 });
 
 console.log("🎉 All posts wrapped and cleaned successfully.");
