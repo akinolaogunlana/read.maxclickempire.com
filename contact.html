@@ -7,78 +7,81 @@
   <title>Contact Us - MaxClickEmpire</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-      color: #111;
-    }
-    header, footer {
-      background-color: #111;
-      color: #fff;
-      padding: 1rem;
-      text-align: center;
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
     }
     nav {
-      background-color: #222;
-      padding: 0.5rem 1rem;
-      text-align: center;
+      background-color: #0d1117;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     nav a {
-      color: #fff;
-      margin: 0 1rem;
+      color: white;
       text-decoration: none;
+      margin-right: 1.5rem;
       font-weight: bold;
     }
     nav a:hover {
       text-decoration: underline;
     }
-    main {
+    footer {
+      background-color: #0d1117;
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 4rem;
+    }
+    section {
       max-width: 800px;
       margin: auto;
       padding: 2rem;
     }
     a {
-      color: #0066cc;
+      color: #007BFF;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
-  <!-- Navigation -->
-  <header>
-    <h1>MaxClickEmpire</h1>
-  </header>
   <nav>
-    <a href="/">Home</a>
-    <a href="/about.html">About</a>
-    <a href="/tools.html">Tools</a>
-    <a href="/privacy.html">Privacy</a>
-    <a href="/contact.html">Contact</a>
+    <div>
+      <a href="/">MaxClickEmpire</a>
+    </div>
+    <div>
+      <a href="/">Home</a>
+      <a href="/tools.html">Tools</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+    </div>
   </nav>
 
-  <!-- Main Content -->
-  <main>
-    <h2>Contact Us</h2>
+  <section>
+    <h1>Contact Us</h1>
     <p>If you have any questions, feedback, or collaboration ideas — we’d love to hear from you.</p>
 
-    <h3>📧 Email</h3>
+    <h2>📧 Email</h2>
     <p><a href="mailto:maxclickempire@gmail.com">maxclickempire@gmail.com</a></p>
 
-    <h3>📢 Feedback & Suggestions</h3>
+    <h2>📢 Feedback & Suggestions</h2>
     <p>Your feedback helps us improve. Let us know what you'd love to see next.</p>
 
     <p>Thank you for visiting!</p>
-  </main>
+  </section>
 
-  <!-- Footer -->
   <footer>
-    &copy; <span id="year"></span> MaxClickEmpire. All rights reserved.
+    <p>&copy; 2025 MaxClickEmpire. All rights reserved.</p>
+    <p>
+      <a href="/privacy.html" style="color: #58a6ff;">Privacy Policy</a> |
+      <a href="/terms.html" style="color: #58a6ff;">Terms</a>
+    </p>
   </footer>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
 
 </body>
 </html>
