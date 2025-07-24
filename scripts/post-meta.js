@@ -5,61 +5,61 @@ const postMetadata = {
     "title": "ats friendly resume google docs",
     "description": "Craft a resume that passes ATS filters and gets interviews using free Google Docs tools",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.850Z"
+    "published": "2025-07-24T13:21:40.736Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates That Land Jobs",
     "description": "Discover top Google Docs resume templates that are free, modern, and easy to customize",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.861Z"
+    "published": "2025-07-24T13:21:40.748Z"
   },
   "cover-letter-template-matching-resume-docs": {
     "title": "cover letter template matching resume docs",
     "description": "Create your job-winning application fast using Google Docs cover letter and matching resume templates",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.866Z"
+    "published": "2025-07-24T13:21:40.753Z"
   },
   "creative-resume-designers-docs": {
     "title": "creative resume designers docs",
     "description": "Download a stylish and professional creative resume template for graphic designers in Google Docs, free and easy to customize",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.872Z"
+    "published": "2025-07-24T13:21:40.759Z"
   },
   "minimalist-resume-template-docs": {
     "title": "minimalist resume template docs",
     "description": "Discover the best minimalist resume template in Google Docs that blends simplicity, clarity, and professional appeal",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.877Z"
+    "published": "2025-07-24T13:21:40.763Z"
   },
   "modern-resume-templates-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
     "description": "Sleek and modern Google Docs resume templates that recruiters love and job seekers trust",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.884Z"
+    "published": "2025-07-24T13:21:40.768Z"
   },
   "one-page-resume-template-free-docs": {
     "title": "one page resume template free docs",
     "description": "Download a free, modern one-page resume template in Google Docs to impress employers and pass ATS filters",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.886Z"
+    "published": "2025-07-24T13:21:40.771Z"
   },
   "resume-career-changers-free-docs": {
     "title": "resume career changers free docs",
     "description": "Build your dream career with a free, customizable Google Docs resume designed for career changers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.888Z"
+    "published": "2025-07-24T13:21:40.773Z"
   },
   "resume-remote-jobs-freezer-docs": {
     "title": "resume remote jobs freezer docs",
     "description": "Proven remote job resume template in Google Docs to boost your chances of landing interviews",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.890Z"
+    "published": "2025-07-24T13:21:40.776Z"
   },
   "resume-template-fresh-graduates-docs": {
     "title": "Google Docs Resume Template for Fresh Graduates",
     "description": "A professional guide to using Google Docs resume templates for first-time job seekers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T12:52:02.894Z"
+    "published": "2025-07-24T13:21:40.780Z"
   }
 };
 
