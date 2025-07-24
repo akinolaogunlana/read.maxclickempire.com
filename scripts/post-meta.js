@@ -5,121 +5,121 @@ const postMetadata = {
     "title": "ats friendly resume google docs",
     "description": "Craft a resume that passes ATS filters and gets interviews using free Google Docs tools",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.755Z"
+    "published": "2025-07-24T21:59:42.247Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates That Land Jobs",
     "description": "Discover top Google Docs resume templates that are free, modern, and easy to customize",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.766Z"
+    "published": "2025-07-24T21:59:42.260Z"
   },
   "business-letter-formal-template-docs": {
-    "title": "business letter formal template docs",
+    "title": "Business Letter Template Google Docs: How to Write a Formal Letter Easily",
     "description": "Write polished formal business letters using free Google Docs templates built for professional communication",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.772Z"
+    "published": "2025-07-24T21:59:42.266Z"
   },
   "cover-letter-template-matching-resume-docs": {
     "title": "cover letter template matching resume docs",
     "description": "Create your job-winning application fast using Google Docs cover letter and matching resume templates",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.777Z"
+    "published": "2025-07-24T21:59:42.271Z"
   },
   "create-professional-invoice-docs": {
     "title": "create professional invoice docs",
     "description": "Create clean, client-ready invoices in minutes with Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.781Z"
+    "published": "2025-07-24T21:59:42.276Z"
   },
   "creative-resume-designers-docs": {
     "title": "creative resume designers docs",
     "description": "Download a stylish and professional creative resume template for graphic designers in Google Docs, free and easy to customize",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.787Z"
+    "published": "2025-07-24T21:59:42.281Z"
   },
   "delivery-note-template-docs": {
     "title": "delivery note template docs",
     "description": "Download a professional delivery note template in Google Docs to streamline your shipping process and improve customer communication.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.789Z"
+    "published": "2025-07-24T21:59:42.283Z"
   },
   "employee-timesheet-template-docs": {
     "title": "employee timesheet template docs",
     "description": "Track employee hours with a free Google Docs timesheet template that",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.791Z"
+    "published": "2025-07-24T21:59:42.285Z"
   },
   "invoice-templates-freelancers-free-docs": {
     "title": "invoice templates freelancers free docs",
     "description": "Free Google Docs invoice templates built for freelancers—easy to edit, professional, and 100% free.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.794Z"
+    "published": "2025-07-24T21:59:42.287Z"
   },
   "make-letterhead-google-docs": {
     "title": "make letterhead google docs",
     "description": "Create professional letterheads in Google Docs with this step-by-step guide. Learn how to customize, save, and use your letterhead for business correspondence.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.796Z"
+    "published": "2025-07-24T21:59:42.289Z"
   },
   "meeting-minutes-template-free-docs": {
     "title": "meeting minutes template free docs",
     "description": "Download or copy a free Google Docs meeting minutes template to capture accurate, organized records for every kind of meeting",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.799Z"
+    "published": "2025-07-24T21:59:42.291Z"
   },
   "minimalist-resume-template-docs": {
     "title": "minimalist resume template docs",
     "description": "Discover the best minimalist resume template in Google Docs that blends simplicity, clarity, and professional appeal",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.802Z"
+    "published": "2025-07-24T21:59:42.293Z"
   },
   "modern-resume-templates-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
     "description": "Sleek and modern Google Docs resume templates that recruiters love and job seekers trust",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.804Z"
+    "published": "2025-07-24T21:59:42.295Z"
   },
   "one-page-resume-template-free-docs": {
     "title": "one page resume template free docs",
     "description": "Download a free, modern one-page resume template in Google Docs to impress employers and pass ATS filters",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.806Z"
+    "published": "2025-07-24T21:59:42.297Z"
   },
   "proposal-template-small-business-docs": {
     "title": "proposal template small business docs",
     "description": "Create clear, professional proposals with free Google Docs templates built for small business growth",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.808Z"
+    "published": "2025-07-24T21:59:42.299Z"
   },
   "purchase-order-template-small-stores": {
     "title": "purchase order template small stores",
     "description": "Download and customize a professional purchase order template in Google Docs. Perfect for small retail stores to track and manage supply purchases easily.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.809Z"
+    "published": "2025-07-24T21:59:42.305Z"
   },
   "resume-career-changers-free-docs": {
     "title": "resume career changers free docs",
     "description": "Build your dream career with a free, customizable Google Docs resume designed for career changers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.815Z"
+    "published": "2025-07-24T21:59:42.309Z"
   },
   "resume-remote-jobs-freezer-docs": {
     "title": "resume remote jobs freezer docs",
     "description": "Proven remote job resume template in Google Docs to boost your chances of landing interviews",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.822Z"
+    "published": "2025-07-24T21:59:42.313Z"
   },
   "resume-template-fresh-graduates-docs": {
     "title": "Google Docs Resume Template for Fresh Graduates",
     "description": "A professional guide to using Google Docs resume templates for first-time job seekers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.825Z"
+    "published": "2025-07-24T21:59:42.317Z"
   },
   "sales-contract-template-docs": {
     "title": "sales contract template docs",
     "description": "Download an editable sales contract template in Google Docs to formalize transactions, protect both parties, and close deals confidently.",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-24T21:19:36.827Z"
+    "published": "2025-07-24T21:59:42.319Z"
   }
 };
 
