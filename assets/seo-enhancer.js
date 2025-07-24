@@ -115,7 +115,7 @@
       publisher: {
         "@type": "Organization",
         name: "MaxClickEmpire",
-        logo: { "@type": "ImageObject", url: "/assets/favicon.png" }
+        logo: { "@type": "ImageObject", url: "https://read.maxclickempire.com" }
       },
       mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
     });
