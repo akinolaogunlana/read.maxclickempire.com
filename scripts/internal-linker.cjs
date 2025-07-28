@@ -4,12 +4,12 @@ const cheerio = require("cheerio");
 const keywordExtractor = require("keyword-extractor");
 const natural = require("natural");
 
-// Config
+// ========== CONFIG ==========
 const postsDir = path.join(__dirname, "..", "posts");
 const LINK_LIMIT = 3;
 const SIMILARITY_THRESHOLD = 0.75;
 
-// Load Metadata
+// ========== LOAD METADATA ==========
 let metadata;
 try {
   const postMetaModule = require("../data/post-meta.js");
@@ -19,11 +19,11 @@ try {
   process.exit(1);
 }
 
-// Utils
-const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// ========== UTILS ==========
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-function escapeHtml(str) {
-  return str.replace(/["&<>]/g, char => {
+const escapeHtml = (str) =>
+  str.replace(/["&<>]/g, (char) => {
     switch (char) {
       case '"': return "&quot;";
       case "&": return "&amp;";
@@ -32,9 +32,8 @@ function escapeHtml(str) {
       default: return char;
     }
   });
-}
 
-function generateKeywordVariants(keyword) {
+const generateKeywordVariants = (keyword) => {
   const base = keyword.toLowerCase();
   return Array.from(new Set([
     base,
@@ -42,36 +41,51 @@ function generateKeywordVariants(keyword) {
     base.replace(/\s/g, "-"),
     base.replace(/\s/g, ""),
     base.charAt(0).toUpperCase() + base.slice(1),
-    base.endsWith("s") ? base.slice(0, -1) : base + "s",
+    base.endsWith("s") ? base.slice(0, -1) : base + "s"
   ]));
-}
+};
 
-function scoreSimilarity(a, b) {
-  return natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
-}
+const scoreSimilarity = (a, b) => natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-// Run
+// ========== TRACKING ==========
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
+const inboundLinkCount = Object.fromEntries(
+  Object.keys(metadata).map(slug => [slug, 0])
+);
 
+// ========== PHASE 1: Insert Smart Links & Track ==========
 posts.forEach((filename) => {
   const filePath = path.join(postsDir, filename);
-  const htmlRaw = fs.readFileSync(filePath, "utf8");
-  const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+  const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
+  if (!htmlRaw) return;
+
+  let $;
+  try {
+    $ = cheerio.load(htmlRaw, { decodeEntities: false });
+  } catch (err) {
+    console.warn(`⚠️ Skipping malformed HTML in: ${filename}`);
+    return;
+  }
+
   const slug = filename.replace(".html", "").toLowerCase();
   const currentMeta = metadata[slug] || {};
   const currentTitle = currentMeta.title || slug;
 
-  const bodyText = $("body").text();
+  const bodyText = $("body").text().trim();
+  if (!bodyText) return;
+
   const nlpKeywords = keywordExtractor.extract(bodyText, {
     language: "english",
     remove_digits: true,
     return_changed_case: true,
-    remove_duplicates: true,
+    remove_duplicates: true
   });
 
   const metaMatch = htmlRaw.match(/<meta name="keywords" content="([^"]+)"/);
   const keywordsFromMeta = metaMatch ? metaMatch[1].split(",").map(k => k.trim()) : [];
 
+  const nlpSet = new Set(nlpKeywords);
+  const metaSet = new Set(keywordsFromMeta);
   const usedLinks = new Set();
   let inserted = 0;
 
@@ -82,8 +96,8 @@ posts.forEach((filename) => {
       const variants = generateKeywordVariants(baseKeyword);
       const score = Math.max(
         scoreSimilarity(currentTitle, data.title),
-        ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword)),
-        ...keywordsFromMeta.map(k => scoreSimilarity(k, baseKeyword))
+        ...[...nlpSet].map(k => scoreSimilarity(k, baseKeyword)),
+        ...[...metaSet].map(k => scoreSimilarity(k, baseKeyword))
       );
       return {
         keyword: baseKeyword,
@@ -91,6 +105,7 @@ posts.forEach((filename) => {
         href: `/posts/${slug2}.html`,
         title: data.title,
         score,
+        slug: slug2
       };
     })
     .filter(link => link.score >= SIMILARITY_THRESHOLD)
@@ -98,9 +113,10 @@ posts.forEach((filename) => {
 
   $("p").each((_, el) => {
     if (inserted >= LINK_LIMIT) return;
+    if ($(el).find("a").length > 0) return;
 
     $(el).contents().each((i, node) => {
-      if (node.type !== "text" || inserted >= LINK_LIMIT) return;
+      if (inserted >= LINK_LIMIT || node.type !== "text") return;
 
       let text = node.data;
       let replaced = false;
@@ -118,8 +134,10 @@ posts.forEach((filename) => {
             const after = text.substring(match.index + anchorText.length);
             const safeTitle = escapeHtml(link.title);
             const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
+
             $(node).replaceWith(before + anchor + after);
             usedLinks.add(link.href);
+            inboundLinkCount[link.slug]++; // TRACK INBOUND LINK
             inserted++;
             replaced = true;
             break;
@@ -132,5 +150,67 @@ posts.forEach((filename) => {
   });
 
   fs.writeFileSync(filePath, $.html(), "utf8");
-  console.log(`🔗 [${filename}] — inserted ${inserted} smart links`);
+  console.log(`🔗 [${filename}] — inserted ${inserted} smart link${inserted !== 1 ? "s" : ""}`);
+});
+
+// ========== PHASE 2: Resolve Orphan Posts ==========
+const orphanSlugs = Object.entries(inboundLinkCount)
+  .filter(([_, count]) => count === 0)
+  .map(([slug]) => slug);
+
+if (orphanSlugs.length) {
+  console.log(`\n🧭 Detected ${orphanSlugs.length} orphan post(s):`);
+  orphanSlugs.forEach(slug => console.log(`- ${slug}`));
+}
+
+orphanSlugs.forEach(orphanSlug => {
+  const orphanMeta = metadata[orphanSlug];
+  if (!orphanMeta?.title) return;
+
+  const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
+  const variants = generateKeywordVariants(keyword);
+
+  posts.forEach(filename => {
+    const targetSlug = filename.replace(".html", "").toLowerCase();
+    if (targetSlug === orphanSlug) return;
+
+    const filePath = path.join(postsDir, filename);
+    const htmlRaw = fs.readFileSync(filePath, "utf8");
+    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+
+    let inserted = false;
+
+    $("p").each((_, el) => {
+      if (inserted || $(el).find("a").length > 0) return;
+
+      $(el).contents().each((_, node) => {
+        if (node.type !== "text") return;
+
+        let text = node.data;
+
+        for (const variant of variants) {
+          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+          const match = text.match(regex);
+
+          if (match) {
+            const anchorText = match[1];
+            const before = text.substring(0, match.index);
+            const after = text.substring(match.index + anchorText.length);
+            const safeTitle = escapeHtml(orphanMeta.title);
+            const anchor = `<a href="/posts/${orphanSlug}.html" title="${safeTitle}">${anchorText}</a>`;
+
+            $(node).replaceWith(before + anchor + after);
+            inboundLinkCount[orphanSlug]++;
+            inserted = true;
+            console.log(`🪄 Linked orphan [${orphanSlug}] from [${filename}]`);
+            break;
+          }
+        }
+      });
+    });
+
+    if (inserted) {
+      fs.writeFileSync(filePath, $.html(), "utf8");
+    }
+  });
 });
