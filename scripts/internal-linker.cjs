@@ -46,25 +46,11 @@ function generateKeywordVariants(keyword) {
   ]));
 }
 
-function generateAnchorVariants(data) {
-  const keyword = (data.keyword || data.title || "").toLowerCase();
-  const defaultVariants = generateKeywordVariants(keyword);
-  const extra = (data.anchorVariants || []).map(v => v.toLowerCase());
-  return Array.from(new Set([...defaultVariants, ...extra]));
-}
-
 function scoreSimilarity(a, b) {
   return natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 }
 
-function isInsideLinkOrExcludedTag($node) {
-  return $node.parents("a, code, pre, h1, h2, h3, h4, h5, h6, ul, ol, li").length > 0;
-}
-
-// Tracking backlinks
-const backlinks = {};
-
-// Main processing
+// Run
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 posts.forEach((filename) => {
@@ -88,13 +74,12 @@ posts.forEach((filename) => {
 
   const usedLinks = new Set();
   let inserted = 0;
-  const insertedLinks = [];
 
   const potentialLinks = Object.entries(metadata)
     .filter(([slug2, data]) => slug2 !== slug && data?.title)
     .map(([slug2, data]) => {
       const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
-      const variants = generateAnchorVariants(data);
+      const variants = generateKeywordVariants(baseKeyword);
       const score = Math.max(
         scoreSimilarity(currentTitle, data.title),
         ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword)),
@@ -105,7 +90,6 @@ posts.forEach((filename) => {
         variants,
         href: `/posts/${slug2}.html`,
         title: data.title,
-        targetSlug: slug2,
         score,
       };
     })
@@ -115,18 +99,11 @@ posts.forEach((filename) => {
   $("p").each((_, el) => {
     if (inserted >= LINK_LIMIT) return;
 
-    const $el = $(el);
-    if ($el.find("a").length > 0) return;
-
-    let replacedInThisParagraph = false;
-
-    $el.contents().each((i, node) => {
-      if (node.type !== "text" || inserted >= LINK_LIMIT || replacedInThisParagraph) return;
-
-      const $node = $(node);
-      if (isInsideLinkOrExcludedTag($node)) return;
+    $(el).contents().each((i, node) => {
+      if (node.type !== "text" || inserted >= LINK_LIMIT) return;
 
       let text = node.data;
+      let replaced = false;
 
       for (const link of potentialLinks) {
         if (usedLinks.has(link.href)) continue;
@@ -137,47 +114,23 @@ posts.forEach((filename) => {
 
           if (match) {
             const anchorText = match[1];
-            const before = text.slice(0, match.index);
-            const after = text.slice(match.index + anchorText.length);
+            const before = text.substring(0, match.index);
+            const after = text.substring(match.index + anchorText.length);
             const safeTitle = escapeHtml(link.title);
             const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
-            $node.replaceWith(before + anchor + after);
+            $(node).replaceWith(before + anchor + after);
             usedLinks.add(link.href);
-            insertedLinks.push(`${anchorText} → ${link.href}`);
             inserted++;
-            replacedInThisParagraph = true;
-
-            // Track backlink
-            if (!backlinks[link.targetSlug]) backlinks[link.targetSlug] = new Set();
-            backlinks[link.targetSlug].add(slug);
+            replaced = true;
             break;
           }
         }
-        if (replacedInThisParagraph || inserted >= LINK_LIMIT) break;
+
+        if (replaced || inserted >= LINK_LIMIT) break;
       }
     });
   });
 
   fs.writeFileSync(filePath, $.html(), "utf8");
-
-  if (inserted > 0) {
-    console.log(`🔗 [${filename}] — inserted ${inserted} links:`);
-    insertedLinks.forEach(link => console.log("   • " + link));
-  } else {
-    console.log(`— [${filename}] — no relevant links inserted.`);
-  }
+  console.log(`🔗 [${filename}] — inserted ${inserted} smart links`);
 });
-
-// Final orphan check
-const allSlugs = Object.keys(metadata);
-const orphanSlugs = allSlugs.filter(slug => !backlinks[slug] || backlinks[slug].size === 0);
-
-if (orphanSlugs.length > 0) {
-  console.log("\n🚨 Orphan Posts (no incoming links):");
-  orphanSlugs.forEach(slug => {
-    const title = metadata[slug]?.title || slug;
-    console.log(`   • ${title} → /posts/${slug}.html`);
-  });
-} else {
-  console.log("\n✅ No orphan posts — every post has at least one incoming link.");
-}
