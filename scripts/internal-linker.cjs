@@ -61,9 +61,10 @@ function isInsideLinkOrExcludedTag($node) {
   return $node.parents("a, code, pre, h1, h2, h3, h4, h5, h6, ul, ol, li").length > 0;
 }
 
-// Track backlinks to detect orphan posts
+// Tracking backlinks
 const backlinks = {};
 
+// Main processing
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 posts.forEach((filename) => {
@@ -104,7 +105,7 @@ posts.forEach((filename) => {
         variants,
         href: `/posts/${slug2}.html`,
         title: data.title,
-        slug: slug2,
+        targetSlug: slug2,
         score,
       };
     })
@@ -144,12 +145,11 @@ posts.forEach((filename) => {
             usedLinks.add(link.href);
             insertedLinks.push(`${anchorText} → ${link.href}`);
             inserted++;
-
-            // Record backlink
-            if (!backlinks[link.slug]) backlinks[link.slug] = new Set();
-            backlinks[link.slug].add(slug);
-
             replacedInThisParagraph = true;
+
+            // Track backlink
+            if (!backlinks[link.targetSlug]) backlinks[link.targetSlug] = new Set();
+            backlinks[link.targetSlug].add(slug);
             break;
           }
         }
@@ -168,7 +168,7 @@ posts.forEach((filename) => {
   }
 });
 
-// Check for orphan posts
+// Final orphan check
 const allSlugs = Object.keys(metadata);
 const orphanSlugs = allSlugs.filter(slug => !backlinks[slug] || backlinks[slug].size === 0);
 
