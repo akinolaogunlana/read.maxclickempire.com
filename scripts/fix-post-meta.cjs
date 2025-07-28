@@ -17,13 +17,16 @@ fs.readdirSync(distDir).forEach((file) => {
 
   const title = $("head title").text().trim();
   const description = $('meta[name="description"]').attr("content")?.trim();
-  const ogImage = $('meta[property="og:image"]').attr("content")?.trim() ||
-                  "https://read.maxclickempire.com/assets/og-image.jpg";
+  const keywords = $('meta[name="keywords"]').attr("content")?.trim();
+  const ogImage = $('meta[property="og:image"]').attr("content")?.trim()
+    || "https://read.maxclickempire.com/assets/og-image.jpg";
 
+  // Skip pages missing key SEO info to avoid orphan posts
   if (title && description) {
     postMetadata[slug] = {
       title,
       description,
+      keywords: keywords || "",
       image: ogImage,
       published: new Date().toISOString()
     };
