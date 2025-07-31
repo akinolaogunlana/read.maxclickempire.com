@@ -6,455 +6,455 @@ const postMetadata = {
     "description": "Create a flawless APA-style research paper in Google Docs with this detailed formatting guide and ready-to-use template.",
     "keywords": "APA template, APA style research paper, Google Docs APA format, APA 7th edition template, academic paper format",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.918Z"
+    "published": "2025-07-31T19:55:40.069Z"
   },
   "apa-vs-mla-vs-chicago-format-comparison": {
     "title": "apa vs mla vs chicago format comparison",
     "description": "Learn how to format academic papers in Google Docs using APA, MLA, and Chicago styles. Compare layout, citation, and use cases.",
     "keywords": "APA style Google Docs, MLA format template, Chicago style formatting, academic paper formatting, citation style comparison",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.930Z"
+    "published": "2025-07-31T19:55:40.082Z"
   },
   "ats-friendly-resume-google-docs": {
     "title": "ats friendly resume google docs",
     "description": "Create an ATS-friendly resume with Google Docs tools—designed to pass filters, impress recruiters, and help you land more interviews faster.",
     "keywords": "ATS-friendly resume, Google Docs resume, resume formatting tips, applicant tracking system resume, resume templates Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.938Z"
+    "published": "2025-07-31T19:55:40.088Z"
   },
   "best-free-resume-templates-docs": {
     "title": "Best Free Google Docs Resume Templates That Land Jobs",
     "description": "Explore the best free Google Docs resume templates—modern, customizable, and built to help you stand out and land your next job with ease.",
     "keywords": "free Google Docs resume templates, Google Docs CV templates, best resume templates, downloadable resumes Google Docs, editable resumes Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.943Z"
+    "published": "2025-07-31T19:55:40.094Z"
   },
   "bill-of-sale-template-google-docs-editable": {
     "title": "bill of sale template google docs editable",
     "description": "Free, customizable bill of sale template in Google Docs for vehicles, equipment or personal items with essential fields.",
     "keywords": "bill of sale Google Docs template, vehicle bill of sale Google Docs, editable bill of sale form Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.947Z"
+    "published": "2025-07-31T19:55:40.098Z"
   },
   "birthday-party-guest-list-template-google-sheets-docs": {
     "title": "birthday party guest list template google sheets docs",
     "description": "Keep guest tracking simple with a free Google Sheets & Docs guest list template that handles RSVPs, plus‑ones, contact info, and dietary notes.",
     "keywords": "birthday guest list template, guest list Google Sheets, birthday RSVP tracker template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.955Z"
+    "published": "2025-07-31T19:55:40.106Z"
   },
   "budget-planner-google-docs-template": {
     "title": "budget planner google docs template",
     "description": "Get a clean, editable budget planner template in Google Docs with structured layout and aesthetic design for personal financial planning.",
     "keywords": "Google Docs budget planner template, aesthetic budget planner, editable budget planner",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.960Z"
+    "published": "2025-07-31T19:55:40.111Z"
   },
   "business-letter-formal-template-docs": {
     "title": "Free Business Letter Template Google Docs (Step-by-Step)",
     "description": "Write polished formal business letters using free Google Docs templates built for professional communication",
     "keywords": "Business letter template Google Docs, formal business letter, Google Docs letter format, professional letter template, write a business letter in Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.961Z"
+    "published": "2025-07-31T19:55:40.112Z"
   },
   "character-profile-template-for-authors-in-google-docs": {
     "title": "character profile template for authors in google docs",
     "description": "Learn how to build a comprehensive character profile template in Google Docs—detailing personality, backstory, relationships, and story arc.",
     "keywords": "character profile template, Google Docs character sheet, author character profile template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.964Z"
+    "published": "2025-07-31T19:55:40.115Z"
   },
   "chicago-format-citation-style-google-docs-guide": {
     "title": "How to Use Chicago Format Citation Style in Google Docs (Step-by-Step)",
     "description": "Learn how to apply Chicago format citation style in Google Docs with this easy step-by-step guide. Perfect for students, researchers, and writers.",
     "keywords": "Chicago style Google Docs, Chicago formatting Google Docs, Chicago citation guide",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.966Z"
+    "published": "2025-07-31T19:55:40.118Z"
   },
   "classroom-seating-chart-template-docs": {
     "title": "classroom seating chart template docs",
     "description": "Create and customize a classroom seating chart template using Google Docs or Slides. Learn methods, best practices, print and share your chart.",
     "keywords": "classroom seating chart, Google Docs template, seating chart template, Google Slides seating chart",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.968Z"
+    "published": "2025-07-31T19:55:40.121Z"
   },
   "cover-letter-template-matching-resume-docs": {
     "title": "cover letter template matching resume docs",
     "description": "Create your job-winning application fast using Google Docs cover letter and matching resume templates",
     "keywords": "Google Docs cover letter template, matching resume, cover letter and resume in Google Docs, professional cover letter template, resume and cover letter set",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.970Z"
+    "published": "2025-07-31T19:55:40.123Z"
   },
   "create-professional-invoice-docs": {
     "title": "create professional invoice docs",
     "description": "Quickly create professional, print-ready invoices using Google Docs — perfect for freelancers and small businesses.",
     "keywords": "Google Docs invoice, how to make invoice, free invoice template, professional invoice creation, Google Docs billing",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.972Z"
+    "published": "2025-07-31T19:55:40.125Z"
   },
   "creative-resume-designers-docs": {
     "title": "creative resume designers docs",
     "description": "Download a stylish and professional creative resume template for graphic designers in Google Docs, free and easy to customize",
     "keywords": "creative resume template, graphic designer resume, Google Docs resume template, free graphic design resume, modern resume for designers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.975Z"
+    "published": "2025-07-31T19:55:40.127Z"
   },
   "daily-affirmation-journal-google-docs": {
     "title": "daily affirmation journal google docs",
     "description": "Free printable daily affirmation journal template in Google Docs to boost self-confidence, gratitude, and emotional resilience.",
     "keywords": "daily affirmation journal template Google Docs, printable affirmation journal, affirmation journal free",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.976Z"
+    "published": "2025-07-31T19:55:40.129Z"
   },
   "daily-attendance-sheet-teachers-docs": {
     "title": "daily attendance sheet teachers docs",
     "description": "Teacher-friendly daily attendance sheet template in Google Docs with attendance status, notes, and summary features.",
     "keywords": "daily attendance sheet template, attendance Google Docs, teacher attendance tracker, editable attendance sheet",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.983Z"
+    "published": "2025-07-31T19:55:40.135Z"
   },
   "daily-planner-google-docs-template": {
     "title": "daily planner google docs template",
     "description": "Download a clean, aesthetic daily planner template for Google Docs—editable, printable, and productivity-focused.",
     "keywords": "Google Docs daily planner template, aesthetic daily planner, printable daily schedule template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.986Z"
+    "published": "2025-07-31T19:55:40.140Z"
   },
   "delivery-note-template-docs": {
     "title": "delivery note template docs",
     "description": "Download a professional delivery note template in Google Docs to streamline your shipping process and improve customer communication.",
     "keywords": "delivery note template Google Docs, delivery slip template, shipping note for small business, editable delivery document, Google Docs delivery form",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.988Z"
+    "published": "2025-07-31T19:55:40.143Z"
   },
   "digital-signature-formatting-in-google-docs": {
     "title": "digital signature formatting in google docs",
     "description": "Step‑by‑step guide to inserting and formatting digital signatures in Google Docs, with layouts, best practices, and ready‑to‑use templates.",
     "keywords": "digital signature Google Docs, signature formatting, Google Docs sign layout",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.990Z"
+    "published": "2025-07-31T19:55:40.145Z"
   },
   "ebook-template-google-docs-for-self-publishing": {
     "title": "ebook template google docs for self publishing",
     "description": "A complete guide to creating a professional eBook template in Google Docs for self-publishing authors and digital creators.",
     "keywords": "eBook template Google Docs, self-publishing, eBook formatting, Google Docs book layout, write an ebook in Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.993Z"
+    "published": "2025-07-31T19:55:40.147Z"
   },
   "editable-class-schedule-template-docs": {
     "title": "editable class schedule template docs",
     "description": "Create and tailor a Google Docs class schedule template for students, teachers, or personal planning with step‑by‑step guidance and best practices.",
     "keywords": "class schedule template google docs, editable class schedule, weekly schedule Google Docs, student schedule template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.994Z"
+    "published": "2025-07-31T19:55:40.150Z"
   },
   "editable-report-card-template-docs": {
     "title": "editable report card template docs",
     "description": "Customizable, printable Google Docs report card template for teachers with sections for academics, behavior, attendance and comments.",
     "keywords": "editable report card template, Google Docs report card, school report card Doc template, customizable report card",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.996Z"
+    "published": "2025-07-31T19:55:40.151Z"
   },
   "employee-timesheet-template-docs": {
     "title": "employee timesheet template docs",
     "description": "Track employee hours efficiently with a free Google Docs timesheet template—easy to use, customizable, and perfect for teams of any size.",
     "keywords": "Google Docs employee timesheet template, free timesheet, employee time tracking, printable timesheet, weekly timesheet Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:50.998Z"
+    "published": "2025-07-31T19:55:40.153Z"
   },
   "event-planning-checklist-template-google-docs-sheets": {
     "title": "event planning checklist template google docs sheets",
     "description": "Streamline your event using a free, customizable Google Docs & Sheets checklist template with timelines, budget, vendors, and guest tracking.",
     "keywords": "event planning checklist template Docs, event planning checklist Google Sheets, event planning template free",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.000Z"
+    "published": "2025-07-31T19:55:40.154Z"
   },
   "eviction-notice-letter-template-docs": {
     "title": "eviction notice letter template docs",
     "description": "Comprehensive guide and ready‑to‑use eviction notice letter template for Google Docs, including sample text and legal guidance.",
     "keywords": "eviction notice template Google Docs, eviction letter sample, notice to vacate template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.001Z"
+    "published": "2025-07-31T19:55:40.155Z"
   },
   "fitness-tracker-template-google-docs": {
     "title": "fitness tracker template google docs",
     "description": "Free fitness tracker template in Google Docs to log workouts, track progress, and stay motivated. Easy to customize and download.",
     "keywords": "fitness tracker template Google Docs, workout log template, free fitness tracker template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.002Z"
+    "published": "2025-07-31T19:55:40.157Z"
   },
   "free-lesson-plan-templates-teachers-docs": {
     "title": "free lesson plan templates teachers docs",
     "description": "Easily customizable free lesson plan templates in Google Docs to save time, stay organized, and streamline your teaching workflow",
     "keywords": "free lesson plan templates, Google Docs lesson plans, editable teacher templates, printable lesson plans, teaching resources",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.003Z"
+    "published": "2025-07-31T19:55:40.159Z"
   },
   "freelance-contract-template-google-docs": {
     "title": "freelance contract template google docs",
     "description": "Clear, customizable freelance contract template for Google Docs to protect both freelancers and clients.",
     "keywords": "freelance contract template Google Docs, independent contractor agreement Google Docs, freelancer service agreement template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.005Z"
+    "published": "2025-07-31T19:55:40.161Z"
   },
   "google-docs-lease-agreement-templates": {
     "title": "google docs lease agreement templates",
     "description": "Find free, customizable lease agreement templates for Google Docs to quickly draft residential, sublease or month‑to‑month rental contracts.",
     "keywords": "lease agreement template Google Docs, rental contract Google Docs, sublease template Google Docs, month to month lease template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.008Z"
+    "published": "2025-07-31T19:55:40.164Z"
   },
   "habit-tracker-google-docs-printable-template": {
     "title": "habit tracker google docs printable template",
     "description": "Download and customize a printable habit tracker using Google Docs or Sheets—clean, editable, and ready to print.",
     "keywords": "habit tracker Google Docs printable, printable habit tracker template Google Docs, Google Sheets habit tracker printable, free habit tracker template printable",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.010Z"
+    "published": "2025-07-31T19:55:40.166Z"
   },
   "homework-planner-template-docs": {
     "title": "homework planner template docs",
     "description": "Learn how to build or customize a student homework planner using Google Docs, with tips, templates, and best practices.",
     "keywords": "homework planner Google Docs template, student planner, editable homework schedule, academic planner template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.011Z"
+    "published": "2025-07-31T19:55:40.167Z"
   },
   "how-to-create-a-newsletter-in-google-docs": {
     "title": "how to create a newsletter in google docs",
     "description": "A complete guide to crafting, formatting, and sharing professional newsletters using Google Docs. No design skills required.",
     "keywords": "Google Docs newsletter, create newsletter, Google Docs template, newsletter format, how to write a newsletter",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.013Z"
+    "published": "2025-07-31T19:55:40.169Z"
   },
   "how-to-format-a-manuscript-in-google-docs": {
     "title": "how to format a manuscript in google docs",
     "description": "Learn the correct manuscript formatting in Google Docs to prepare your writing for publishers, agents, or competitions with industry-standard settings.",
     "keywords": "manuscript formatting, Google Docs manuscript template, how to format a manuscript, standard manuscript format, writing submission formatting",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.014Z"
+    "published": "2025-07-31T19:55:40.170Z"
   },
   "invoice-templates-freelancers-free-docs": {
     "title": "invoice templates freelancers free docs",
     "description": "Download free, professional Google Docs invoice templates made for freelancers—fully editable, client-ready, and 100% free to use.",
     "keywords": "freelance invoice template Google Docs, self-employed invoice format, free invoice template editable, invoice template for freelancers, how to invoice in Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.016Z"
+    "published": "2025-07-31T19:55:40.172Z"
   },
   "make-letterhead-google-docs": {
     "title": "make letterhead google docs",
     "description": "Create professional letterheads in Google Docs with this step-by-step guide. Learn how to customize, save, and use your letterhead for business correspondence.",
     "keywords": "create letterhead Google Docs, professional letterhead, free letterhead template, business letterhead, Google Docs template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.022Z"
+    "published": "2025-07-31T19:55:40.178Z"
   },
   "meal-planner-template-google-docs": {
     "title": "meal planner template google docs",
     "description": "Discover an editable, aesthetic Google Docs meal planner template with weekly layout and grocery list to simplify healthy meal planning.",
     "keywords": "Google Docs meal planner template, weekly meal planner, printable meal planner",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.023Z"
+    "published": "2025-07-31T19:55:40.179Z"
   },
   "meeting-minutes-template-free-docs": {
     "title": "meeting minutes template free docs",
     "description": "Download or copy a free Google Docs meeting minutes template to capture accurate, organized records for every kind of meeting",
     "keywords": "Meeting minutes template Google Docs, free meeting minutes format, meeting notes template, record meeting in Google Docs, formal meeting minutes",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.025Z"
+    "published": "2025-07-31T19:55:40.181Z"
   },
   "minimalist-calendar-template-google-docs": {
     "title": "minimalist calendar template google docs",
     "description": "Download or build a clean, printable minimalist calendar template in Google Docs. Includes yearly and monthly formats, customization tips, and FAQ.",
     "keywords": "minimalist calendar template, Google Docs calendar, printable calendar template, year calendar template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.027Z"
+    "published": "2025-07-31T19:55:40.182Z"
   },
   "minimalist-resume-template-docs": {
     "title": "minimalist resume template docs",
     "description": "Discover the best minimalist resume template in Google Docs that blends simplicity, clarity, and professional appeal",
     "keywords": "minimalist resume Google Docs, best resume template, simple Google Docs resume, modern minimalist resume, free resume template Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.029Z"
+    "published": "2025-07-31T19:55:40.185Z"
   },
   "mla-format-essay-template-google-docs": {
     "title": "mla format essay template google docs",
     "description": "Learn how to format essays in MLA style using Google Docs with this detailed, student-friendly guide and free template.",
     "keywords": "MLA format, MLA template Google Docs, how to write MLA essay, MLA heading, MLA style paper",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.031Z"
+    "published": "2025-07-31T19:55:40.187Z"
   },
   "modern-resume-templates-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
     "description": "Discover sleek, modern Google Docs resume templates trusted by job seekers and favored by recruiters—easy to edit and ready to impress.",
     "keywords": "modern resume templates, Google Docs resumes, free resume templates Google Docs, minimalist CV templates, best resumes for jobs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.033Z"
+    "published": "2025-07-31T19:55:40.189Z"
   },
   "nda-non-disclosure-agreement-template-google-docs": {
     "title": "nda non disclosure agreement template google docs",
     "description": "Free, customizable NDA template in Google Docs for one‑way or mutual confidentiality agreements.",
     "keywords": "NDA template Google Docs, non-disclosure agreement Google Docs template, mutual NDA template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.035Z"
+    "published": "2025-07-31T19:55:40.190Z"
   },
   "one-page-resume-template-free-docs": {
     "title": "one page resume template free docs",
     "description": "Download a free, modern one-page resume template in Google Docs to impress employers and pass ATS filters",
     "keywords": "one-page resume template Google Docs, free resume template, modern resume design, resume download, Google Docs resume format",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.036Z"
+    "published": "2025-07-31T19:55:40.191Z"
   },
   "parent-teacher-conference-form-template-docs": {
     "title": "parent teacher conference form template docs",
     "description": "Create and customize a Google Docs parent‑teacher conference form template for efficient meetings, documentation and communication.",
     "keywords": "parent teacher conference form template google docs, editable conference form, meeting documentation template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.037Z"
+    "published": "2025-07-31T19:55:40.193Z"
   },
   "property-inspection-checklist-template-google-docs": {
     "title": "property inspection checklist template google docs",
     "description": "Download or copy this fully customizable property inspection checklist template suitable for landlords, tenants, and property managers.",
     "keywords": "property inspection checklist template, rental property inspection, landlord checklist, tenant move‑in checklist",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.039Z"
+    "published": "2025-07-31T19:55:40.194Z"
   },
   "proposal-template-small-business-docs": {
     "title": "proposal template small business docs",
     "description": "Create clear, professional proposals with free Google Docs templates built for small business growth",
     "keywords": "Google Docs proposal template, small business proposal, business proposal example, free proposal template, how to write a proposal in Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.040Z"
+    "published": "2025-07-31T19:55:40.196Z"
   },
   "purchase-order-template-small-stores": {
     "title": "purchase order template small stores",
     "description": "Download and customize a professional purchase order template in Google Docs. Perfect for small retail stores to track and manage supply purchases easily.",
     "keywords": "Google Docs purchase order template, purchase order for small store, small business PO form, editable PO template, how to create purchase order Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.042Z"
+    "published": "2025-07-31T19:55:40.198Z"
   },
   "reading-list-tracker-google-docs": {
     "title": "reading list tracker google docs",
     "description": "Organize your books with an editable, aesthetic reading list tracker template in Google Docs—designed for book lovers and goal planning.",
     "keywords": "Google Docs reading tracker template, book list tracker, reading list template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.044Z"
+    "published": "2025-07-31T19:55:40.200Z"
   },
   "rental-application-form-template-google-docs": {
     "title": "rental application form template google docs",
     "description": "Clean, customizable rental application form template in Google Docs for landlords and property managers.",
     "keywords": "rental application form Google Docs template, tenant application form Google Docs, rental screening Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.046Z"
+    "published": "2025-07-31T19:55:40.201Z"
   },
   "research-proposal-template-google-docs": {
     "title": "research proposal template google docs",
     "description": "Use this research proposal template in Google Docs—fully annotated for title page, objectives, lit review, methodology, timeline, budget, and more.",
     "keywords": "research proposal template, Google Docs research proposal, academic research proposal template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.047Z"
+    "published": "2025-07-31T19:55:40.202Z"
   },
   "resume-career-changers-free-docs": {
     "title": "resume career changers free docs",
     "description": "Kickstart your new career path with a free Google Docs resume template tailored for career changers—fully customizable and easy to edit.",
     "keywords": "career change resume, free Google Docs resume, resume for switching careers, resume template for new career, Google Docs resume tips",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.048Z"
+    "published": "2025-07-31T19:55:40.203Z"
   },
   "resume-remote-jobs-freezer-docs": {
     "title": "resume remote jobs freezer docs",
     "description": "Use this proven Google Docs resume template designed for remote jobs to boost your chances of landing interviews and working from anywhere.",
     "keywords": "resume for remote jobs, remote job resume Google Docs, Google Docs resume template, remote resume example, how to write a remote job resume",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.051Z"
+    "published": "2025-07-31T19:55:40.206Z"
   },
   "resume-template-fresh-graduates-docs": {
     "title": "Google Docs Resume Template for Fresh Graduates",
     "description": "Start your career strong with our free Google Docs resume templates designed for fresh graduates—easy, modern, and fully editable.",
     "keywords": "Google Docs resume template, resume for fresh graduates, Google Docs resume, free resume template, job resume for freshers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.054Z"
+    "published": "2025-07-31T19:55:40.208Z"
   },
   "roommate-agreement-template-cohabit-google-docs": {
     "title": "roommate agreement template cohabit google docs",
     "description": "Comprehensive Google Docs roommate agreement template with editable table covering all essential sections for shared living arrangements.",
     "keywords": "roommate agreement template Google Docs, shared living contract, rent split table, roommate table template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.055Z"
+    "published": "2025-07-31T19:55:40.210Z"
   },
   "sales-contract-template-docs": {
     "title": "sales contract template docs",
     "description": "Download an editable sales contract template in Google Docs to formalize transactions, protect both parties, and close deals confidently.",
     "keywords": "sales contract template Google Docs, editable sales agreement, business sales contract, Google Docs legal templates, simple sales form",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.057Z"
+    "published": "2025-07-31T19:55:40.211Z"
   },
   "screenwriting-template-google-docs": {
     "title": "screenwriting template google docs",
     "description": "Learn how to format a professional screenplay using Google Docs, including margin settings, scene headers, and templates that meet industry standards.",
     "keywords": "screenwriting template, screenplay format Google Docs, how to write a script in Google Docs, screenplay structure, movie script template Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.058Z"
+    "published": "2025-07-31T19:55:40.213Z"
   },
   "short-story-structure-template-google-docs": {
     "title": "short story structure template google docs",
     "description": "Use this clean Google Docs template to organize short stories with a reliable structure and plot beats.",
     "keywords": "short story structure template, Google Docs short story layout, short story outline",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.063Z"
+    "published": "2025-07-31T19:55:40.218Z"
   },
   "student-planner-academic-docs": {
     "title": "student planner academic docs",
     "description": "Create and customize a Google Docs student planner template for the 2025 academic year. Free, printable, editable, and optimized for student life.",
     "keywords": "Google Docs student planner template, 2025 student planner, academic planner Google Docs, editable student planner 2025, printable student planner",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.065Z"
+    "published": "2025-07-31T19:55:40.219Z"
   },
   "student-progress-report-template-docs": {
     "title": "student progress report template docs",
     "description": "A clean, editable student progress report template in Google Docs with academic, attendance, and behavior sections.",
     "keywords": "student progress report template, Google Docs report card, school report template, academic report Google Docs, editable student report",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.066Z"
+    "published": "2025-07-31T19:55:40.221Z"
   },
   "sublease-agreement-form-google-docs": {
     "title": "sublease agreement form google docs",
     "description": "Easily access and customize a comprehensive sublease agreement template ready for Google Docs use.",
     "keywords": "sublease agreement Google Docs, sublease template, subtenant form",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.067Z"
+    "published": "2025-07-31T19:55:40.222Z"
   },
   "syllabus-template-college-professors-docs": {
     "title": "syllabus template college professors docs",
     "description": "A comprehensive guide to creating, customizing, and sharing an accessible Google Docs syllabus template tailored for college professors.",
     "keywords": "Google Docs syllabus template, college professori syllabus template, editable syllabus Google Docs",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.070Z"
+    "published": "2025-07-31T19:55:40.225Z"
   },
   "wedding-invitation-template-google-docs-step-by-step-guide": {
     "title": "wedding invitation template google docs step by step guide",
     "description": "Create your own beautiful 5×7 wedding invitation in Google Docs using free templates and printable layouts.",
     "keywords": "wedding invitation template Google Docs, 5×7 invitation Google Docs, editable wedding invite template",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.071Z"
+    "published": "2025-07-31T19:55:40.226Z"
   },
   "weekly-planner-template-google-docs": {
     "title": "weekly planner template google docs",
     "description": "Beautiful and editable weekly planner template in Google Docs with clean aesthetic design, structured layout, and customizable features.",
     "keywords": "Google Docs weekly planner template, aesthetic weekly planner, editable weekly schedule",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.073Z"
+    "published": "2025-07-31T19:55:40.227Z"
   },
   "writing-a-blog-post-draft-using-google-docs": {
     "title": "writing a blog post draft using google docs",
     "description": "Learn how to draft, format, and collaborate on high-quality blog posts using Google Docs — a complete guide for bloggers and writers.",
     "keywords": "blog post draft, Google Docs blogging, how to write blog post, blog writing workflow, Google Docs for bloggers",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.075Z"
+    "published": "2025-07-31T19:55:40.229Z"
   },
   "yearly-goals-planner-google-docs-free-template": {
     "title": "yearly goals planner google docs free template",
     "description": "Plan your year with a clean, editable Google Docs yearly goals planner template. Break goals into action and track progress.",
     "keywords": "yearly goals planner Google Docs free template, annual goals planner Google Docs, free Google Docs goal planner",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-07-31T18:43:51.076Z"
+    "published": "2025-07-31T19:55:40.231Z"
   }
 };
 
