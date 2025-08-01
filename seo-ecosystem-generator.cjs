@@ -1,9 +1,6 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Updated Final Version) const fs = require("fs"); const path = require("path"); const { create } = require("xmlbuilder2"); const { google } = require("googleapis"); const axios = require("axios"); const { execSync } = require("child_process");
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Final Fixed Version) const fs = require("fs"); const path = require("path"); const { create } = require("xmlbuilder2"); const { google } = require("googleapis"); const axios = require("axios"); const { execSync } = require("child_process");
 
 const siteUrl = "https://read.maxclickempire.com"; const postsDir = path.join(__dirname, "posts"); const sitemapFile = path.join(__dirname, "sitemap.xml"); const rssFile = path.join(__dirname, "rss.xml"); const robotsFile = path.join(__dirname, "robots.txt"); const metaScriptPath = path.join(__dirname, "data/post-meta.js");
-
-const enhancerScript = `<script src="${siteUrl}/assets/seo-enhancer.js" defer></script>`;
-const metaScript = `<script src="${siteUrl}/data/post-meta.js" defer></script>`;
 
 function shuffle(array) { let currentIndex = array.length, randomIndex; while (currentIndex !== 0) { randomIndex = Math.floor(Math.random() * currentIndex); currentIndex--; [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]; } return array; }
 
@@ -20,13 +17,11 @@ let description = (html.match(/<meta name="description" content="(.*?)"/i) || []
 
 if (!title) {
   title = (html.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || file.replace(".html", "");
-  html = html.replace("</head>", `<title>${title}</title>\n</head>`);
 }
 
 if (!description) {
   const commentMatch = html.match(/<!--\s*Meta Description:\s*(.*?)\s*-->/i);
   description = commentMatch ? commentMatch[1].trim() : "A post from MaxClickEmpire.";
-  html = html.replace("</head>", `<meta name=\"description\" content=\"${description}\">\n</head>`);
 }
 
 const stats = fs.statSync(fullPath);
@@ -54,32 +49,6 @@ if (ageInDays > 60 && html.includes("<article")) {
   });
 }
 
-html = html.replace("</head>", `
-
-<link rel="canonical" href="${url}" />
-<script type="application/ld+json">
-${JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  headline: title,
-  description: description,
-  url: url,
-  datePublished: published,
-  dateModified: lastModified,
-  author: { "@type": "Organization", name: "MaxClickEmpire" },
-  publisher: {
-    "@type": "Organization",
-    name: "MaxClickEmpire",
-    logo: {
-      "@type": "ImageObject",
-      url: `${siteUrl}/assets/og-image.jpg`
-    }
-  },
-  mainEntityOfPage: url
-}, null, 2)}
-</script>
-</head>`);html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
-
 fs.writeFileSync(fullPath, html, "utf8");
 console.log(`✅ Enhanced ${file}`);
 return { title, description, published, url, slug };
@@ -90,13 +59,22 @@ return { title, description, published, url, slug };
 
 // Metadata JS const metadata = {}; posts.forEach(post => { metadata[post.slug] = { title: post.title, description: post.description, image: ${siteUrl}/assets/og-image.jpg, published: post.published }; }); fs.writeFileSync(metaScriptPath, window.postMetadata = ${JSON.stringify(metadata, null, 2)};, "utf8"); console.log("✅ post-meta.js generated");
 
-// RSS const rssItems = posts.map(post => { const html = fs.readFileSync(path.join(postsDir, ${post.slug}.html), "utf8"); const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i); const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : []; const categories = tags.map(tag =>     <category>${tag}</category>).join("\n"); return  <item> <title>${post.title}</title> <link>${post.url}</link> <description><![CDATA[${post.description}]]></description> <pubDate>${new Date(post.published).toUTCString()}</pubDate> <guid>${post.url}</guid> ${categories} </item>; }).join("");
+// RSS const rssItems = posts.map(post => { const html = fs.readFileSync(path.join(postsDir, ${post.slug}.html), "utf8"); const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i); const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : []; const categories = tags.map(tag => <category>${tag}</category>).join("\n");
 
-const rssFeed = <?xml version="1.0"?> <rss version="2.0"> <channel> <title>MaxClickEmpire Feed</title> <link>${siteUrl}</link> <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description> <language>en-us</language> <lastBuildDate>${new Date().toUTCString()}</lastBuildDate> ${rssItems} </channel> </rss>; fs.writeFileSync(rssFile, rssFeed.trim(), "utf8"); console.log("✅ rss.xml generated with categories");
+return `<item>
 
-// Robots.txt const robotsTxt = ` User-agent: * Allow: /
+<title>${post.title}</title>
+<link>${post.url}</link>
+<description><![CDATA[${post.description}]]></description>
+<pubDate>${new Date(post.published).toUTCString()}</pubDate>
+<guid>${post.url}</guid>
+${categories}
+</item>`;
+}).join("\n");const rssFeed = <?xml version="1.0"?> <rss version="2.0"> <channel> <title>MaxClickEmpire Feed</title> <link>${siteUrl}</link> <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description> <language>en-us</language> <lastBuildDate>${new Date().toUTCString()}</lastBuildDate> ${rssItems} </channel> </rss>; fs.writeFileSync(rssFile, rssFeed.trim(), "utf8"); console.log("✅ rss.xml generated with categories");
 
-Sitemap: ${siteUrl}/sitemap.xml `; fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8"); console.log("✅ robots.txt generated");
+// Robots.txt const robotsTxt = `User-agent: * Allow: /
+
+Sitemap: ${siteUrl}/sitemap.xml`; fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8"); console.log("✅ robots.txt generated");
 
 // Google Indexing API let credentials; try { credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8")); } catch (err) { console.error("❌ credentials.json is invalid or missing:", err.message); process.exit(1); }
 
