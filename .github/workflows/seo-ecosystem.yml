@@ -37,10 +37,10 @@ jobs:
       - name: 🧩 Wrap Raw Posts with SEO Template (to dist/)
         run: node wrap-with-template.js
 
-      - name: 🧹 Sync dist/ cleaned posts to posts/
+      - name: 🧹 Sync ONLY changed dist/ files to posts/
         run: |
           mkdir -p posts
-          rsync -a --delete dist/ posts/
+          rsync -a --ignore-times --checksum dist/ posts/
 
       - name: 🔍 Check for Google Secret
         run: |
