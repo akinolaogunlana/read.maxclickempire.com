@@ -59,18 +59,38 @@ return { title, description, published, url, slug };
 
 // Metadata JS const metadata = {}; posts.forEach(post => { metadata[post.slug] = { title: post.title, description: post.description, image: ${siteUrl}/assets/og-image.jpg, published: post.published }; }); fs.writeFileSync(metaScriptPath, window.postMetadata = ${JSON.stringify(metadata, null, 2)};, "utf8"); console.log("✅ post-meta.js generated");
 
-// RSS const rssItems = posts.map(post => { const html = fs.readFileSync(path.join(postsDir, ${post.slug}.html), "utf8"); const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i); const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : []; const categories = tags.map(tag => <category>${tag}</category>).join("\n");
+// RSS
+const rssItems = posts.map(post => {
+  const html = fs.readFileSync(path.join(postsDir, `${post.slug}.html`), "utf8");
+  const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i);
+  const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : [];
+  const categories = tags.map(tag => `<category>${tag}</category>`).join("\n");
 
-return `<item>
+  return `
+    <item>
+      <title>${post.title}</title>
+      <link>${post.url}</link>
+      <description><![CDATA[${post.description}]]></description>
+      <pubDate>${new Date(post.published).toUTCString()}</pubDate>
+      <guid>${post.url}</guid>
+      ${categories}
+    </item>`;
+}).join("\n");
 
-<title>${post.title}</title>
-<link>${post.url}</link>
-<description><![CDATA[${post.description}]]></description>
-<pubDate>${new Date(post.published).toUTCString()}</pubDate>
-<guid>${post.url}</guid>
-${categories}
-</item>`;
-}).join("\n");const rssFeed = <?xml version="1.0"?> <rss version="2.0"> <channel> <title>MaxClickEmpire Feed</title> <link>${siteUrl}</link> <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description> <language>en-us</language> <lastBuildDate>${new Date().toUTCString()}</lastBuildDate> ${rssItems} </channel> </rss>; fs.writeFileSync(rssFile, rssFeed.trim(), "utf8"); console.log("✅ rss.xml generated with categories");
+const rssFeed = `<?xml version="1.0"?>
+<rss version="2.0">
+  <channel>
+    <title>MaxClickEmpire Feed</title>
+    <link>${siteUrl}</link>
+    <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description>
+    <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    ${rssItems}
+  </channel>
+</rss>`;
+
+fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
+console.log("✅ rss.xml generated with categories");
 
 // Robots.txt const robotsTxt = `User-agent: * Allow: /
 
