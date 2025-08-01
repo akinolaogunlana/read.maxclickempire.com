@@ -1,4 +1,4 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Improved Final Version)
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Fixed Version)
 
 const fs = require("fs");
 const path = require("path");
@@ -14,7 +14,6 @@ const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
 const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 
-// Shuffle paragraphs for older posts (SEO freshness trick)
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -25,13 +24,12 @@ function shuffle(array) {
   return array;
 }
 
-const posts = fs.readdirSync(postsDir)
+let posts = fs.readdirSync(postsDir)
   .filter(file => file.endsWith(".html"))
   .map(file => {
     const fullPath = path.join(postsDir, file);
     let html = fs.readFileSync(fullPath, "utf8");
 
-    // Remove conflicting or outdated meta/scripts
     html = html
       .replace(/<link rel="canonical"[^>]*>\s*/gi, "")
       .replace(/<script[^>]+post-meta\.js[^>]*><\/script>\s*/gi, "")
@@ -51,8 +49,6 @@ const posts = fs.readdirSync(postsDir)
     }
 
     const stats = fs.statSync(fullPath);
-    const lastModified = stats.mtime.toISOString();
-
     let published = (html.match(/datetime="(.*?)"/) || [])[1];
     if (!published || isNaN(Date.parse(published))) {
       published = stats.birthtime.toISOString();
@@ -61,7 +57,6 @@ const posts = fs.readdirSync(postsDir)
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
-    // SEO freshness trick for older posts
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
       html = html.replace(/<article([\s\S]*?)>([\s\S]*?)<\/article>/, (match, attr, inner) => {
@@ -76,10 +71,19 @@ const posts = fs.readdirSync(postsDir)
       });
     }
 
-    fs.writeFileSync(fullPath, html, "utf8");
-    console.log(`✅ Enhanced ${file}`);
+    const oldHtml = fs.readFileSync(fullPath, "utf8");
+    if (oldHtml !== html) {
+      fs.writeFileSync(fullPath, html, "utf8");
+      console.log(`✅ Enhanced: ${file}`);
+    } else {
+      console.log(`⏭️ Skipped (no change): ${file}`);
+    }
+
     return { title, description, published, url, slug };
   });
+
+// Sort posts by published date descending
+posts.sort((a, b) => new Date(b.published) - new Date(a.published));
 
 // Sitemap
 const sitemap = create({ version: "1.0" }).ele("urlset", {
@@ -134,7 +138,7 @@ const rssFeed = `<?xml version="1.0"?>
     <link>${siteUrl}</link>
     <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description>
     <language>en-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${new Date(posts[0].published).toUTCString()}</lastBuildDate>
     ${rssItems}
   </channel>
 </rss>`;
