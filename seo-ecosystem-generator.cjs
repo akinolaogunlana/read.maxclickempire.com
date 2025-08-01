@@ -1,4 +1,4 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Final Fixed Version)
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Updated Final Version)
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
@@ -53,7 +53,12 @@ const posts = fs.readdirSync(postsDir)
       html = html.replace("</head>", `<meta name="description" content="${description}">\n</head>`);
     }
 
-    const published = (html.match(/datetime="(.*?)"/) || [])[1] || new Date().toISOString();
+    let published = (html.match(/datetime="(.*?)"/) || [])[1];
+    if (!published || isNaN(Date.parse(published))) {
+      const stats = fs.statSync(fullPath);
+      published = stats.birthtime.toISOString(); // Use file creation time if datetime missing/invalid
+    }
+
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
@@ -71,7 +76,7 @@ const posts = fs.readdirSync(postsDir)
       });
     }
 
-    // Inject canonical and enhancer/meta scripts
+    // Inject canonical and schema/meta
     html = html.replace("</head>", `
 <link rel="canonical" href="${url}" />
 <script type="application/ld+json">
@@ -104,19 +109,19 @@ ${JSON.stringify({
     return { title, description, published, url, slug };
   });
 
-// Sitemap generation
+// Sitemap
 const sitemap = create({ version: "1.0" }).ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
 posts.forEach(post => {
   sitemap.ele("url")
     .ele("loc").txt(post.url).up()
-    .ele("lastmod").txt(new Date().toISOString()).up()
+    .ele("lastmod").txt(post.published).up()
     .ele("changefreq").txt("weekly").up()
     .ele("priority").txt("0.8").up().up();
 });
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-// Metadata JS file
+// Metadata JS
 const metadata = {};
 posts.forEach(post => {
   metadata[post.slug] = {
@@ -130,14 +135,23 @@ fs.writeFileSync(metaScriptPath, `window.postMetadata = ${JSON.stringify(metadat
 console.log("✅ post-meta.js generated");
 
 // RSS generation
-const rssItems = posts.map(post => `
+const rssItems = posts.map(post => {
+  const html = fs.readFileSync(path.join(postsDir, `${post.slug}.html`), "utf8");
+  const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i);
+  const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : [];
+
+  const categories = tags.map(tag => `    <category>${tag}</category>`).join("\n");
+
+  return `
   <item>
     <title>${post.title}</title>
     <link>${post.url}</link>
     <description><![CDATA[${post.description}]]></description>
     <pubDate>${new Date(post.published).toUTCString()}</pubDate>
     <guid>${post.url}</guid>
-  </item>`).join("");
+${categories}
+  </item>`;
+}).join("");
 
 const rssFeed = `<?xml version="1.0"?>
 <rss version="2.0">
@@ -146,13 +160,13 @@ const rssFeed = `<?xml version="1.0"?>
     <link>${siteUrl}</link>
     <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description>
     <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${rssItems}
   </channel>
 </rss>`;
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
-console.log("✅ rss.xml generated");
-
-// robots.txt generation
+console.log("✅ rss.xml generated with categories");
+// Robots.txt
 const robotsTxt = `
 User-agent: *
 Allow: /
