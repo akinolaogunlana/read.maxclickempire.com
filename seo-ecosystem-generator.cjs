@@ -92,9 +92,13 @@ const rssFeed = `<?xml version="1.0"?>
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated with categories");
 
-// Robots.txt const robotsTxt = `User-agent: * Allow: /
+// Robots.txt
+const robotsTxt = `User-agent: *
+Allow: /
 
-Sitemap: ${siteUrl}/sitemap.xml`; fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8"); console.log("✅ robots.txt generated");
+Sitemap: ${siteUrl}/sitemap.xml`;
+fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
+console.log("✅ robots.txt generated");
 
 // Google Indexing API let credentials; try { credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8")); } catch (err) { console.error("❌ credentials.json is invalid or missing:", err.message); process.exit(1); }
 
