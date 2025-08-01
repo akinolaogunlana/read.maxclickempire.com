@@ -20,7 +20,7 @@ const template = fs.readFileSync(templatePath, "utf8");
 let postMetadata = {};
 try {
   const rawMeta = fs.readFileSync(metaPath, "utf8");
-  const match = rawMeta.match(/const postMetadata\s*=\s*(\{[\s\S]*?\});/);
+  const match = rawMeta.match(/const postMetadata\s*=\s*({[\s\S]*?});/);
   if (match) {
     postMetadata = Function('"use strict";return ' + match[1])();
   }
@@ -38,6 +38,8 @@ function applyTemplate(template, metadata, content) {
     .replace(/{{CANONICAL}}/g, metadata.canonical || "")
     .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
     .replace(/{{SLUG}}/g, metadata.slug || "")
+    .replace(/{{DATE_PUBLISHED}}/g, metadata.datePublished || "")
+    .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
     .replace(/{{CONTENT}}/g, content || "");
 }
 
@@ -49,14 +51,19 @@ postFiles.forEach(file => {
   const filePath = path.join(postsDir, file);
   const rawHtml = fs.readFileSync(filePath, "utf8");
 
-  // Extract metadata from original HTML
+  // Extract metadata
   const titleMatch = rawHtml.match(/<title[^>]*>(.*?)<\/title>/i);
   const descMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
   const keywordsMatch = rawHtml.match(/<meta\s+name=["']keywords["']\s+content=["'](.*?)["']/i);
+  const datetimeMatch = rawHtml.match(/datetime=["'](.*?)["']/i);
 
   const title = titleMatch?.[1]?.trim() || slug.replace(/-/g, " ");
   const description = descMatch?.[1]?.trim() || "";
   const keywords = keywordsMatch?.[1]?.trim() || "";
+
+  const stats = fs.statSync(filePath);
+  const datePublished = datetimeMatch?.[1] || stats.birthtime.toISOString();
+  const dateModified = stats.mtime.toISOString();
 
   // Update metadata
   postMetadata[slug] = {
@@ -64,10 +71,14 @@ postFiles.forEach(file => {
     title,
     description,
     keywords,
-    slug
+    slug,
+    canonical: `https://read.maxclickempire.com/posts/${file}`,
+    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
+    datePublished,
+    dateModified
   };
 
-  // Remove unwanted tags
+  // Clean content
   const cleanedContent = rawHtml
     .replace(/<head[\s\S]*?<\/head>/gi, "")
     .replace(/<title[\s\S]*?<\/title>/gi, "")
@@ -75,7 +86,7 @@ postFiles.forEach(file => {
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<\/?(main|article|html|body|!doctype)[^>]*>/gi, "");
 
-  // Wrap with template
+  // Wrap and save
   const finalHtml = applyTemplate(template, postMetadata[slug], cleanedContent.trim());
   const outputPath = path.join(distDir, file);
   fs.writeFileSync(outputPath, finalHtml);
@@ -87,7 +98,7 @@ const metaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringif
 fs.writeFileSync(metaPath, metaJs);
 console.log("💾 Updated data/post-meta.js");
 
-// Optional: Clean up original files from posts/
+// Optional cleanup
 postFiles.forEach(file => {
   fs.unlinkSync(path.join(postsDir, file));
   console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
