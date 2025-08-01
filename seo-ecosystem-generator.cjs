@@ -63,7 +63,7 @@ return { title, description, published, url, slug };
 
 // RSS const rssItems = posts.map(post => { const html = fs.readFileSync(path.join(postsDir, ${post.slug}.html), "utf8"); const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i); const tags = keywordMatch ? keywordMatch[1].split(",").map(t => t.trim()) : []; const categories = tags.map(tag => <category>${tag}</category>).join("\n");
 
-return <item> <title>${post.title}</title> <link>${post.url}</link> <description><![CDATA[${post.description}]]></description> <pubDate>${new Date(post.published).toUTCString()}</pubDate> <guid>${post.url}</guid> ${categories} </item>; }).join("\n");
+return  <item> <title>${post.title}</title> <link>${post.url}</link> <description><![CDATA[${post.description}]]></description> <pubDate>${new Date(post.published).toUTCString()}</pubDate> <guid>${post.url}</guid> ${categories} </item>; }).join("\n");
 
 const rssFeed = <?xml version="1.0"?> <rss version="2.0"> <channel> <title>MaxClickEmpire Feed</title> <link>${siteUrl}</link> <description>Latest digital guides, tools, and growth hacks from MaxClickEmpire.</description> <language>en-us</language> <lastBuildDate>${new Date().toUTCString()}</lastBuildDate> ${rssItems} </channel> </rss>;
 
