@@ -1,4 +1,4 @@
-// ✅ MaxClickEmpire SEO Ecosystem Generator (Fixed Final Version)
+// ✅ MaxClickEmpire SEO Ecosystem Generator (Improved Final Version)
 
 const fs = require("fs");
 const path = require("path");
@@ -14,6 +14,7 @@ const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
 const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 
+// Shuffle paragraphs for older posts (SEO freshness trick)
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -30,6 +31,7 @@ const posts = fs.readdirSync(postsDir)
     const fullPath = path.join(postsDir, file);
     let html = fs.readFileSync(fullPath, "utf8");
 
+    // Remove conflicting or outdated meta/scripts
     html = html
       .replace(/<link rel="canonical"[^>]*>\s*/gi, "")
       .replace(/<script[^>]+post-meta\.js[^>]*><\/script>\s*/gi, "")
@@ -59,6 +61,7 @@ const posts = fs.readdirSync(postsDir)
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
+    // SEO freshness trick for older posts
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
       html = html.replace(/<article([\s\S]*?)>([\s\S]*?)<\/article>/, (match, attr, inner) => {
@@ -79,7 +82,9 @@ const posts = fs.readdirSync(postsDir)
   });
 
 // Sitemap
-const sitemap = create({ version: "1.0" }).ele("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" });
+const sitemap = create({ version: "1.0" }).ele("urlset", {
+  xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"
+});
 posts.forEach(post => {
   sitemap.ele("url")
     .ele("loc").txt(post.url).up()
@@ -90,20 +95,21 @@ posts.forEach(post => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-// Metadata JS
+// post-meta.js
 const metadata = {};
 posts.forEach(post => {
   metadata[post.slug] = {
     title: post.title,
     description: post.description,
     image: `${siteUrl}/assets/og-image.jpg`,
-    published: post.published
+    published: post.published,
+    canonical: post.url
   };
 });
 fs.writeFileSync(metaScriptPath, `window.postMetadata = ${JSON.stringify(metadata, null, 2)};`, "utf8");
 console.log("✅ post-meta.js generated");
 
-// RSS
+// RSS Feed
 const rssItems = posts.map(post => {
   const html = fs.readFileSync(path.join(postsDir, `${post.slug}.html`), "utf8");
   const keywordMatch = html.match(/<meta name="keywords" content="(.*?)"/i);
@@ -136,7 +142,7 @@ const rssFeed = `<?xml version="1.0"?>
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated with categories");
 
-// Robots.txt
+// robots.txt
 const robotsTxt = `User-agent: *
 Allow: /
 
@@ -144,7 +150,7 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-// Google Indexing
+// Google Indexing (IndexNow + Google Search API)
 let credentials;
 try {
   credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
@@ -171,7 +177,6 @@ async function indexUrlToGoogle(url) {
         "Content-Type": "application/json"
       }
     });
-
     console.log(`✅ Indexed on Google: ${url}`);
   } catch (err) {
     console.error(`❌ Failed to index ${url} on Google:`, err.message);
@@ -185,6 +190,7 @@ async function indexUrlToGoogle(url) {
   }
 }
 
+// Execute all
 (async () => {
   for (const post of posts) {
     await indexUrlToGoogle(post.url);
