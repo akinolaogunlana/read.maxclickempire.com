@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const templatePath = path.join(__dirname, "template.html");
 const postsDir = path.join(__dirname, "posts");
@@ -16,7 +17,7 @@ if (!fs.existsSync(distDir)) {
 // Load HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Load previous metadata or initialize a fresh object
+// Load previous metadata or initialize fresh object
 let postMetadata = {};
 try {
   const rawMeta = fs.readFileSync(metaPath, "utf8");
@@ -25,7 +26,12 @@ try {
     postMetadata = Function('"use strict";return ' + match[1])();
   }
 } catch (e) {
-  console.warn("⚠️ Could not load post-meta.js. Starting with a fresh metadata object.");
+  console.warn("⚠️ Could not load post-meta.js. Starting fresh.");
+}
+
+// Helper: hash content for checksum comparison
+function hashContent(content) {
+  return crypto.createHash("sha1").update(content).digest("hex");
 }
 
 // Replace placeholders in the template
@@ -63,21 +69,9 @@ postFiles.forEach(file => {
 
   // File timestamps
   const stats = fs.statSync(filePath);
-  const datePublished = datetimeMatch?.[1] || stats.birthtime.toISOString();
+  const existing = postMetadata[slug];
+  const datePublished = existing?.datePublished || datetimeMatch?.[1] || stats.birthtime.toISOString();
   const dateModified = stats.mtime.toISOString();
-
-  // Update metadata object
-  postMetadata[slug] = {
-    ...(postMetadata[slug] || {}),
-    title,
-    description,
-    keywords,
-    slug,
-    canonical: `https://read.maxclickempire.com/posts/${file}`,
-    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
-    datePublished,
-    dateModified
-  };
 
   // Clean original post content
   const cleanedContent = rawHtml
@@ -88,21 +82,54 @@ postFiles.forEach(file => {
     .replace(/<\/?(main|article|html|body|!doctype)[^>]*>/gi, "");
 
   // Inject into template
-  const finalHtml = applyTemplate(template, postMetadata[slug], cleanedContent.trim());
+  const finalHtml = applyTemplate(template, {
+    ...(existing || {}),
+    title,
+    description,
+    keywords,
+    slug,
+    canonical: `https://read.maxclickempire.com/posts/${file}`,
+    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
+    datePublished,
+    dateModified
+  }, cleanedContent.trim());
+
+  // Write to dist/
   const outputPath = path.join(distDir, file);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
   console.log(`✅ Wrapped and saved to dist/: ${file}`);
+
+  // Update metadata object
+  postMetadata[slug] = {
+    ...(existing || {}),
+    title,
+    description,
+    keywords,
+    slug,
+    canonical: `https://read.maxclickempire.com/posts/${file}`,
+    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
+    datePublished,
+    dateModified
+  };
 });
 
-// Save metadata to JS file
-const metaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
-fs.writeFileSync(metaPath, metaJs, "utf8");
-console.log("💾 Updated data/post-meta.js");
+// Save metadata to JS file only if changed
+const newMetaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
+const existingMetaJs = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf8") : "";
 
-// Optional: Clean up original HTML posts
+if (newMetaJs !== existingMetaJs) {
+  fs.writeFileSync(metaPath, newMetaJs, "utf8");
+  console.log("💾 Updated data/post-meta.js");
+} else {
+  console.log("✅ No changes to post-meta.js");
+}
+
+// 🔥 Optional: Remove this block if you want to keep original posts
+/*
 postFiles.forEach(file => {
   fs.unlinkSync(path.join(postsDir, file));
   console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
 });
+*/
 
-console.log("🎉 All posts wrapped, metadata updated, and cleaned up successfully.");
+console.log("🎉 All posts processed, metadata updated.");
