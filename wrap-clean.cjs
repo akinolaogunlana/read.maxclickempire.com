@@ -51,7 +51,11 @@ files.forEach((file) => {
   seenDescriptions.add(description);
 
   const slug = slugify(title);
-  const date = new Date().toISOString().split("T")[0];
+
+  // Always use file creation & modification times
+  const stats = fs.statSync(filePath);
+  const datePublished = stats.birthtime.toISOString();
+  const dateModified = stats.mtime.toISOString();
 
   // Extract main content
   let content =
@@ -76,6 +80,17 @@ files.forEach((file) => {
   const titleDupRegex = new RegExp(`<p[^>]*>${safeTitle}</p>`, "gi");
   content = content.replace(titleDupRegex, "");
 
+  // Remove duplicate <h1>
+  let seenHeadings = new Set();
+  $("article h1, body h1").each((i, el) => {
+    const text = $(el).text().trim();
+    if (seenHeadings.has(text)) {
+      $(el).remove();
+    } else {
+      seenHeadings.add(text);
+    }
+  });
+
   // Skip duplicate hashes
   const hash = generateHash(content);
   if (seenHashes.has(hash)) {
@@ -84,8 +99,8 @@ files.forEach((file) => {
   }
   seenHashes.add(hash);
 
-  // Wrap in main + article
-  content = `<main><article>\n${content.trim()}\n</article></main>`;
+  // Wrap in <main><article>
+  content = `<main><article datetime="${datePublished}">\n${content.trim()}\n</article></main>`;
 
   // Generate keywords
   const keywords = title
@@ -104,8 +119,8 @@ files.forEach((file) => {
   "headline": "${title}",
   "description": "${description}",
   "url": "https://read.maxclickempire.com/posts/${slug}.html",
-  "datePublished": "${date}",
-  "dateModified": "${date}",
+  "datePublished": "${datePublished}",
+  "dateModified": "${dateModified}",
   "image": "https://read.maxclickempire.com/assets/og-image.jpg",
   "author": {
     "@type": "Person",
@@ -127,17 +142,17 @@ files.forEach((file) => {
 </script>
 `.trim();
 
-  // Build final HTML
+  // Final HTML
   let finalHtml = template
     .replace(/{{TITLE}}/g, title)
     .replace(/{{DESCRIPTION}}/g, description)
     .replace(/{{KEYWORDS}}/g, keywords)
     .replace(/{{POST_SLUG}}/g, slug)
-    .replace(/{{DATE}}/g, date)
+    .replace(/{{DATE}}/g, datePublished.split("T")[0])
     .replace(/{{STRUCTURED_DATA}}/g, structuredData)
     .replace(/{{CONTENT}}/g, content);
 
-  // Ensure only one meta description
+  // Only keep first <meta name="description">
   const metaMatches = finalHtml.match(/<meta name="description"[^>]+>/gi) || [];
   if (metaMatches.length > 1) {
     finalHtml = finalHtml.replace(/<meta name="description"[^>]+>/gi, (match, i) =>
@@ -145,6 +160,7 @@ files.forEach((file) => {
     );
   }
 
+  // Write to dist
   const outputPath = path.join(distDir, `${slug}.html`);
   fs.writeFileSync(outputPath, finalHtml, "utf8");
   console.log(`✅ Processed: ${slug}.html`);
@@ -152,17 +168,3 @@ files.forEach((file) => {
 });
 
 console.log(`\n🎉 Done. ${count} posts processed and wrapped.`);
-// Strip unwanted tags
-$("script").remove();
-$("[style]").removeAttr("style");
-
-// Remove ALL duplicate <h1> inside article or body, only keep one
-let seenHeadings = new Set();
-$("article h1, body h1").each((i, el) => {
-  const text = $(el).text().trim();
-  if (seenHeadings.has(text)) {
-    $(el).remove();
-  } else {
-    seenHeadings.add(text);
-  }
-});
