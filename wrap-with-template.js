@@ -71,7 +71,6 @@ postFiles.forEach(file => {
   const stats = fs.statSync(filePath);
   const existing = postMetadata[slug];
   const datePublished = existing?.datePublished || datetimeMatch?.[1] || stats.birthtime.toISOString();
-  const dateModified = stats.mtime.toISOString();
 
   // Clean original post content
   const cleanedContent = rawHtml
@@ -80,6 +79,13 @@ postFiles.forEach(file => {
     .replace(/<meta[^>]*?>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<\/?(main|article|html|body|!doctype)[^>]*>/gi, "");
+
+  const trimmedContent = cleanedContent.trim();
+  const contentHash = hashContent(trimmedContent);
+  const previousHash = existing?.contentHash;
+  const contentChanged = contentHash !== previousHash;
+
+  const dateModified = contentChanged ? new Date().toISOString() : existing?.dateModified || stats.mtime.toISOString();
 
   // Inject into template
   const finalHtml = applyTemplate(template, {
@@ -92,7 +98,7 @@ postFiles.forEach(file => {
     ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
     datePublished,
     dateModified
-  }, cleanedContent.trim());
+  }, trimmedContent);
 
   // Write to dist/
   const outputPath = path.join(distDir, file);
@@ -109,7 +115,8 @@ postFiles.forEach(file => {
     canonical: `https://read.maxclickempire.com/posts/${file}`,
     ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
     datePublished,
-    dateModified
+    dateModified,
+    contentHash
   };
 });
 
