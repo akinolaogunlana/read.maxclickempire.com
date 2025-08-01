@@ -28,7 +28,7 @@ try {
   console.warn("⚠️ Could not load post-meta.js. Starting with a fresh metadata object.");
 }
 
-// Utility: Replace placeholders in the template
+// Replace placeholders in the template
 function applyTemplate(template, metadata, content) {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -61,11 +61,12 @@ postFiles.forEach(file => {
   const description = descMatch?.[1]?.trim() || "";
   const keywords = keywordsMatch?.[1]?.trim() || "";
 
+  // File timestamps
   const stats = fs.statSync(filePath);
   const datePublished = datetimeMatch?.[1] || stats.birthtime.toISOString();
   const dateModified = stats.mtime.toISOString();
 
-  // Update metadata
+  // Update metadata object
   postMetadata[slug] = {
     ...(postMetadata[slug] || {}),
     title,
@@ -78,27 +79,27 @@ postFiles.forEach(file => {
     dateModified
   };
 
-  // Clean content
+  // Clean original post content
   const cleanedContent = rawHtml
     .replace(/<head[\s\S]*?<\/head>/gi, "")
     .replace(/<title[\s\S]*?<\/title>/gi, "")
-    .replace(/<meta[^>]+?>/gi, "")
+    .replace(/<meta[^>]*?>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<\/?(main|article|html|body|!doctype)[^>]*>/gi, "");
 
-  // Wrap and save
+  // Inject into template
   const finalHtml = applyTemplate(template, postMetadata[slug], cleanedContent.trim());
   const outputPath = path.join(distDir, file);
-  fs.writeFileSync(outputPath, finalHtml);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
   console.log(`✅ Wrapped and saved to dist/: ${file}`);
 });
 
-// Save updated metadata
+// Save metadata to JS file
 const metaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
-fs.writeFileSync(metaPath, metaJs);
+fs.writeFileSync(metaPath, metaJs, "utf8");
 console.log("💾 Updated data/post-meta.js");
 
-// Optional cleanup
+// Optional: Clean up original HTML posts
 postFiles.forEach(file => {
   fs.unlinkSync(path.join(postsDir, file));
   console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
