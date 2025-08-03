@@ -1,26 +1,39 @@
 // create-post.js
-const db = require("./firebase");
+import readline from "readline";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "./firebase.js";
 
-async function createPost() {
-  const slug = "my-first-post";
-  const title = "My First Dynamic Post";
-  const description = "This is the first post stored in Firebase.";
-  const content = "<p>This is my content for the first post.</p>";
-  const created = new Date().toISOString();
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-  const postRef = db.collection("posts").doc(slug);
-  await postRef.set({
-    slug,
-    title,
-    description,
-    content,
-    created,
-    modified: created,
-    keywords: ["first", "blog", "firebase"],
-    canonical: `https://read.maxclickempire.com/posts/${slug}.html`
-  });
-
-  console.log("✅ Post saved to Firebase");
+function ask(question) {
+  return new Promise(resolve => rl.question(question, resolve));
 }
 
-createPost();
+(async () => {
+  console.log("📝 Let's create a blog post...");
+
+  const title = await ask("Post Title: ");
+  const slug = await ask("Slug (e.g. first-post): ");
+  const summary = await ask("Summary: ");
+  const content = await ask("Content (markdown/html): ");
+
+  const post = {
+    title,
+    slug,
+    summary,
+    content,
+    createdAt: serverTimestamp(),
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, "posts"), post);
+    console.log(`✅ Post stored with ID: ${docRef.id}`);
+  } catch (err) {
+    console.error("❌ Failed to save post:", err);
+  } finally {
+    rl.close();
+  }
+})();
