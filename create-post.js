@@ -1,6 +1,6 @@
 // create-post.js
 import readline from "readline";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase-admin/firestore";
 import { db } from "./firebase.js";
 
 const rl = readline.createInterface({
