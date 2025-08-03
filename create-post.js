@@ -1,7 +1,6 @@
 // create-post.js
 import readline from "readline";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase.js";
+import { db, admin } from "./firebase.js"; // `admin` used for Timestamp
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -25,11 +24,11 @@ function ask(question) {
     slug,
     summary,
     content,
-    createdAt: serverTimestamp(),
+    createdAt: admin.firestore.FieldValue.serverTimestamp(), // ⏱️ Proper timestamp
   };
 
   try {
-    const docRef = await addDoc(collection(db, "posts"), post);
+    const docRef = await db.collection("posts").add(post); // ✅ Admin SDK usage
     console.log(`✅ Post stored with ID: ${docRef.id}`);
   } catch (err) {
     console.error("❌ Failed to save post:", err);
