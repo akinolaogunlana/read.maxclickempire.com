@@ -1,14 +1,15 @@
 // firebase.js
-import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
+import admin from "firebase-admin";
 
-// Initialize Firebase Admin SDK
-initializeApp({
-  credential: cert(serviceAccount),
-});
+// Load service account key from environment variable (as JSON)
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-// Get Firestore instance
-const db = getFirestore();
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 
-export { db };
+const db = admin.firestore();
+
+export { admin, db };
