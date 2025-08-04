@@ -1,1 +1,247 @@
+<script>
+:root {
+  --primary: #0a0a23;
+  --accent: #0f62fe;
+  --light: #f5f7fa;
+  --card-bg: #ffffff;
+  --text-color: #222;
+  --border: #ddd;
 
+  /* Dark Mode Variables */
+  --dark-bg: #121212;
+  --dark-card: #1e1e1e;
+  --dark-text: #eaeaea;
+  --dark-border: #333;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--light);
+  color: var(--text-color);
+  max-width: 1280px;
+  margin: auto;
+  padding: 2rem;
+  line-height: 1.65;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+h1 {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+nav {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+nav ul li a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border 0.3s ease;
+}
+
+.main-content {
+  min-height: 700px;
+}
+
+ul#post-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  min-height: 600px;
+}
+
+ul#post-list li {
+  background: var(--card-bg);
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s ease, background 0.3s ease;
+}
+
+ul#post-list li:hover {
+  transform: translateY(-5px);
+}
+
+ul#post-list li a {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+ul#post-list li a:hover {
+  text-decoration: underline;
+}
+
+ul#post-list li p {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 0.35rem;
+}
+
+.social-share {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.social-share a {
+  margin: 0 0.5rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: opacity 0.3s ease;
+}
+
+.social-share a:hover {
+  opacity: 0.7;
+}
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #888;
+  border-top: 1px solid var(--border);
+}
+
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--accent);
+  z-index: 9999;
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.related-posts {
+  background: #f4f6f8;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.related-posts h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.related-posts ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.related-posts li {
+  margin-bottom: 0.4rem;
+}
+
+.related-posts a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.related-posts a:hover {
+  text-decoration: underline;
+}
+
+/* Dark Mode Overrides */
+body.dark-mode nav,
+body.dark-mode footer,
+body.dark-mode .related-posts {
+  border-color: var(--dark-border);
+}
+
+body.dark-mode ul#post-list li {
+  background: var(--dark-card);
+}
+
+body.dark-mode .subtitle,
+body.dark-mode ul#post-list li p {
+  color: #bbb;
+}
+
+body.dark-mode .related-posts {
+  background: #1a1a1a;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Responsive Tweaks */
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  nav {
+    flex-direction: column;
+  }
+
+  .search-input {
+    font-size: 0.95rem;
+  }
+}
+<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
+<script>
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+  }
+</script>
