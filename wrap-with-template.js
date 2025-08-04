@@ -3,9 +3,16 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const admin = require("firebase-admin");
+
+// 🔐 Load Firebase credentials
+const serviceAccount = require("./credentials.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const db = admin.firestore();
 
 const templatePath = path.join(__dirname, "template.html");
-const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
 const metaPath = path.join(__dirname, "data/post-meta.js");
 
@@ -49,94 +56,76 @@ function applyTemplate(template, metadata, content) {
     .replace(/{{CONTENT}}/g, content || "");
 }
 
-// Process each post
-const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+// Main async function
+async function processFirestorePosts() {
+  const snapshot = await db.collection("posts").get();
+  if (snapshot.empty) {
+    console.log("❌ No posts found in Firestore.");
+    return;
+  }
 
-postFiles.forEach(file => {
-  const slug = file.replace(/\.html$/, "");
-  const filePath = path.join(postsDir, file);
-  const rawHtml = fs.readFileSync(filePath, "utf8");
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const slug = data.slug || doc.id;
+    const filename = `${slug}.html`;
+    const outputPath = path.join(distDir, filename);
 
-  // Extract metadata
-  const titleMatch = rawHtml.match(/<title[^>]*>(.*?)<\/title>/i);
-  const descMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
-  const keywordsMatch = rawHtml.match(/<meta\s+name=["']keywords["']\s+content=["'](.*?)["']/i);
-  const datetimeMatch = rawHtml.match(/datetime=["'](.*?)["']/i);
+    const trimmedContent = (data.content || "").trim();
+    const contentHash = hashContent(trimmedContent);
+    const existing = postMetadata[slug] || {};
+    const contentChanged = contentHash !== existing.contentHash;
 
-  const title = titleMatch?.[1]?.trim() || slug.replace(/-/g, " ");
-  const description = descMatch?.[1]?.trim() || "";
-  const keywords = keywordsMatch?.[1]?.trim() || "";
+    const now = new Date().toISOString();
+    const datePublished = existing.datePublished || data.datePublished || now;
+    const dateModified = contentChanged ? now : existing.dateModified || now;
 
-  // File timestamps
-  const stats = fs.statSync(filePath);
-  const existing = postMetadata[slug];
-  const datePublished = existing?.datePublished || datetimeMatch?.[1] || stats.birthtime.toISOString();
+    const canonical = `https://read.maxclickempire.com/posts/${filename}`;
+    const ogImage = data.ogImage || "https://read.maxclickempire.com/assets/og-image.jpg";
 
-  // Clean original post content
-  const cleanedContent = rawHtml
-    .replace(/<head[\s\S]*?<\/head>/gi, "")
-    .replace(/<title[\s\S]*?<\/title>/gi, "")
-    .replace(/<meta[^>]*?>/gi, "")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<\/?(main|article|html|body|!doctype)[^>]*>/gi, "");
+    const html = applyTemplate(template, {
+      ...(existing || {}),
+      title: data.title || slug,
+      description: data.description || "",
+      keywords: data.keywords || "",
+      slug,
+      canonical,
+      ogImage,
+      datePublished,
+      dateModified
+    }, trimmedContent);
 
-  const trimmedContent = cleanedContent.trim();
-  const contentHash = hashContent(trimmedContent);
-  const previousHash = existing?.contentHash;
-  const contentChanged = contentHash !== previousHash;
+    fs.writeFileSync(outputPath, html, "utf8");
+    console.log(`✅ Wrapped Firestore post: ${filename}`);
 
-  const dateModified = contentChanged ? new Date().toISOString() : existing?.dateModified || stats.mtime.toISOString();
+    postMetadata[slug] = {
+      ...(existing || {}),
+      title: data.title || slug,
+      description: data.description || "",
+      keywords: data.keywords || "",
+      slug,
+      canonical,
+      ogImage,
+      datePublished,
+      dateModified,
+      contentHash
+    };
+  }
 
-  // Inject into template
-  const finalHtml = applyTemplate(template, {
-    ...(existing || {}),
-    title,
-    description,
-    keywords,
-    slug,
-    canonical: `https://read.maxclickempire.com/posts/${file}`,
-    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
-    datePublished,
-    dateModified
-  }, trimmedContent);
+  // Save metadata if changed
+  const newMetaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
+  const existingMetaJs = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf8") : "";
 
-  // Write to dist/
-  const outputPath = path.join(distDir, file);
-  fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Wrapped and saved to dist/: ${file}`);
+  if (newMetaJs !== existingMetaJs) {
+    fs.writeFileSync(metaPath, newMetaJs, "utf8");
+    console.log("💾 Updated data/post-meta.js");
+  } else {
+    console.log("✅ No changes to post-meta.js");
+  }
 
-  // Update metadata object
-  postMetadata[slug] = {
-    ...(existing || {}),
-    title,
-    description,
-    keywords,
-    slug,
-    canonical: `https://read.maxclickempire.com/posts/${file}`,
-    ogImage: `https://read.maxclickempire.com/assets/og-image.jpg`,
-    datePublished,
-    dateModified,
-    contentHash
-  };
-});
-
-// Save metadata to JS file only if changed
-const newMetaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
-const existingMetaJs = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf8") : "";
-
-if (newMetaJs !== existingMetaJs) {
-  fs.writeFileSync(metaPath, newMetaJs, "utf8");
-  console.log("💾 Updated data/post-meta.js");
-} else {
-  console.log("✅ No changes to post-meta.js");
+  console.log("🎉 All Firestore posts processed.");
 }
 
-// 🔥 Optional: Remove this block if you want to keep original posts
-/*
-postFiles.forEach(file => {
-  fs.unlinkSync(path.join(postsDir, file));
-  console.log(`🧹 Deleted wrapped post from posts/: ${file}`);
+// Run the function
+processFirestorePosts().catch(err => {
+  console.error("🔥 Error processing posts:", err);
 });
-*/
-
-console.log("🎉 All posts processed, metadata updated.");
