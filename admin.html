@@ -1,38 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cryptego Admin Dashboard</title>
-  <link rel="stylesheet" href="assets/style.css"> <!-- Your CSS file -->
-  <script type="module" src="dashboard.js" defer></script>
-</head>
-<body>
-  <div id="login-screen">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button id="login-btn">Login</button>
-    <p id="login-error" style="color: red;"></p>
-  </div>
+  <title>MaxClickEmpire Admin Dashboard</title>
+  <link rel="stylesheet" href="assets/style.css">  <!-- Firebase SDKs -->  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  <div id="dashboard" style="display: none;">
-    <h1>Admin Dashboard</h1>
-    <button id="logout-btn">Logout</button>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-    <h2>Create a Post</h2>
-    <form id="post-form">
-      <input type="text" id="title" placeholder="Post Title" required />
-      <input type="text" id="slug" placeholder="Slug (e.g., first-post)" required />
-      <textarea id="summary" placeholder="Post Summary" required></textarea>
-      <textarea id="content" placeholder="Post Content (HTML or Markdown)" rows="10" required></textarea>
-      <button type="submit">Submit Post</button>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    window.firebase = { db, auth, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, signInWithEmailAndPassword, signOut, onAuthStateChanged };
+  </script>  <!-- TinyMCE Rich Text Editor -->  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      tinymce.init({
+        selector: '#content',
+        plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+        toolbar: 'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist checklist | link image media | code preview fullscreen | insertfile table charmap emoticons',
+        menubar: 'file edit view insert format tools table help',
+        height: 500,
+        autosave_ask_before_unload: true,
+        autosave_interval: "30s",
+        autosave_retention: "2m",
+        image_caption: true,
+        quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
+        contextmenu: "link image imagetools table",
+        content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
+      });
+    });
+  </script>  <script type="module" src="dashboard.js" defer></script></head>
+<body class="dashboard-body">  <!-- Login Screen -->  <div id="login-screen" class="login-container">
+    <div class="login-box">
+      <h2>Admin Login</h2>
+      <input type="email" id="email" placeholder="Email" class="input"/>
+      <input type="password" id="password" placeholder="Password" class="input"/>
+      <button id="login-btn" class="btn">Login</button>
+      <p id="login-error" class="error-text"></p>
+    </div>
+  </div>  <!-- Main Dashboard -->  <div id="dashboard" class="dashboard hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Dashboard</h2>
+      <nav>
+        <ul>
+          <li><a href="#" class="active" id="nav-create">Create Post</a></li>
+          <li><a href="#" id="nav-manage">Manage Posts</a></li>
+          <li><a href="#">Settings</a></li>
+          <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
+      </nav>
+    </aside><!-- Content Area -->
+<main class="content">
+  <!-- Create Post Section -->
+  <section id="create-post-section">
+    <h1>Create a New Post</h1>
+    <form id="post-form" class="form">
+      <input type="text" id="title" placeholder="Post Title" required class="input"/>
+      <input type="text" id="slug" placeholder="Slug (e.g., first-post)" required class="input"/>
+      <textarea id="summary" placeholder="Post Summary" required class="textarea"></textarea>
+      <input type="text" id="tags" placeholder="Tags (comma-separated)" class="input"/>
+      <select id="category" class="input">
+        <option value="">Select Category</option>
+        <option value="news">News</option>
+        <option value="guides">Guides</option>
+        <option value="reviews">Reviews</option>
+      </select>
+      <textarea id="seoTitle" placeholder="SEO Title" class="input"></textarea>
+      <textarea id="seoDescription" placeholder="SEO Description" class="textarea"></textarea>
+      <textarea id="content" placeholder="Write your post content here..." required></textarea>
+      <button type="submit" class="btn primary-btn">Publish Post</button>
     </form>
 
-    <div id="preview" style="margin-top: 2rem;">
+    <section id="preview" class="preview">
       <h3>Live Preview</h3>
-      <div id="preview-content" style="border: 1px solid #ccc; padding: 1rem;"></div>
-    </div>
+      <div id="preview-content" class="preview-box"></div>
+    </section>
+  </section>
+
+  <!-- Manage Posts Section -->
+  <section id="manage-posts-section" class="hidden">
+    <h1>Manage Posts</h1>
+    <ul id="posts-list"></ul>
+  </section>
+</main>
+
   </div>
 </body>
 </html>
