@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Dashboard</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; font-size: 1rem; }
+    button { padding: 10px 20px; font-size: 1rem; }
+  </style>
+  <script type="module">
+    // Firebase SDK v9+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
+
+    // ⚠️ Replace this with your actual Firebase project config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function submitPost(event) {
+      event.preventDefault();
+      const form = event.target;
+      const data = {
+        title: form.title.value,
+        slug: form.slug.value,
+        description: form.description.value,
+        keywords: form.keywords.value,
+        content: form.content.value,
+        ogImage: form.ogImage.value || "",
+        datePublished: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+      };
+
+      try {
+        await addDoc(collection(db, "posts"), data);
+        alert("✅ Post submitted to Firestore!");
+        form.reset();
+      } catch (error) {
+        console.error("❌ Error writing document:", error);
+        alert("Error submitting post.");
+      }
+    }
+
+    window.onload = () => {
+      document.getElementById("postForm").addEventListener("submit", submitPost);
+    };
+  </script>
+</head>
+<body>
+  <h1>Post to Firebase</h1>
+  <form id="postForm">
+    <input name="title" placeholder="Title" required />
+    <input name="slug" placeholder="Slug (e.g. 'my-first-post')" required />
+    <input name="description" placeholder="Meta description" required />
+    <input name="keywords" placeholder="Comma-separated keywords" />
+    <input name="ogImage" placeholder="OG Image URL (optional)" />
+    <textarea name="content" placeholder="Write your HTML content here..." rows="10" required></textarea>
+    <button type="submit">Post</button>
+  </form>
+</body>
+</html>
