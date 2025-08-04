@@ -1,39 +1,37 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - Cryptego</title>
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script defer src="/dashboard.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cryptego Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" /> <!-- Your CSS file -->
+  <script type="module" src="dashboard.js" defer></script>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div id="auth-section" class="min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
-      <h1 class="text-2xl font-bold mb-6 text-center">Admin Login</h1>
-      <input type="email" id="email" placeholder="Email" class="w-full mb-4 p-2 border border-gray-300 rounded" />
-      <input type="password" id="password" placeholder="Password" class="w-full mb-4 p-2 border border-gray-300 rounded" />
-      <button id="login-btn" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
-      <p id="login-error" class="text-red-500 mt-2 hidden">Invalid credentials</p>
-    </div>
-  </div>  <div id="dashboard" class="hidden p-6 max-w-5xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Create New Post</h1>
-    <div class="grid md:grid-cols-2 gap-6">
-      <div>
-        <input type="text" id="post-title" placeholder="Title" class="w-full mb-4 p-2 border border-gray-300 rounded" />
-        <input type="text" id="post-slug" placeholder="Slug (e.g. my-first-post)" class="w-full mb-4 p-2 border border-gray-300 rounded" />
-        <textarea id="post-summary" placeholder="Summary" class="w-full mb-4 p-2 border border-gray-300 rounded h-24"></textarea>
-        <textarea id="post-content" placeholder="Content (Markdown supported)" class="w-full p-2 border border-gray-300 rounded h-64"></textarea>
-        <button id="submit-post" class="mt-4 bg-green-600 text-white px-6 py-2 rounded">Submit Post</button>
-        <p id="submit-status" class="mt-2 text-sm"></p>
-      </div>
-      <div>
-        <h2 class="text-xl font-semibold mb-2">Live Preview</h2>
-        <div id="preview" class="bg-white p-4 border border-gray-300 rounded overflow-y-auto h-[32rem]"></div>
-      </div>
+<body>
+  <div id="login-screen">
+    <h2>Admin Login</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="login-btn">Login</button>
+    <p id="login-error" style="color: red;"></p>
+  </div>
+
+  <div id="dashboard" style="display: none;">
+    <h1>Admin Dashboard</h1>
+    <button id="logout-btn">Logout</button>
+
+    <h2>Create a Post</h2>
+    <form id="post-form">
+      <input type="text" id="title" placeholder="Post Title" required />
+      <input type="text" id="slug" placeholder="Slug (e.g., first-post)" required />
+      <textarea id="summary" placeholder="Post Summary" required></textarea>
+      <textarea id="content" placeholder="Post Content (HTML or Markdown)" rows="10" required></textarea>
+      <button type="submit">Submit Post</button>
+    </form>
+
+    <div id="preview" style="margin-top: 2rem;">
+      <h3>Live Preview</h3>
+      <div id="preview-content" style="border: 1px solid #ccc; padding: 1rem;"></div>
     </div>
   </div>
 </body>
