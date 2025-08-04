@@ -313,4 +313,68 @@ h2, h3, h4 {
   font-weight: 700;
 }
 
+/* Responsive Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive Video Embeds */
+iframe, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Author Box Styling */
+.author-box {
+  background: #f9f9f9;
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  ul#post-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Highlight Important Text */
+.highlight {
+  background: #fff9c4;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Callout Box */
+.callout {
+  background: #e3f2fd;
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+/* SEO-Friendly Headings */
+h2, h3, h4 {
+  margin-top: 2rem;
+  color: var(--primary);
+  font-weight: 700;
+}
 </script>
