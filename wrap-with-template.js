@@ -5,11 +5,18 @@ const path = require("path");
 const crypto = require("crypto");
 const admin = require("firebase-admin");
 
-// 🔐 Load Firebase credentials
-const serviceAccount = require("./credentials.json");
+// 🔐 Load Firebase credentials from environment variable
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  console.error("❌ Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
+  process.exit(1);
+}
+
+const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
 const db = admin.firestore();
 
 const templatePath = path.join(__dirname, "template.html");
