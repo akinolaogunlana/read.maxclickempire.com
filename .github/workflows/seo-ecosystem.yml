@@ -42,6 +42,14 @@ jobs:
       - name: 🔗 Add Internal Links
         run: node scripts/internal-linker.cjs
 
+      # 🔐 Decode and export Firebase + Google Cloud credentials
+      - name: 🔐 Decode Firebase and Google Credentials
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" | base64 -d > firebase-credentials.json
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > google-credentials.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/google-credentials.json" >> $GITHUB_ENV
+          echo "FIREBASE_CREDENTIALS=$(pwd)/firebase-credentials.json" >> $GITHUB_ENV
+
       - name: 📡 Generate Sitemap and RSS
         run: node seo-ecosystem-generator.cjs
 
@@ -70,3 +78,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+      # 🔐 Optional Cleanup
+      - name: 🧹 Cleanup Credentials
+        if: always()
+        run: rm -f firebase-credentials.json google-credentials.json
