@@ -45,7 +45,7 @@ jobs:
       # 🔐 Decode and export Firebase + Google Cloud credentials
       - name: 🔐 Decode Firebase and Google Credentials
         run: |
-          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" | base64 -d > firebase-credentials.json
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > firebase-credentials.json
           echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > google-credentials.json
           echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/google-credentials.json" >> $GITHUB_ENV
           echo "FIREBASE_CREDENTIALS=$(pwd)/firebase-credentials.json" >> $GITHUB_ENV
