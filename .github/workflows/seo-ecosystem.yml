@@ -1,131 +1,60 @@
 name: 🚀 Supreme SEO Ecosystem Automation
 
 on:
-  push:
-    paths:
-      - 'posts/'
-      - 'scripts/'
-      - 'seo-ecosystem-generator.cjs'
-      - 'wrap-with-template.js'
-      - 'data/post-meta.js'
-      - 'assets/seo-enhancer.js'
-  schedule:
-    - cron: '0 3 * * *'  # Every day at 3:00 AM UTC
-  workflow_dispatch:
+push:
+paths:
+- 'posts/'
+- 'scripts/internal-linker.cjs'
+- 'scripts/'
+- 'seo-ecosystem-generator.cjs'
+- 'scripts/fix-post-meta.cjs'
+- 'wrap-with-template.js'
+- 'data/post-meta.js'
+- 'assets/seo-enhancer.js'
+@@ -33,7 +32,7 @@ jobs:
+echo "⚙️ No package.json found, initializing..."
+npm init -y
+fi
+npm install xmlbuilder2@^3.0.2 googleapis axios cheerio --save
+npm install xmlbuilder2@^3.0.2 googleapis axios cheerio xml2js --save
 
-jobs:
-  supreme-seo:
-    runs-on: ubuntu-latest
+- name: 🧩 Wrap Raw Posts with SEO Template (to dist/)  
+    run: node wrap-with-template.js
 
-    steps:  
-      - name: ✅ Checkout Repository  
-        uses: actions/checkout@v3  
+@@ -75,6 +74,9 @@ jobs:
+- name: 🕐 Touch Timestamp File
+run: date > .deploy-trigger
 
-      - name: 🔧 Setup Node.js 20  
-        uses: actions/setup-node@v4  
-        with:  
-          node-version: 20  
+- name: 🗃️ Generate Archive Page from RSS  
+    run: node scripts/generate-archive.cjs  
 
-      - name: 📦 Install Dependencies  
-        run: |  
-          if [ ! -f package.json ]; then  
-            echo "⚙️ No package.json found, initializing..."  
-            npm init -y  
-          fi  
-          npm install xmlbuilder2@^3.0.2 googleapis axios cheerio xml2js --save  
+  - name: 🚀 Submit URLs to Google Indexing + IndexNow  
+    if: ${{ always() }}  
+    run: |
 
-      - name: 🧩 Wrap Raw Posts with SEO Template (to dist/)  
-        run: node wrap-with-template.js  
+@@ -89,12 +91,12 @@ jobs:
+curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
 
-      - name: 🧹 Sync ONLY changed dist/ files to posts/  
-        run: |  
-          mkdir -p posts  
-          rsync -a --ignore-times --checksum dist/ posts/  
+- name: 🔄 Commit SEO, Sitemap, Metadata  
+  - name: 🔄 Commit SEO, Sitemap, Metadata, Archive  
+    run: |  
+      git config --global user.name "maxclick-seo-bot"  
+      git config --global user.email "github-actions@users.noreply.github.com"  
+      git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger posts/*.html || true  
+      git commit -m "♻️ Auto SEO & Metadata Update" || echo "No changes to commit"  
+      git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger posts/*.html archive.html || true  
+      git commit -m "♻️ Auto SEO, Metadata & Archive Update" || echo "No changes to commit"  
+      git push || echo "No changes to push"  
 
-      - name: 🔍 Check for Google Secret  
-        run: |  
-          if [ -z "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" ]; then  
-            echo "❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is missing"  
-            exit 1  
-          else  
-            echo "✅ Google credentials secret exists"  
-          fi  
+  - name: 🌍 Deploy to GitHub Pages
 
-      - name: 🔐 Decode and Write Google Credentials  
-        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > credentials.json  
+@@ -123,5 +125,6 @@ jobs:
+- Internal links added
+- Sitemap + RSS updated
+- Metadata generated
+- Archive page created
+- Google Indexing + IndexNow submitted
+- GitHub Pages deployed
+- GitHub Pages deployed
 
-      - name: 🛠️ Fix post-meta.js (Node + Browser compatible)  
-        run: node scripts/fix-post-meta.cjs  
-
-      - name: 🔗 Add Internal Links  
-        run: node scripts/internal-linker.cjs  
-
-      - name: ⚙️ Run SEO Ecosystem Generator  
-        run: node seo-ecosystem-generator.cjs  
-
-      - name: 🔎 Validate Post Metadata  
-        run: |  
-          if grep -q '""' data/post-meta.js; then  
-            echo "❌ Empty title or description found in post-meta.js"  
-            exit 1  
-          else  
-            echo "✅ Metadata check passed"  
-          fi  
-
-      - name: 🕐 Touch Timestamp File  
-        run: date > .deploy-trigger  
-
-      - name: 🗃️ Generate Archive Page from RSS  
-        run: node scripts/generate-archive.cjs  
-
-      - name: 🚀 Submit URLs to Google Indexing + IndexNow  
-        if: ${{ always() }}  
-        run: |  
-          if [ -f submit-to-indexing-api.js ]; then  
-            node submit-to-indexing-api.js  
-          else  
-            echo "🟡 Skipping submit-to-indexing-api.js (not found)"  
-          fi  
-
-      - name: 🌐 Ping Search Engines with Sitemap  
-        run: |  
-          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"  
-          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"  
-
-      - name: 🔄 Commit SEO, Sitemap, Metadata, Archive  
-        run: |  
-          git config --global user.name "maxclick-seo-bot"  
-          git config --global user.email "github-actions@users.noreply.github.com"  
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger posts/*.html archive.html || true  
-          git commit -m "♻️ Auto SEO, Metadata & Archive Update" || echo "No changes to commit"  
-          git push || echo "No changes to push"  
-
-      - name: 🌍 Deploy to GitHub Pages  
-        uses: peaceiris/actions-gh-pages@v3  
-        with:  
-          personal_token: ${{ secrets.GH_PAGES_TOKEN }}  
-          publish_dir: ./  
-          exclude_assets: |  
-            credentials.json  
-            .github  
-
-      - name: ✉️ Optional Email Notification  
-        if: always()  
-        uses: dawidd6/action-send-mail@v3  
-        with:  
-          server_address: smtp.gmail.com  
-          server_port: 465  
-          username: ${{ secrets.EMAIL_USER }}  
-          password: ${{ secrets.EMAIL_PASS }}  
-          subject: "✅ MaxClickEmpire SEO Update Completed"  
-          to: your@email.com  
-          from: MaxClickEmpire Bot <your@email.com>  
-          body: |  
-            🚀 SEO Automation Summary:  
-            - Posts cleaned, SEO-wrapped  
-            - Internal links added  
-            - Sitemap + RSS updated  
-            - Metadata generated  
-            - Archive page created  
-            - Google Indexing + IndexNow submitted  
-            - GitHub Pages deployed
