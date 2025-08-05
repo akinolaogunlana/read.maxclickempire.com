@@ -161,9 +161,15 @@ console.log("✅ robots.txt generated");
 // ➤ Google Indexing & IndexNow using ENV variable
 let credentials;
 try {
-  const credsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!credsJson) throw new Error("GOOGLE_APPLICATION_CREDENTIALS_JSON not set.");
+  let credentials;
+try {
+  const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || "./google-credentials.json";
+  const credsJson = fs.readFileSync(credsPath, "utf8");
   credentials = JSON.parse(credsJson);
+} catch (err) {
+  console.error("❌ Failed to load Google credentials JSON:", err.message);
+  process.exit(1);
+}
 } catch (err) {
   console.error("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON is invalid or missing:", err.message);
   process.exit(1);
