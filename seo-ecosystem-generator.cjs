@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // ✅ MaxClickEmpire SEO Ecosystem Generator (Final Version)
 
 const fs = require("fs");
@@ -14,7 +16,7 @@ const rssFile = path.join(__dirname, "rss.xml");
 const robotsFile = path.join(__dirname, "robots.txt");
 const metaScriptPath = path.join(__dirname, "data/post-meta.js");
 
-// Shuffle for freshness trick
+// Shuffle utility for freshness
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -25,7 +27,7 @@ function shuffle(array) {
   return array;
 }
 
-// Read + enhance posts
+// ➤ Read + enhance posts
 let posts = fs.readdirSync(postsDir)
   .filter(file => file.endsWith(".html"))
   .map(file => {
@@ -60,7 +62,6 @@ let posts = fs.readdirSync(postsDir)
     const slug = file.replace(".html", "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "").toLowerCase();
     const url = `${siteUrl}/posts/${file}`;
 
-    // Freshness shuffle if post is over 60 days old
     const ageInDays = (Date.now() - new Date(published).getTime()) / (1000 * 60 * 60 * 24);
     if (ageInDays > 60 && html.includes("<article")) {
       html = html.replace(/<article([\s\S]*?)>([\s\S]*?)<\/article>/, (match, attr, inner) => {
@@ -86,7 +87,7 @@ let posts = fs.readdirSync(postsDir)
     return { title, description, published, lastmod, url, slug };
   });
 
-// Sort posts by published date (desc)
+// Sort by published date (descending)
 posts.sort((a, b) => new Date(b.published) - new Date(a.published));
 
 // ➤ Generate sitemap.xml
@@ -157,12 +158,14 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-// ➤ Submit to Google Indexing + IndexNow
+// ➤ Google Indexing & IndexNow using ENV variable
 let credentials;
 try {
-  credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+  const credsJson = process.env.FIREBASE_CREDENTIALS_JSON;
+  if (!credsJson) throw new Error("FIREBASE_CREDENTIALS_JSON not set.");
+  credentials = JSON.parse(credsJson);
 } catch (err) {
-  console.error("❌ credentials.json is invalid or missing:", err.message);
+  console.error("❌ FIREBASE_CREDENTIALS_JSON is invalid or missing:", err.message);
   process.exit(1);
 }
 
@@ -203,6 +206,7 @@ async function indexUrlToGoogle(url) {
     await indexUrlToGoogle(post.url);
   }
 
+  // ➤ Fix post-meta.js compatibility
   try {
     execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
   } catch (e) {
