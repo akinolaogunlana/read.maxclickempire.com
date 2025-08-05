@@ -1,54 +1,124 @@
-#!/usr/bin/env node
-
-// Required modules
 const fs = require("fs");
 const path = require("path");
-const { postMetadata } = require("./data/post-meta.js");
+const crypto = require("crypto");
 
-// Define paths
 const templatePath = path.join(__dirname, "template.html");
 const postsDir = path.join(__dirname, "posts");
 const distDir = path.join(__dirname, "dist");
+const metaPath = path.join(__dirname, "data", "post-meta.js");
 
-// Ensure the dist directory exists
 if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir);
+  fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Read and store the base template
+// Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Replace placeholders in the template
+// Load previous metadata or start fresh
+let postMetadata = {};
+try {
+  const rawMeta = fs.readFileSync(metaPath, "utf8");
+  const match = rawMeta.match(/postMetadata\s*=\s*(\{[\s\S]*?\});/);
+  if (match) {
+    postMetadata = Function('"use strict";return ' + match[1])();
+  }
+} catch (e) {
+  console.warn("⚠️ Could not load post-meta.js. Starting fresh.");
+}
+
+// Helper to hash content
+function hashContent(content) {
+  return crypto.createHash("sha1").update(content).digest("hex");
+}
+
+// Replace all placeholders in template
 function applyTemplate(template, metadata, content) {
   return template
     .replace(/{{TITLE}}/g, metadata.title || "")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
+    .replace(/{{DESCRIPTION_ESCAPED}}/g, escapeHtml(metadata.description || ""))
     .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
-    .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
+    .replace(/{{AUTHOR}}/g, "Ogunlana Akinola Okikiola")
     .replace(/{{CANONICAL}}/g, metadata.canonical || "")
     .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
-    .replace(/{{SLUG}}/g, metadata.slug || "")
-    .replace(/{{CONTENT}}/g, content || "");
+    .replace(/{{DATE_PUBLISHED}}/g, metadata.datePublished || "")
+    .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
+    .replace(/{{CONTENT}}/g, content);
 }
 
-// Process all .html post files
-const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+// Simple HTML escape
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, match => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[match]);
+}
+
+// Process each post
+const postFiles = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 
 postFiles.forEach(file => {
-  const slug = file.replace(/\.html$/, "");
-  const metadata = postMetadata[slug];
+  const filePath = path.join(postsDir, file);
+  const rawHtml = fs.readFileSync(filePath, "utf8");
+  const slug = path.basename(file, ".html");
 
-  if (!metadata) {
-    console.warn(`⚠️  Skipped: No metadata found for slug '${slug}'`);
-    return;
-  }
+  // Try to extract title/description from <title>/<meta> if needed
+  const titleMatch = rawHtml.match(/<title>(.*?)<\/title>/i);
+  const descMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i);
 
-  const contentPath = path.join(postsDir, file);
-  const content = fs.readFileSync(contentPath, "utf8");
+  const title = titleMatch?.[1]?.trim() || slug.replace(/-/g, ' ');
+  const description = descMatch?.[1]?.trim() || `Read about ${title}.`;
+  const keywords = slug.split("-").join(", ");
+  const canonical = `https://read.maxclickempire.com/posts/${file}`;
+  const ogImage = "https://read.maxclickempire.com/assets/og-image.jpg";
 
-  const finalHtml = applyTemplate(template, metadata, content);
+  // Clean raw HTML content
+  const cleanedContent = rawHtml
+    .replace(/<!DOCTYPE[^>]*>/gi, "")
+    .replace(/<html[^>]*>|<\/html>/gi, "")
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, "")
+    .replace(/<body[^>]*>|<\/body>/gi, "")
+    .replace(/<main[^>]*>|<\/main>/gi, "")
+    .replace(/<article[^>]*>|<\/article>/gi, "")
+    .trim();
+
+  const stats = fs.statSync(filePath);
+  const existing = postMetadata[slug];
+  const datePublished = existing?.datePublished || stats.birthtime.toISOString();
+  const dateModified = stats.mtime.toISOString();
+
+  const metadata = {
+    ...(existing || {}),
+    title,
+    description,
+    keywords,
+    slug,
+    canonical,
+    ogImage,
+    datePublished,
+    dateModified,
+  };
+
+  const finalHtml = applyTemplate(template, metadata, cleanedContent);
+
+  // Write to dist/
   const outputPath = path.join(distDir, file);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
+  console.log(`✅ Wrapped and saved to dist/: ${file}`);
 
-  fs.writeFileSync(outputPath, finalHtml);
-  console.log(`✅ Processed and saved: ${file}`);
+  // Update metadata
+  postMetadata[slug] = metadata;
 });
+
+// Save metadata only if changed
+const newMetaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
+const existingMetaJs = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf8") : "";
+
+if (newMetaJs !== existingMetaJs) {
+  fs.writeFileSync(metaPath, newMetaJs, "utf8");
+  console.log("💾 Updated data/post-meta.js");
+} else {
+  console.log("✅ No changes to post-meta.js");
+}
