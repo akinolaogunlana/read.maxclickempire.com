@@ -169,7 +169,6 @@ try {
   console.error("❌ Failed to load Google credentials JSON:", err.message);
   process.exit(1);
 }
-
 const jwt = new google.auth.JWT({
   email: credentials.client_email,
   key: credentials.private_key,
