@@ -3,136 +3,168 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const admin = require("firebase-admin");
+const cheerio = require("cheerio");
 
-// 🔐 Load Firebase credentials from environment variable
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  console.error("❌ Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
-  process.exit(1);
-}
-
-const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-const db = admin.firestore();
-
+// Paths
+const rawDir = path.join(__dirname, "raw");
 const templatePath = path.join(__dirname, "template.html");
 const distDir = path.join(__dirname, "dist");
-const metaPath = path.join(__dirname, "data/post-meta.js");
 
-// Ensure dist/ directory exists
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
-}
+// Ensure dist exists
+if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
 
-// Load HTML template
+// Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Load previous metadata or initialize fresh object
-let postMetadata = {};
-try {
-  const rawMeta = fs.readFileSync(metaPath, "utf8");
-  const match = rawMeta.match(/const postMetadata\s*=\s*({[\s\S]*?});/);
-  if (match) {
-    postMetadata = Function('"use strict";return ' + match[1])();
+// Helpers
+const generateHash = (content) => crypto.createHash("sha256").update(content).digest("hex");
+
+const slugify = (text) =>
+  text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "post";
+
+const isLowQuality = (desc) =>
+  !desc || desc.length < 50 || /^read about/i.test(desc.toLowerCase());
+
+const seenHashes = new Set();
+const seenDescriptions = new Set();
+
+let count = 0;
+
+const files = fs.readdirSync(rawDir).filter((f) => f.endsWith(".html"));
+
+files.forEach((file) => {
+  const filePath = path.join(rawDir, file);
+  const rawHtml = fs.readFileSync(filePath, "utf8");
+  const $ = cheerio.load(rawHtml);
+
+  // Extract title
+  const title = $("h1").first().text().trim() || "Untitled Post";
+
+  // Get description
+  let description = $('meta[name="description"]').attr("content")?.trim();
+  if (!description || isLowQuality(description) || seenDescriptions.has(description)) {
+    description = $("p").first().text().trim().replace(/\s+/g, " ");
   }
-} catch (e) {
-  console.warn("⚠️ Could not load post-meta.js. Starting fresh.");
-}
+  if (!description || isLowQuality(description)) {
+    description = `Read: ${title}. A useful article on MaxClickEmpire.`;
+  }
+  seenDescriptions.add(description);
 
-// Helper: hash content for checksum comparison
-function hashContent(content) {
-  return crypto.createHash("sha1").update(content).digest("hex");
-}
+  const slug = slugify(title);
 
-// Replace placeholders in the template
-function applyTemplate(template, metadata, content) {
-  return template
-    .replace(/{{TITLE}}/g, metadata.title || "")
-    .replace(/{{DESCRIPTION_ESCAPED}}/g, metadata.description || "")
-    .replace(/{{KEYWORDS}}/g, metadata.keywords || "")
-    .replace(/{{AUTHOR}}/g, metadata.author || "MaxClickEmpire")
-    .replace(/{{CANONICAL}}/g, metadata.canonical || "")
-    .replace(/{{OG_IMAGE}}/g, metadata.ogImage || "")
-    .replace(/{{SLUG}}/g, metadata.slug || "")
-    .replace(/{{DATE_PUBLISHED}}/g, metadata.datePublished || "")
-    .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
-    .replace(/{{CONTENT}}/g, content || "");
-}
+  // Always use file creation & modification times
+  const stats = fs.statSync(filePath);
+  const datePublished = stats.birthtime.toISOString();
+  const dateModified = stats.mtime.toISOString();
 
-// Main async function
-async function processFirestorePosts() {
-  const snapshot = await db.collection("posts").get();
-  if (snapshot.empty) {
-    console.log("❌ No posts found in Firestore.");
+  // Extract main content
+  let content =
+    $("article").html() ||
+    $("main").html() ||
+    $("body").html() ||
+    rawHtml;
+
+  if (!content) {
+    console.warn(`⚠️  No valid content found in: ${file}`);
     return;
   }
 
-  for (const doc of snapshot.docs) {
-    const data = doc.data();
-    const slug = data.slug || doc.id;
-    const filename = `${slug}.html`;
-    const outputPath = path.join(distDir, filename);
+  // Clean up content
+  content = content
+    .replace(/<meta[^>]+>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/style="[^"]*"/gi, "");
 
-    const trimmedContent = (data.content || "").trim();
-    const contentHash = hashContent(trimmedContent);
-    const existing = postMetadata[slug] || {};
-    const contentChanged = contentHash !== existing.contentHash;
+  // Remove repeated <p>Title</p>
+  const safeTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const titleDupRegex = new RegExp(`<p[^>]*>${safeTitle}</p>`, "gi");
+  content = content.replace(titleDupRegex, "");
 
-    const now = new Date().toISOString();
-    const datePublished = existing.datePublished || data.datePublished || now;
-    const dateModified = contentChanged ? now : existing.dateModified || now;
+  // Remove duplicate <h1>
+  let seenHeadings = new Set();
+  $("article h1, body h1").each((i, el) => {
+    const text = $(el).text().trim();
+    if (seenHeadings.has(text)) {
+      $(el).remove();
+    } else {
+      seenHeadings.add(text);
+    }
+  });
 
-    const canonical = `https://read.maxclickempire.com/posts/${filename}`;
-    const ogImage = data.ogImage || "https://read.maxclickempire.com/assets/og-image.jpg";
-
-    const html = applyTemplate(template, {
-      ...(existing || {}),
-      title: data.title || slug,
-      description: data.description || "",
-      keywords: data.keywords || "",
-      slug,
-      canonical,
-      ogImage,
-      datePublished,
-      dateModified
-    }, trimmedContent);
-
-    fs.writeFileSync(outputPath, html, "utf8");
-    console.log(`✅ Wrapped Firestore post: ${filename}`);
-
-    postMetadata[slug] = {
-      ...(existing || {}),
-      title: data.title || slug,
-      description: data.description || "",
-      keywords: data.keywords || "",
-      slug,
-      canonical,
-      ogImage,
-      datePublished,
-      dateModified,
-      contentHash
-    };
+  // Skip duplicate hashes
+  const hash = generateHash(content);
+  if (seenHashes.has(hash)) {
+    console.log(`⚠️ Skipped duplicate: ${file}`);
+    return;
   }
+  seenHashes.add(hash);
 
-  // Save metadata if changed
-  const newMetaJs = `// Auto-generated metadata\nconst postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };`;
-  const existingMetaJs = fs.existsSync(metaPath) ? fs.readFileSync(metaPath, "utf8") : "";
+  // Wrap in <main><article>
+  content = `<main><article datetime="${datePublished}">\n${content.trim()}\n</article></main>`;
 
-  if (newMetaJs !== existingMetaJs) {
-    fs.writeFileSync(metaPath, newMetaJs, "utf8");
-    console.log("💾 Updated data/post-meta.js");
-  } else {
-    console.log("✅ No changes to post-meta.js");
+  // Generate keywords
+  const keywords = title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(/\s+/)
+    .filter((word) => word.length > 3)
+    .join(", ");
+
+  // Structured data
+  const structuredData = `
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "${title}",
+  "description": "${description}",
+  "url": "https://read.maxclickempire.com/posts/${slug}.html",
+  "datePublished": "${datePublished}",
+  "dateModified": "${dateModified}",
+  "image": "https://read.maxclickempire.com/assets/og-image.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Ogunlana Akinola Okikiola"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MaxClickEmpire",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://read.maxclickempire.com/assets/favicon.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://read.maxclickempire.com/posts/${slug}.html"
   }
-
-  console.log("🎉 All Firestore posts processed.");
 }
+</script>
+`.trim();
 
-// Run the function
-processFirestorePosts().catch(err => {
-  console.error("🔥 Error processing posts:", err);
+  // Final HTML
+  let finalHtml = template
+    .replace(/{{TITLE}}/g, title)
+    .replace(/{{DESCRIPTION}}/g, description)
+    .replace(/{{KEYWORDS}}/g, keywords)
+    .replace(/{{POST_SLUG}}/g, slug)
+    .replace(/{{DATE}}/g, datePublished.split("T")[0])
+    .replace(/{{STRUCTURED_DATA}}/g, structuredData)
+    .replace(/{{CONTENT}}/g, content);
+
+  // Only keep first <meta name="description">
+  const metaMatches = finalHtml.match(/<meta name="description"[^>]+>/gi) || [];
+  if (metaMatches.length > 1) {
+    finalHtml = finalHtml.replace(/<meta name="description"[^>]+>/gi, (match, i) =>
+      i === 0 ? match : ""
+    );
+  }
+
+  // Write to dist
+  const outputPath = path.join(distDir, `${slug}.html`);
+  fs.writeFileSync(outputPath, finalHtml, "utf8");
+  console.log(`✅ Processed: ${slug}.html`);
+  count++;
 });
+
+console.log(`\n🎉 Done. ${count} posts processed and wrapped.`);
