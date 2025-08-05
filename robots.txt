@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://read.maxclickempire.com/sitemap.xml
