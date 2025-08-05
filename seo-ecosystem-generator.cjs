@@ -161,11 +161,11 @@ console.log("✅ robots.txt generated");
 // ➤ Google Indexing & IndexNow using ENV variable
 let credentials;
 try {
-  const credsJson = process.env.FIREBASE_CREDENTIALS_JSON;
-  if (!credsJson) throw new Error("FIREBASE_CREDENTIALS_JSON not set.");
+  const credsJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!credsJson) throw new Error("FIREBASE_SERVICE_ACCOUNT not set.");
   credentials = JSON.parse(credsJson);
 } catch (err) {
-  console.error("❌ FIREBASE_CREDENTIALS_JSON is invalid or missing:", err.message);
+  console.error("❌ FIREBASE_SERVICE_ACCOUNT is invalid or missing:", err.message);
   process.exit(1);
 }
 
