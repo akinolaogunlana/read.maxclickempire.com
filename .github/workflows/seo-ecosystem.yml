@@ -36,7 +36,10 @@ jobs:
       - name: 🧩 Wrap Raw Posts with SEO Template (to dist/)
         run: node wrap-with-template.js
 
-      - name: 🧠 Internal Linking & Metadata
+      - name: 🛠️ Fix post-meta.js (Node + Browser compatible)
+        run: node scripts/fix-post-meta.cjs
+
+      - name: 🔗 Add Internal Links
         run: node scripts/internal-linker.cjs
 
       - name: 📡 Generate Sitemap and RSS
