@@ -47,11 +47,15 @@ jobs:
         run: |
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > firebase-credentials.json
           echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > google-credentials.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/google-credentials.json" >> $GITHUB_ENV
-          echo "FIREBASE_CREDENTIALS=$(pwd)/firebase-credentials.json" >> $GITHUB_ENV
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
       - name: 📡 Generate Sitemap and RSS
         run: node seo-ecosystem-generator.cjs
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/google-credentials.json
+          FIREBASE_CREDENTIALS: ${{ github.workspace }}/firebase-credentials.json
 
       - name: 🕐 Touch Timestamp File
         run: date > .deploy-trigger
@@ -79,7 +83,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 
-      # 🔐 Optional Cleanup
       - name: 🧹 Cleanup Credentials
         if: always()
         run: rm -f firebase-credentials.json google-credentials.json
