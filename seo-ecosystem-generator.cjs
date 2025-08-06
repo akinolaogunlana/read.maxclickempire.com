@@ -23,7 +23,7 @@ if (!metadata) {
 
 const { title, description, datePublished, canonical } = metadata;
 
-const html = fs.readFileSync(fullPath, "utf8"); fs.writeFileSync(fullPath, html, "utf8"); console.log(✅ Processed ${file});
+const html = fs.readFileSync(fullPath, "utf8"); fs.writeFileSync(fullPath, html, "utf8"); console.log(`✅ Processed ${file}`);
 
 allMetadata.push({ title, description, published: datePublished, url: canonical, slug, }); });
 
