@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
-@@ -32,6 +32,13 @@ const posts = fs.readdirSync(postsDir)
+const posts = fs.readdirSync(postsDir)
     const fullPath = path.join(postsDir, file);
     let html = fs.readFileSync(fullPath, "utf8");
 
@@ -16,7 +16,7 @@ const { create } = require("xmlbuilder2");
     let title = (html.match(/<title>(.*?)<\/title>/i) || [])[1];
     let description = (html.match(/<meta name="description" content="(.*?)"/i) || [])[1];
 
-@@ -64,43 +71,41 @@ const posts = fs.readdirSync(postsDir)
+ const posts = fs.readdirSync(postsDir)
       });
     }
 
@@ -86,7 +86,7 @@ const sitemap = create({ version: "1.0" }).ele("urlset", { xmlns: "http://www.si
 posts.forEach(post => {
   sitemap.ele("url")
     .ele("loc").txt(post.url).up()
-@@ -111,7 +116,7 @@ posts.forEach(post => {
+ posts.forEach(post => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
@@ -95,7 +95,7 @@ console.log("✅ sitemap.xml generated");
 const metadata = {};
 posts.forEach(post => {
   metadata[post.slug] = {
-@@ -144,7 +149,6 @@ const rssFeed = `<?xml version="1.0"?>
+ const rssFeed = `<?xml version="1.0"?>
     ${rssItems}
   </channel>
 </rss>`;
@@ -103,7 +103,7 @@ posts.forEach(post => {
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated");
 
-@@ -158,7 +162,7 @@ Sitemap: ${siteUrl}/sitemap.xml
+Sitemap: ${siteUrl}/sitemap.xml
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
@@ -112,7 +112,7 @@ console.log("✅ robots.txt generated");
 let credentials;
 try {
   credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
-@@ -202,7 +206,6 @@ async function indexUrlToGoogle(url) {
+async function indexUrlToGoogle(url) {
     }
   }
 
