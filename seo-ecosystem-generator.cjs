@@ -42,16 +42,6 @@ posts.forEach((file) => {
 
   
 
-  // Inject metadata into <head> and scripts into <body>
-  html = html.replace("</head>", `
-<link rel="canonical" href="${url}" />
-<script type="application/ld+json">
-${JSON.stringify(jsonLd, null, 2)}
-</script>
-</head>`);
-
-  html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
-
   // Save enhanced HTML
   fs.writeFileSync(fullPath, html, "utf8");
   console.log(`✅ Enhanced ${file}`);
