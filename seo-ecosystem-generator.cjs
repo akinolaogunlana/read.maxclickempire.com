@@ -1,4 +1,4 @@
-MaxClickEmpire SEO Ecosystem Generator (Final Fixed Version)
+//MaxClickEmpire SEO Ecosystem Generator (Final Fixed Version)
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
