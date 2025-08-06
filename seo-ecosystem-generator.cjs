@@ -24,22 +24,7 @@ posts.forEach((file) => {
   const fullPath = path.join(postsDir, file);
   let html = fs.readFileSync(fullPath, "utf8");
 
-  // Clean up any previously injected content
-  html = html
-    .replace(/<link rel="canonical"[^>]*>\s*/gi, "")
-    .replace(/<script[^>]+post-meta\.js[^>]*><\/script>\s*/gi, "")
-    .replace(/<script[^>]+seo-enhancer\.js[^>]*><\/script>\s*/gi, "")
-    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/gi, "");
-
-  const title = (html.match(/<title>(.*?)<\/title>/i) || [])[1] || "Untitled";
-  const description = (html.match(/<meta name="description" content="(.*?)"/i) || [])[1] || "";
-  const slug = file.replace(/\.html$/, "");
-  const url = `${siteUrl}/${slug}.html`;
-  const published = new Date().toISOString();
-
-  const metaScript = `<script src="/scripts/post-meta.js" type="module" async></script>`;
-  const enhancerScript = `<script src="/assets/seo-enhancer.js" defer></script>`;
-
+  
   
 
   // Save enhanced HTML
