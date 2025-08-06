@@ -16,7 +16,10 @@ console.log(`📁 Found ${posts.length} HTML files in /dist`);
 
 posts.forEach((file) => { const fullPath = path.join(postsDir, file); const slug = file.replace(/.html$/, ""); const metadata = postMetadata[slug];
 
-if (!metadata) { console.warn(⚠️ No metadata found for ${slug}. Skipping...); return; }
+if (!metadata) {
+  console.warn(`⚠️ No metadata found for ${slug}. Skipping...`);
+  return;
+}
 
 const { title, description, datePublished, canonical } = metadata;
 
