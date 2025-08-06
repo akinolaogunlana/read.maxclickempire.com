@@ -1,28 +1,30 @@
-// MaxClickEmpire SEO Ecosystem Generator (Final Fixed Version)
+// MaxClickEmpire SEO Ecosystem Generator (Final Working Version)
 
 const fs = require("fs");
 const path = require("path");
 const { create } = require("xmlbuilder2");
 const { execSync } = require("child_process");
 
-// Define paths
+// === PATHS ===
 const postsDir = path.join(__dirname, "posts");
-const sitemapFile = path.join(__dirname, "public/sitemap.xml");
-const rssFile = path.join(__dirname, "public/rss.xml");
-const robotsFile = path.join(__dirname, "public/robots.txt");
+const publicDir = path.join(__dirname, "public");
+const sitemapFile = path.join(publicDir, "sitemap.xml");
+const rssFile = path.join(publicDir, "rss.xml");
+const robotsFile = path.join(publicDir, "robots.txt");
 const siteUrl = "https://read.maxclickempire.com";
 
-// Read all post files
-const posts = fs.readdirSync(postsDir);
+// === Ensure /public directory exists ===
+fs.mkdirSync(publicDir, { recursive: true });
 
-// Collect metadata
+// === READ POSTS ===
+const posts = fs.readdirSync(postsDir);
 const allMetadata = [];
 
 posts.forEach((file) => {
   const fullPath = path.join(postsDir, file);
   let html = fs.readFileSync(fullPath, "utf8");
 
-  // Cleanup previous injected content
+  // Clean up any previously injected content
   html = html
     .replace(/<link rel="canonical"[^>]*>\s*/gi, "")
     .replace(/<script[^>]+post-meta\.js[^>]*><\/script>\s*/gi, "")
@@ -33,50 +35,51 @@ posts.forEach((file) => {
   const description = (html.match(/<meta name="description" content="(.*?)"/i) || [])[1] || "";
   const slug = file.replace(/\.html$/, "");
   const url = `${siteUrl}/${slug}.html`;
-  const published = new Date().toISOString(); // You can customize this based on real publish date
+  const published = new Date().toISOString();
 
-  // Canonical + Metadata Scripts
   const metaScript = `<script src="/scripts/post-meta.js" type="module" async></script>`;
   const enhancerScript = `<script src="/assets/seo-enhancer.js" defer></script>`;
 
-  // Inject metadata and scripts
+  // Inject schema.org metadata
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": title,
+    "description": description,
+    "url": url,
+    "datePublished": published,
+    "dateModified": new Date().toISOString(),
+    "author": { "@type": "Organization", "name": "MaxClickEmpire" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "MaxClickEmpire",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/assets/og-image.jpg`
+      }
+    },
+    "mainEntityOfPage": url
+  };
+
+  // Inject metadata into <head> and scripts into <body>
   html = html.replace("</head>", `
 <link rel="canonical" href="${url}" />
 <script type="application/ld+json">
-${JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": title,
-  "description": description,
-  "url": url,
-  "datePublished": published,
-  "dateModified": new Date().toISOString(),
-  "author": { "@type": "Organization", "name": "MaxClickEmpire" },
-  "publisher": {
-    "@type": "Organization",
-    "name": "MaxClickEmpire",
-    "logo": {
-      "@type": "ImageObject",
-      "url": `${siteUrl}/assets/og-image.jpg`
-    }
-  },
-  "mainEntityOfPage": url
-}, null, 2)}
+${JSON.stringify(jsonLd, null, 2)}
 </script>
 </head>`);
 
   html = html.replace("</body>", `${metaScript}\n${enhancerScript}\n</body>`);
 
-  // Save updated file
+  // Save enhanced HTML
   fs.writeFileSync(fullPath, html, "utf8");
   console.log(`✅ Enhanced ${file}`);
 
-  // Push metadata
+  // Collect post metadata
   allMetadata.push({ title, description, published, url, slug });
 });
 
-
-// Sitemap Generation
+// === GENERATE SITEMAP ===
 const sitemap = create({ version: "1.0" }).ele("urlset", {
   xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
 });
@@ -88,8 +91,7 @@ allMetadata.forEach((post) => {
 fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
 console.log("✅ sitemap.xml generated");
 
-
-// RSS Generation
+// === GENERATE RSS FEED ===
 const rssItems = allMetadata.map(post => `
   <item>
     <title>${post.title}</title>
@@ -112,8 +114,7 @@ const rssFeed = `<?xml version="1.0"?>
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log("✅ rss.xml generated");
 
-
-// Robots.txt Generation
+// === GENERATE robots.txt ===
 const robotsTxt = `User-agent: *
 Allow: /
 
@@ -122,21 +123,18 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-
-// Google Indexing API (Optional Integration)
-let credentials;
+// === OPTIONAL: GOOGLE INDEXING API ===
 try {
-  credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
-  // You can integrate Google Indexing API here
+  const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+  // Google Indexing logic goes here (if needed)
 } catch (e) {
-  console.warn("⚠️ Google Indexing API credentials not found.");
+  console.warn("⚠️ Google Indexing API credentials not found or unreadable.");
 }
 
-
-// Fix post-meta.js
+// === FIX post-meta.js script ===
 try {
   execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
   console.log("✅ post-meta.js fixed for Node.js + browser environments");
 } catch (err) {
-  console.error("❌ Error fixing post-meta.js", err.message);
+  console.error("❌ Error fixing post-meta.js:", err.message);
 }
