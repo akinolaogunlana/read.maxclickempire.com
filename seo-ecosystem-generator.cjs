@@ -12,7 +12,7 @@ const fs = require("fs"); const path = require("path"); const https = require("h
 
 // === READ POSTS === const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html")); const allMetadata = [];
 
-console.log(📁 Found ${posts.length} HTML files in /dist);
+console.log(`📁 Found ${posts.length} HTML files in /dist`);
 
 posts.forEach((file) => { const fullPath = path.join(postsDir, file); const slug = file.replace(/.html$/, ""); const metadata = postMetadata[slug];
 
