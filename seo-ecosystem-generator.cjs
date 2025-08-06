@@ -1,4 +1,4 @@
-// MaxClickEmpire SEO Ecosystem Generator (Final Working Version)
+// MaxClickEmpire SEO Ecosystem Generator (Updated Version)
 
 const fs = require("fs");
 const path = require("path");
@@ -12,7 +12,7 @@ const indexNowKey = "9b1fb73319b04fb3abb5ed09be53d65e";
 const rssLimit = 20;
 
 // === PATHS ===
-const postsDir = path.join(__dirname, "posts");
+const postsDir = path.join(__dirname, "dist"); // ← Updated from "posts"
 const publicDir = path.join(__dirname, "public");
 const sitemapFile = path.join(publicDir, "sitemap.xml");
 const rssFile = path.join(publicDir, "rss.xml");
@@ -27,9 +27,9 @@ let postMetadata = {};
 if (fs.existsSync(metaPath)) {
   try {
     const rawMeta = fs.readFileSync(metaPath, "utf8");
-    const match = rawMeta.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
+    const match = rawMeta.match(/let postMetadata\s*=\s*({[\s\S]*?});/);
     if (match) {
-      postMetadata = eval(`(${match[1]})`);
+      postMetadata = eval("(" + match[1] + ")");
     }
   } catch (err) {
     console.warn("⚠️ Failed to load post-meta.js. Proceeding without metadata.");
@@ -37,12 +37,13 @@ if (fs.existsSync(metaPath)) {
 }
 
 // === READ POSTS ===
-const posts = fs.readdirSync(postsDir);
+const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 const allMetadata = [];
+
+console.log(`📁 Found ${posts.length} HTML files in /dist`);
 
 posts.forEach((file) => {
   const fullPath = path.join(postsDir, file);
-  let html = fs.readFileSync(fullPath, "utf8");
   const slug = file.replace(/\.html$/, "");
   const metadata = postMetadata[slug];
 
@@ -53,8 +54,9 @@ posts.forEach((file) => {
 
   const { title, description, datePublished, canonical } = metadata;
 
+  const html = fs.readFileSync(fullPath, "utf8");
   fs.writeFileSync(fullPath, html, "utf8");
-  console.log(`✅ Enhanced ${file}`);
+  console.log(`✅ Processed ${file}`);
 
   allMetadata.push({
     title,
@@ -71,7 +73,8 @@ const sitemap = create({ version: "1.0" }).ele("urlset", {
 });
 
 allMetadata.forEach((post) => {
-  sitemap.ele("url")
+  sitemap
+    .ele("url")
     .ele("loc").txt(post.url).up()
     .ele("lastmod").txt(new Date(post.published).toISOString()).up()
     .up();
