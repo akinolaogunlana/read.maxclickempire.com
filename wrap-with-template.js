@@ -2,19 +2,17 @@ const fs = require("fs");
 const path = require("path");
 
 const templatePath = path.join(__dirname, "template.html");
-const postsDir = path.join(__dirname, "posts");
-const outputDir = path.join(__dirname, "dist");
+const rawPostsDir = path.join(__dirname, "dist");  // RAW source content
+const wrappedPostsDir = path.join(__dirname, "posts");  // Final wrapped posts
 const metaPath = path.join(__dirname, "data/post-meta.js");
 
-// Ensure output directory exists
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
+// Ensure wrapped posts directory exists
+fs.mkdirSync(wrappedPostsDir, { recursive: true });
 
-// Load HTML template
+// Load template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Try to load existing metadata
+// Load existing metadata
 let postMetadata = {};
 if (fs.existsSync(metaPath)) {
   try {
@@ -24,15 +22,15 @@ if (fs.existsSync(metaPath)) {
       postMetadata = eval(`(${match[1]})`);
     }
   } catch (err) {
-    console.warn("⚠️ Could not load existing post-meta.js. Starting fresh.");
+    console.warn("⚠️ Could not load existing metadata. Starting fresh.");
   }
 }
 
-// Escape double quotes for HTML attribute safety
+// Escape for HTML attributes
 const escapeQuotes = (str = "") =>
   str.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// Replace placeholders in template
+// Inject metadata into template
 const injectTemplate = (html, metadata, content) => {
   return html
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -47,13 +45,21 @@ const injectTemplate = (html, metadata, content) => {
     .replace(/{{CONTENT}}/g, content || "");
 };
 
-// Process each HTML file in /posts
-const postFiles = fs.readdirSync(postsDir).filter(file => file.endsWith(".html"));
+// Process each raw HTML file from /dist
+const rawFiles = fs.readdirSync(rawPostsDir).filter(f => f.endsWith(".html"));
 
-postFiles.forEach(file => {
+rawFiles.forEach(file => {
   const slug = file.replace(/\.html$/, "");
-  const contentPath = path.join(postsDir, file);
-  const rawHtml = fs.readFileSync(contentPath, "utf8");
+  const rawPath = path.join(rawPostsDir, file);
+  const outputPath = path.join(wrappedPostsDir, file);
+
+  // Skip if already exists in posts
+  if (fs.existsSync(outputPath)) {
+    console.log(`⏩ Skipped (already exists): posts/${file}`);
+    return;
+  }
+
+  const rawHtml = fs.readFileSync(rawPath, "utf8");
 
   // Extract metadata
   const titleMatch = rawHtml.match(/<title[^>]*>(.*?)<\/title>/i);
@@ -68,7 +74,6 @@ postFiles.forEach(file => {
   const canonical = `https://read.maxclickempire.com/${slug}`;
   const now = new Date().toISOString();
 
-  // Update post metadata
   postMetadata[slug] = {
     ...(postMetadata[slug] || {}),
     title,
@@ -82,7 +87,7 @@ postFiles.forEach(file => {
     dateModified: now
   };
 
-  // Clean up raw HTML content
+  // Clean raw content
   let cleaned = rawHtml
     .replace(/<!DOCTYPE html>/gi, "")
     .replace(/<\/?(html|body|head)[^>]*>/gi, "")
@@ -92,27 +97,16 @@ postFiles.forEach(file => {
     .replace(/<\/?(main|article)[^>]*>/gi, "")
     .trim();
 
-  // Inject into template
   const finalHtml = injectTemplate(template, postMetadata[slug], cleaned);
-
-  // Write to /dist
-  const outPath = path.join(outputDir, file);
-  fs.writeFileSync(outPath, finalHtml);
-  console.log(`✅ Built dist/${file}`);
+  fs.writeFileSync(outputPath, finalHtml);
+  console.log(`✅ Wrapped: posts/${file}`);
 });
 
-// Write updated metadata back to file
+// Update metadata file
 const metaJs = `// Auto-generated metadata
 let postMetadata = ${JSON.stringify(postMetadata, null, 2)};
 module.exports = { postMetadata };`;
-
 fs.writeFileSync(metaPath, metaJs);
 console.log("💾 Metadata written to data/post-meta.js");
 
-// Clean up processed posts/
-postFiles.forEach(file => {
-  fs.unlinkSync(path.join(postsDir, file));
-  console.log(`🧹 Deleted posts/${file}`);
-});
-
-console.log("🎉 All posts wrapped successfully.");
+console.log("🎉 Wrap process complete.");
