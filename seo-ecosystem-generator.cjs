@@ -40,26 +40,7 @@ posts.forEach((file) => {
   const metaScript = `<script src="/scripts/post-meta.js" type="module" async></script>`;
   const enhancerScript = `<script src="/assets/seo-enhancer.js" defer></script>`;
 
-  // Inject schema.org metadata
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": title,
-    "description": description,
-    "url": url,
-    "datePublished": published,
-    "dateModified": new Date().toISOString(),
-    "author": { "@type": "Organization", "name": "MaxClickEmpire" },
-    "publisher": {
-      "@type": "Organization",
-      "name": "MaxClickEmpire",
-      "logo": {
-        "@type": "ImageObject",
-        "url": `${siteUrl}/assets/og-image.jpg`
-      }
-    },
-    "mainEntityOfPage": url
-  };
+  
 
   // Inject metadata into <head> and scripts into <body>
   html = html.replace("</head>", `
