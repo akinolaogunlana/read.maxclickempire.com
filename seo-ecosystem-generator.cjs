@@ -21,11 +21,16 @@ fs.mkdirSync(distDir, { recursive: true });
 const { postMetadata } = require("./data/post-meta.js");
 
 // === Convert postMetadata to enriched array with full URLs ===
-const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => ({
-  ...meta,
-  slug,
-  url: `${siteUrl}/${slug}`,
-}));
+const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
+  const canonicalUrl = meta.canonical || `${siteUrl}/${slug}`;
+  return {
+    ...meta,
+    slug,
+    url: canonicalUrl,
+    datePublished: meta.published || meta.datePublished,
+    dateModified: meta.modified || meta.dateModified || meta.published || meta.datePublished,
+  };
+});
 
 console.log(`🧠 Loaded ${allMetadata.length} posts from post-meta.js`);
 
@@ -38,7 +43,7 @@ allMetadata.forEach((post) => {
   sitemap
     .ele("url")
     .ele("loc").txt(post.url).up()
-    .ele("lastmod").txt(new Date(post.dateModified || post.datePublished).toISOString()).up()
+    .ele("lastmod").txt(new Date(post.dateModified).toISOString()).up()
     .up();
 });
 
