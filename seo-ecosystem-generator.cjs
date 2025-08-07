@@ -25,7 +25,8 @@ if (!fs.existsSync(postMetaModulePath)) {
   process.exit(1);
 }
 
-const { postMetadata } = require(postMetaModulePath);
+const postMetadataRaw = require(postMetaModulePath);
+const postMetadata = postMetadataRaw.postMetadata || postMetadataRaw;
 
 if (!postMetadata || typeof postMetadata !== "object") {
   console.error("❌ postMetadata is undefined or invalid in post-meta.js");
