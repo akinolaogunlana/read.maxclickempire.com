@@ -1,4 +1,5 @@
 // Auto-generated. Do not edit.
+
 const postMetadata = {
   "affiliate-disclosure-statement-template": {
     "title": "affiliate disclosure statement template",
@@ -10,11 +11,4 @@ const postMetadata = {
   }
 };
 
-// ✅ Universal export: works in both Node.js and browsers
-(function (global) {
-  if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
-    module.exports = { postMetadata };
-  } else {
-    global.postMetadata = postMetadata;
-  }
-})(typeof window !== "undefined" ? window : this);
+module.exports = { postMetadata };
