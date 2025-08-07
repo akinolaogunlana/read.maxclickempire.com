@@ -1,4 +1,4 @@
-// MaxClickEmpire SEO Ecosystem Generator (Fixed Version)
+// MaxClickEmpire SEO Ecosystem Generator (Updated Version)
 
 const fs = require("fs");
 const path = require("path");
@@ -12,15 +12,15 @@ const indexNowKey = "9b1fb73319b04fb3abb5ed09be53d65e";
 const rssLimit = 20;
 
 // === PATHS ===
-const postsDir = path.join(__dirname, "dist");
-const publicDir = path.join(__dirname, "public");
-const sitemapFile = path.join(publicDir, "sitemap.xml");
-const rssFile = path.join(publicDir, "rss.xml");
-const robotsFile = path.join(publicDir, "robots.txt");
+const distDir = path.join(__dirname, "dist");
+const sitemapFile = path.join(distDir, "sitemap.xml");
+const rssFile = path.join(distDir, "rss.xml");
+const robotsFile = path.join(distDir, "robots.txt");
+const noJekyllFile = path.join(distDir, ".nojekyll");
 const metaPath = path.join(__dirname, "data/post-meta.js");
 
-// === Ensure /public directory exists ===
-fs.mkdirSync(publicDir, { recursive: true });
+// === Ensure /dist directory exists ===
+fs.mkdirSync(distDir, { recursive: true });
 
 // === Load post metadata ===
 let postMetadata = {};
@@ -37,14 +37,14 @@ if (fs.existsSync(metaPath)) {
 }
 
 // === READ POSTS ===
-const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
+const posts = fs.readdirSync(distDir).filter(f => f.endsWith(".html"));
 const allMetadata = [];
 
 console.log(`📁 Found ${posts.length} HTML files in /dist`);
 
 posts.forEach((file) => {
-  const fullPath = path.join(postsDir, file);
-  const slug = file.replace(/.html$/, "");
+  const fullPath = path.join(distDir, file);
+  const slug = file.replace(/\.html$/, "");
   const metadata = postMetadata[slug];
 
   if (!metadata) {
@@ -54,10 +54,6 @@ posts.forEach((file) => {
 
   const { title, description, datePublished, canonical } = metadata;
 
-  const html = fs.readFileSync(fullPath, "utf8");
-  fs.writeFileSync(fullPath, html, "utf8");
-  console.log(`✅ Processed ${file}`);
-
   allMetadata.push({
     title,
     description,
@@ -65,6 +61,8 @@ posts.forEach((file) => {
     url: canonical,
     slug,
   });
+
+  console.log(`✅ Processed ${file}`);
 });
 
 // === GENERATE SITEMAP ===
@@ -90,8 +88,8 @@ const latestPosts = allMetadata
 
 const rssItems = latestPosts.map((post) => `
   <item>
-    <title><![CDATA[${post.title}]]></title>
-    <description><![CDATA[${post.description}]]></description>
+    <title><![CDATA[${post.title.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></title>
+    <description><![CDATA[${post.description.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></description>
     <link>${post.url}</link>
     <guid>${post.url}</guid>
     <pubDate>${new Date(post.published).toUTCString()}</pubDate>
@@ -119,6 +117,10 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
+
+// === Create .nojekyll to support .xml files on GitHub Pages ===
+fs.writeFileSync(noJekyllFile, "");
+console.log("✅ .nojekyll created");
 
 // === INDEXING APIs: Google & IndexNow ===
 (async () => {
