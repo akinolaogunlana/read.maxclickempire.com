@@ -18,7 +18,19 @@ const noJekyllFile = path.join(distDir, ".nojekyll");
 
 fs.mkdirSync(distDir, { recursive: true });
 
-const { postMetadata } = require("./data/post-meta.js");
+const postMetaModulePath = path.resolve(__dirname, "data", "post-meta.js");
+
+if (!fs.existsSync(postMetaModulePath)) {
+  console.error("❌ post-meta.js file not found at: " + postMetaModulePath);
+  process.exit(1);
+}
+
+const { postMetadata } = require(postMetaModulePath);
+
+if (!postMetadata || typeof postMetadata !== "object") {
+  console.error("❌ postMetadata is undefined or invalid in post-meta.js");
+  process.exit(1);
+}
 
 // === Convert postMetadata to enriched array with full URLs ===
 const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
