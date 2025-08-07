@@ -1,4 +1,4 @@
-// MaxClickEmpire SEO Ecosystem Generator (Updated Version)
+// MaxClickEmpire SEO Ecosystem Generator (post-meta.js Version)
 
 const fs = require("fs");
 const path = require("path");
@@ -6,64 +6,28 @@ const https = require("https");
 const { create } = require("xmlbuilder2");
 const { execSync } = require("child_process");
 
-// === CONFIGURATION ===
 const siteUrl = "https://read.maxclickempire.com";
 const indexNowKey = "9b1fb73319b04fb3abb5ed09be53d65e";
 const rssLimit = 20;
 
-// === PATHS ===
 const distDir = path.join(__dirname, "dist");
 const sitemapFile = path.join(distDir, "sitemap.xml");
 const rssFile = path.join(distDir, "rss.xml");
 const robotsFile = path.join(distDir, "robots.txt");
 const noJekyllFile = path.join(distDir, ".nojekyll");
-const metaPath = path.join(__dirname, "data/post-meta.js");
 
-// === Ensure /dist directory exists ===
 fs.mkdirSync(distDir, { recursive: true });
 
-// === Load post metadata ===
-let postMetadata = {};
-if (fs.existsSync(metaPath)) {
-  try {
-    const rawMeta = fs.readFileSync(metaPath, "utf8");
-    const match = rawMeta.match(/let postMetadata\s*=\s*({[\s\S]*?});/);
-    if (match) {
-      postMetadata = eval("(" + match[1] + ")");
-    }
-  } catch (err) {
-    console.warn("⚠️ Failed to load post-meta.js. Proceeding without metadata.");
-  }
-}
+const postMeta = require("./data/post-meta.js");
 
-// === READ POSTS ===
-const posts = fs.readdirSync(distDir).filter(f => f.endsWith(".html"));
-const allMetadata = [];
+// === Convert postMeta into array with full URL ===
+const allMetadata = Object.entries(postMeta).map(([slug, meta]) => ({
+  ...meta,
+  slug,
+  url: `${siteUrl}/${slug}`,
+}));
 
-console.log(`📁 Found ${posts.length} HTML files in /dist`);
-
-posts.forEach((file) => {
-  const fullPath = path.join(distDir, file);
-  const slug = file.replace(/\.html$/, "");
-  const metadata = postMetadata[slug];
-
-  if (!metadata) {
-    console.warn(`⚠️ No metadata found for ${slug}. Skipping...`);
-    return;
-  }
-
-  const { title, description, datePublished, canonical } = metadata;
-
-  allMetadata.push({
-    title,
-    description,
-    published: datePublished,
-    url: canonical,
-    slug,
-  });
-
-  console.log(`✅ Processed ${file}`);
-});
+console.log(`🧠 Loaded ${allMetadata.length} posts from post-meta.js`);
 
 // === GENERATE SITEMAP ===
 const sitemap = create({ version: "1.0" }).ele("urlset", {
@@ -118,15 +82,15 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log("✅ robots.txt generated");
 
-// === Create .nojekyll to support .xml files on GitHub Pages ===
+// === .nojekyll for GitHub Pages ===
 fs.writeFileSync(noJekyllFile, "");
 console.log("✅ .nojekyll created");
 
-// === INDEXING APIs: Google & IndexNow ===
+// === GOOGLE INDEXING & INDEXNOW ===
 (async () => {
   const indexedUrls = [];
 
-  // === GOOGLE INDEXING API ===
+  // === GOOGLE INDEXING ===
   try {
     const { google } = require("googleapis");
     const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
@@ -158,7 +122,7 @@ console.log("✅ .nojekyll created");
     console.warn("⚠️ Skipping Google Indexing API: " + err.message);
   }
 
-  // === INDEXNOW API ===
+  // === INDEXNOW ===
   function pingIndexNow(urls) {
     if (urls.length === 0) return;
 
@@ -195,7 +159,7 @@ console.log("✅ .nojekyll created");
 
   pingIndexNow(indexedUrls);
 
-  // === FIX post-meta.js script ===
+  // === Fix post-meta.js (e.g. for browser compatibility) ===
   try {
     execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
     console.log("✅ post-meta.js fixed for Node.js + browser environments");
