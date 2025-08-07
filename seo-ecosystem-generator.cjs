@@ -18,10 +18,10 @@ const noJekyllFile = path.join(distDir, ".nojekyll");
 
 fs.mkdirSync(distDir, { recursive: true });
 
-const postMeta = require("./data/post-meta.js");
+const { postMetadata } = require("./data/post-meta.js");
 
-// === Convert postMeta into array with full URL ===
-const allMetadata = Object.entries(postMeta).map(([slug, meta]) => ({
+// === Convert postMetadata to enriched array with full URLs ===
+const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => ({
   ...meta,
   slug,
   url: `${siteUrl}/${slug}`,
@@ -38,7 +38,7 @@ allMetadata.forEach((post) => {
   sitemap
     .ele("url")
     .ele("loc").txt(post.url).up()
-    .ele("lastmod").txt(new Date(post.published).toISOString()).up()
+    .ele("lastmod").txt(new Date(post.dateModified || post.datePublished).toISOString()).up()
     .up();
 });
 
@@ -47,7 +47,7 @@ console.log("✅ sitemap.xml generated");
 
 // === GENERATE RSS FEED ===
 const latestPosts = allMetadata
-  .sort((a, b) => new Date(b.published) - new Date(a.published))
+  .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
   .slice(0, rssLimit);
 
 const rssItems = latestPosts.map((post) => `
@@ -56,7 +56,7 @@ const rssItems = latestPosts.map((post) => `
     <description><![CDATA[${post.description.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></description>
     <link>${post.url}</link>
     <guid>${post.url}</guid>
-    <pubDate>${new Date(post.published).toUTCString()}</pubDate>
+    <pubDate>${new Date(post.datePublished).toUTCString()}</pubDate>
   </item>
 `).join("\n");
 
@@ -129,7 +129,7 @@ console.log("✅ .nojekyll created");
     const payload = {
       host: "read.maxclickempire.com",
       key: indexNowKey,
-      keyLocation: `https://read.maxclickempire.com/${indexNowKey}`,
+      keyLocation: `${siteUrl}/${indexNowKey}`,
       urlList: urls,
     };
 
@@ -159,7 +159,7 @@ console.log("✅ .nojekyll created");
 
   pingIndexNow(indexedUrls);
 
-  // === Fix post-meta.js (e.g. for browser compatibility) ===
+  // === Optional: Fix post-meta.js for browser compatibility ===
   try {
     execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
     console.log("✅ post-meta.js fixed for Node.js + browser environments");
