@@ -10,8 +10,9 @@ const postMetadata = {};
 fs.readdirSync(postsDir).forEach((file) => {
   if (!file.endsWith(".html")) return;
 
+  const filePath = path.join(postsDir, file);
   const slug = file.replace(".html", "");
-  const html = fs.readFileSync(path.join(postsDir, file), "utf8");
+  const html = fs.readFileSync(filePath, "utf8");
   const $ = cheerio.load(html);
 
   const title = $("head title").text().trim();
@@ -22,12 +23,18 @@ fs.readdirSync(postsDir).forEach((file) => {
 
   if (!title || !description) return;
 
+  const stats = fs.statSync(filePath);
+
+  const publishedDate = stats.birthtime && stats.birthtime.toISOString() !== '1970-01-01T00:00:00.000Z'
+    ? stats.birthtime.toISOString()
+    : stats.mtime.toISOString(); // fallback to last modified time
+
   postMetadata[slug] = {
     title,
     description,
     keywords,
     image: ogImage,
-    published: new Date().toISOString(),
+    published: publishedDate,
   };
 });
 
@@ -39,4 +46,4 @@ if (typeof module !== 'undefined') {
 }`;
 
 fs.writeFileSync(outputPath, output);
-console.log("✅ post-meta.js fixed and written.");
+console.log("✅ post-meta.js generated with accurate post dates.");
