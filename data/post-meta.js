@@ -5,7 +5,7 @@ const postMetadata = {
     "description": "Simple, clear affiliate disclosure statement templates you can copy and customize.",
     "keywords": "affiliate disclosure statement template, sample affiliate disclosure, FTC compliant disclosure",
     "image": "https://read.maxclickempire.com/assets/og-image.jpg",
-    "published": "2025-08-07T00:43:25.331Z"
+    "published": "2025-08-07T09:56:20.723Z"
   }
 };
 
