@@ -10,5 +10,9 @@ const postMetadata = {
   }
 };
 
-// ✅ Always export for Node.js
-module.exports = { postMetadata };
+// ✅ Universal export: works in both Node.js and browsers
+if (typeof module !== 'undefined') {
+  module.exports = { postMetadata };
+} else {
+  window.postMetadata = postMetadata;
+}
