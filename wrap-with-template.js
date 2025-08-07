@@ -2,8 +2,8 @@ const fs = require("fs");
 const path = require("path");
 
 const templatePath = path.join(__dirname, "template.html");
-const rawPostsDir = path.join(__dirname, "dist");       // Raw HTML source
-const wrappedPostsDir = path.join(__dirname, "posts");  // Final output
+const rawPostsDir = path.join(__dirname, "posts");        // Source (manual edits)
+const wrappedPostsDir = path.join(__dirname, "dist");     // Output (auto-generated)
 const metaPath = path.join(__dirname, "data/post-meta.js");
 
 // Ensure output directory exists
@@ -12,7 +12,7 @@ fs.mkdirSync(wrappedPostsDir, { recursive: true });
 // Load HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Load metadata if available
+// Load existing metadata if it exists
 let postMetadata = {};
 if (fs.existsSync(metaPath)) {
   try {
@@ -22,15 +22,15 @@ if (fs.existsSync(metaPath)) {
       postMetadata = eval(`(${match[1]})`);
     }
   } catch (err) {
-    console.warn("⚠️ Failed to load post-meta.js. Starting fresh.");
+    console.warn("⚠️ Failed to parse post-meta.js. Starting fresh.");
   }
 }
 
-// Escape double quotes and angle brackets for safe injection
+// HTML escaping helper
 const escapeQuotes = (str = "") =>
   str.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// Replace placeholders in template with metadata and content
+// Inject content + metadata into template
 const injectTemplate = (html, metadata, content) =>
   html
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -44,7 +44,7 @@ const injectTemplate = (html, metadata, content) =>
     .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
     .replace(/{{CONTENT}}/g, content || "");
 
-// Process all .html files from /dist
+// Process all source posts
 const rawFiles = fs.readdirSync(rawPostsDir).filter(file => file.endsWith(".html"));
 
 rawFiles.forEach(file => {
@@ -52,26 +52,22 @@ rawFiles.forEach(file => {
   const rawPath = path.join(rawPostsDir, file);
   const outputPath = path.join(wrappedPostsDir, file);
 
-  if (fs.existsSync(outputPath)) {
-    console.log(`⏩ Skipped (already exists): posts/${file}`);
-    return;
-  }
-
   const rawHtml = fs.readFileSync(rawPath, "utf8");
 
-  // Metadata extraction
+  // Extract metadata
   const titleMatch = rawHtml.match(/<title[^>]*>(.*?)<\/title>/i);
   const descMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
   const keywordsMatch = rawHtml.match(/<meta\s+name=["']keywords["']\s+content=["'](.*?)["']/i);
   const ogImageMatch = rawHtml.match(/<meta\s+property=["']og:image["']\s+content=["'](.*?)["']/i);
 
-  const title = titleMatch?.[1]?.trim() || slug.replace(/-/g, ' ');
+  const title = titleMatch?.[1]?.trim() || slug.replace(/-/g, " ");
   const description = descMatch?.[1]?.trim() || "";
   const keywords = keywordsMatch?.[1]?.trim() || "";
   const ogImage = ogImageMatch?.[1]?.trim() || "";
   const canonical = `https://read.maxclickempire.com/${slug}`;
   const now = new Date().toISOString();
 
+  // Maintain existing datePublished if available
   postMetadata[slug] = {
     ...(postMetadata[slug] || {}),
     title,
@@ -82,10 +78,10 @@ rawFiles.forEach(file => {
     slug,
     author: "Ogunlana Akinola Okikiola",
     datePublished: postMetadata[slug]?.datePublished || now,
-    dateModified: now
+    dateModified: now,
   };
 
-  // Clean up raw HTML content
+  // Clean original HTML content
   const cleaned = rawHtml
     .replace(/<!DOCTYPE html>/gi, "")
     .replace(/<\/?(html|head|body)[^>]*>/gi, "")
@@ -95,20 +91,20 @@ rawFiles.forEach(file => {
     .replace(/<\/?(main|article)[^>]*>/gi, "")
     .trim();
 
-  // Inject content and metadata into template
+  // Wrap content with template
   const finalHtml = injectTemplate(template, postMetadata[slug], cleaned);
 
-  // Write wrapped file
+  // Write to /dist
   fs.writeFileSync(outputPath, finalHtml, "utf8");
-  console.log(`✅ Built: posts/${file}`);
+  console.log(`✅ Built: dist/${file}`);
 });
 
-// Save metadata
+// Write updated metadata
 const metaContent = `// Auto-generated metadata
 let postMetadata = ${JSON.stringify(postMetadata, null, 2)};
 module.exports = { postMetadata };
 `;
 fs.writeFileSync(metaPath, metaContent);
-console.log("💾 Updated metadata in data/post-meta.js");
 
-console.log("🎉 Wrap complete. Manual posts preserved.");
+console.log("💾 Updated metadata in data/post-meta.js");
+console.log("🎉 Wrap complete. Posts preserved. Output written to /dist/");
