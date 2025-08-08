@@ -1,10 +1,21 @@
 const fs = require("fs");
 const path = require("path");
 
+// Paths (relative to repo root)
 const templatePath = path.join(process.cwd(), "template.html");
 const rawPostsDir = path.join(process.cwd(), "posts");
 const wrappedPostsDir = path.join(process.cwd(), "dist");
 const metaPath = path.join(process.cwd(), "data/post-meta.js");
+
+// ==== SAFETY CHECKS ====
+if (!fs.existsSync(templatePath)) {
+  console.error(`❌ template.html not found at ${templatePath}`);
+  process.exit(1);
+}
+if (!fs.existsSync(rawPostsDir)) {
+  console.error(`❌ posts directory not found at ${rawPostsDir}`);
+  process.exit(1);
+}
 
 // Ensure output directory exists
 fs.mkdirSync(wrappedPostsDir, { recursive: true });
@@ -12,7 +23,7 @@ fs.mkdirSync(wrappedPostsDir, { recursive: true });
 // Load HTML template
 const template = fs.readFileSync(templatePath, "utf8");
 
-// Load existing metadata if it exists
+// Load existing metadata if available
 let postMetadata = {};
 if (fs.existsSync(metaPath)) {
   try {
@@ -26,11 +37,11 @@ if (fs.existsSync(metaPath)) {
   }
 }
 
-// HTML escaping helper
+// Escape HTML quotes for meta tags
 const escapeQuotes = (str = "") =>
   str.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// Inject content + metadata into template
+// Inject metadata + content into template
 const injectTemplate = (html, metadata, content) =>
   html
     .replace(/{{TITLE}}/g, metadata.title || "")
@@ -44,9 +55,15 @@ const injectTemplate = (html, metadata, content) =>
     .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
     .replace(/{{CONTENT}}/g, content || "");
 
-// Process all source posts
+// Get all raw HTML post files
 const rawFiles = fs.readdirSync(rawPostsDir).filter(file => file.endsWith(".html"));
 
+if (rawFiles.length === 0) {
+  console.warn(`⚠️ No .html files found in ${rawPostsDir}. Nothing to build.`);
+  process.exit(0);
+}
+
+// Process each post
 rawFiles.forEach(file => {
   const slug = file.replace(/\.html$/, "");
   const rawPath = path.join(rawPostsDir, file);
@@ -67,7 +84,7 @@ rawFiles.forEach(file => {
   const canonical = `https://read.maxclickempire.com/${slug}`;
   const now = new Date().toISOString();
 
-  // Maintain existing datePublished if available
+  // Preserve existing datePublished if available
   postMetadata[slug] = {
     ...(postMetadata[slug] || {}),
     title,
@@ -81,7 +98,7 @@ rawFiles.forEach(file => {
     dateModified: now,
   };
 
-  // Clean original HTML content
+  // Strip outer HTML, head, meta, and scripts
   const cleaned = rawHtml
     .replace(/<!DOCTYPE html>/gi, "")
     .replace(/<\/?(html|head|body)[^>]*>/gi, "")
@@ -91,15 +108,15 @@ rawFiles.forEach(file => {
     .replace(/<\/?(main|article)[^>]*>/gi, "")
     .trim();
 
-  // Wrap content with template
+  // Wrap into template
   const finalHtml = injectTemplate(template, postMetadata[slug], cleaned);
 
-  // Write to /dist
+  // Save to dist
   fs.writeFileSync(outputPath, finalHtml, "utf8");
   console.log(`✅ Built: dist/${file}`);
 });
 
-// Write updated metadata
+// Save updated metadata
 const metaContent = `// Auto-generated metadata
 let postMetadata = ${JSON.stringify(postMetadata, null, 2)};
 module.exports = { postMetadata };
@@ -107,4 +124,4 @@ module.exports = { postMetadata };
 fs.writeFileSync(metaPath, metaContent);
 
 console.log("💾 Updated metadata in data/post-meta.js");
-console.log("🎉 Wrap complete. Posts preserved. Output written to /dist/");
+console.log("🎉 Wrap complete. Output written to /dist/");
