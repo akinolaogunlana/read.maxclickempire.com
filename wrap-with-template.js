@@ -1,10 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 
-const templatePath = path.join(__dirname, "template.html");
-const rawPostsDir = path.join(__dirname, "posts");        // Source (manual edits)
-const wrappedPostsDir = path.join(__dirname, "dist");     // Output (auto-generated)
-const metaPath = path.join(__dirname, "data/post-meta.js");
+const path = require("path");
+
+const templatePath = path.join(process.cwd(), "template.html");
+const rawPostsDir = path.join(process.cwd(), "posts");        // Source (manual edits)
+const wrappedPostsDir = path.join(process.cwd(), "dist");     // Output (auto-generated)
+const metaPath = path.join(process.cwd(), "data/post-meta.js");
 
 // Ensure output directory exists
 fs.mkdirSync(wrappedPostsDir, { recursive: true });
