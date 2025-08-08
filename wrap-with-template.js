@@ -87,7 +87,7 @@ function buildPost(file) {
   const description = descMatch?.[1]?.trim() || "";
   const keywords = keywordsMatch?.[1]?.trim() || "";
   const ogImage = ogImageMatch?.[1]?.trim() || "";
-  const canonical = `https://read.maxclickempire.com/${slug}`;
+  const canonical = `https://read.maxclickempire.com/${slug}.html`;
   const now = new Date().toISOString();
 
   // Preserve existing datePublished if available
