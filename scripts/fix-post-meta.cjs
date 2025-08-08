@@ -3,11 +3,12 @@ const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
 
-const postsDir = path.join(__dirname, "..", "posts");
-const outputPath = path.join(__dirname, "../data/post-meta.js");
+// Scan dist/ directory as requested
+const postsDir = path.join(__dirname, "..", "dist");
+const outputPath = path.join(__dirname, "..", "data", "post-meta.js");
 
 if (!fs.existsSync(postsDir)) {
-  console.error(`❌ Posts directory not found: ${postsDir}`);
+  console.error(`❌ dist directory not found: ${postsDir}`);
   process.exit(1);
 }
 
@@ -17,7 +18,7 @@ fs.readdirSync(postsDir).forEach((file) => {
   if (!file.endsWith(".html")) return;
 
   const filePath = path.join(postsDir, file);
-  const slug = file.replace(".html", "");
+  const slug = file.replace(/\.html$/, "");
   const html = fs.readFileSync(filePath, "utf8");
   const $ = cheerio.load(html);
 
@@ -33,27 +34,33 @@ fs.readdirSync(postsDir).forEach((file) => {
     return;
   }
 
+  // Accurate datePublished detection:
   const stats = fs.statSync(filePath);
-  const publishedDate =
-    stats.birthtimeMs && stats.birthtimeMs > 0
-      ? new Date(stats.birthtime).toISOString()
-      : new Date(stats.mtime).toISOString(); // fallback to modified time
+
+  let datePublished = "";
+  const metaDate = $('meta[name="datePublished"]').attr("content")?.trim();
+  if (metaDate && !isNaN(Date.parse(metaDate))) {
+    datePublished = new Date(metaDate).toISOString();
+  } else if (stats.birthtimeMs && stats.birthtimeMs > 0) {
+    datePublished = new Date(stats.birthtime).toISOString();
+  } else if (stats.mtimeMs && stats.mtimeMs > 0) {
+    datePublished = new Date(stats.mtime).toISOString();
+  } else if (stats.ctimeMs && stats.ctimeMs > 0) {
+    datePublished = new Date(stats.ctime).toISOString();
+  } else {
+    datePublished = new Date().toISOString();
+  }
 
   postMetadata[slug] = {
     title,
     description,
     keywords,
-    image: ogImage,
-    published: publishedDate,
+    ogImage,
+    datePublished,
   };
 });
 
-const output = `// Auto-generated. Do not edit.
-const postMetadata = ${JSON.stringify(postMetadata, null, 2)};
+const output = `// Auto-generated metadata\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
 
-if (typeof module !== 'undefined') {
-  module.exports = postMetadata;
-}`;
-
-fs.writeFileSync(outputPath, output);
+fs.writeFileSync(outputPath, output, "utf8");
 console.log(`✅ post-meta.js generated with ${Object.keys(postMetadata).length} posts → ${outputPath}`);
