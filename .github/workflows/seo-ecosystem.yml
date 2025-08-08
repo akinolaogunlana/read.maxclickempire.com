@@ -11,6 +11,7 @@ on:
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
