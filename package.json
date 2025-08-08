@@ -10,7 +10,8 @@
     "link": "node scripts/internal-linker.cjs",
     "fix-meta": "node scripts/fix-post-meta.cjs",
     "wrap": "node scripts/wrap-clean.cjs",
-    "archive": "node scripts/generate-archive.cjs"
+    "archive": "node scripts/generate-archive.cjs",
+    "watch": "node scripts/watch-posts.cjs"
   },
   "dependencies": {
     "axios": "^1.6.8",
@@ -21,7 +22,8 @@
     "keyword-extractor": "^0.0.22",
     "natural": "^6.5.0",
     "xmlbuilder2": "^3.0.2",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "chokidar": "^3.5.3"
   },
   "author": "MaxClickEmpire Bot",
   "license": "MIT"
