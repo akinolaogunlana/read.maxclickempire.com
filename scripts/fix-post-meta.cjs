@@ -1,9 +1,15 @@
+// scripts/fix-post-meta.cjs
 const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
 
 const postsDir = path.join(__dirname, "..", "posts");
 const outputPath = path.join(__dirname, "../data/post-meta.js");
+
+if (!fs.existsSync(postsDir)) {
+  console.error(`❌ Posts directory not found: ${postsDir}`);
+  process.exit(1);
+}
 
 const postMetadata = {};
 
@@ -18,16 +24,20 @@ fs.readdirSync(postsDir).forEach((file) => {
   const title = $("head title").text().trim();
   const description = $('meta[name="description"]').attr("content")?.trim() || "";
   const keywords = $('meta[name="keywords"]').attr("content")?.trim() || "";
-  const ogImage = $('meta[property="og:image"]').attr("content")?.trim()
-    || "https://read.maxclickempire.com/assets/og-image.jpg";
+  const ogImage =
+    $('meta[property="og:image"]').attr("content")?.trim() ||
+    "https://read.maxclickempire.com/assets/og-image.jpg";
 
-  if (!title || !description) return;
+  if (!title || !description) {
+    console.warn(`⚠ Skipping "${slug}" (missing title or description)`);
+    return;
+  }
 
   const stats = fs.statSync(filePath);
-
-  const publishedDate = stats.birthtime && stats.birthtime.toISOString() !== '1970-01-01T00:00:00.000Z'
-    ? stats.birthtime.toISOString()
-    : stats.mtime.toISOString(); // fallback to last modified time
+  const publishedDate =
+    stats.birthtimeMs && stats.birthtimeMs > 0
+      ? new Date(stats.birthtime).toISOString()
+      : new Date(stats.mtime).toISOString(); // fallback to modified time
 
   postMetadata[slug] = {
     title,
@@ -46,4 +56,4 @@ if (typeof module !== 'undefined') {
 }`;
 
 fs.writeFileSync(outputPath, output);
-console.log("✅ post-meta.js generated with accurate post dates.");
+console.log(`✅ post-meta.js generated with ${Object.keys(postMetadata).length} posts → ${outputPath}`);
