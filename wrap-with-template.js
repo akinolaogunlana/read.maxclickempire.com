@@ -1,11 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const path = require("path");
-
 const templatePath = path.join(process.cwd(), "template.html");
-const rawPostsDir = path.join(process.cwd(), "posts");        // Source (manual edits)
-const wrappedPostsDir = path.join(process.cwd(), "dist");     // Output (auto-generated)
+const rawPostsDir = path.join(process.cwd(), "posts");
+const wrappedPostsDir = path.join(process.cwd(), "dist");
 const metaPath = path.join(process.cwd(), "data/post-meta.js");
 
 // Ensure output directory exists
