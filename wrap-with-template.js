@@ -1,7 +1,9 @@
-// wrap-with-template.js
 const fs = require("fs");
 const path = require("path");
 const chokidar = require("chokidar");
+
+// Detect CI environment (GitHub Actions sets CI=true)
+const isCI = process.env.CI === "true";
 
 // Paths (relative to repo root)
 const templatePath = path.join(process.cwd(), "template.html");
@@ -123,12 +125,19 @@ function buildPost(file) {
   console.log(`✅ Built: dist/${file}`);
 }
 
-// Build all posts initially
-fs.readdirSync(rawPostsDir).forEach(buildPost);
+// Build all posts
+function buildAll() {
+  fs.readdirSync(rawPostsDir).forEach(buildPost);
+}
 
-// Watch for changes
-const watcher = chokidar.watch(rawPostsDir, { ignoreInitial: true });
-watcher.on("add", filePath => buildPost(path.basename(filePath)));
-watcher.on("change", filePath => buildPost(path.basename(filePath)));
-
-console.log("🚀 Watching posts/ for changes...");
+// --- MAIN EXECUTION ---
+if (isCI) {
+  console.log("🏗️ CI mode detected — wrapping posts once and exiting...");
+  buildAll();
+} else {
+  console.log("👀 Local mode — watching posts/ for changes...");
+  buildAll();
+  const watcher = chokidar.watch(rawPostsDir, { ignoreInitial: true });
+  watcher.on("add", filePath => buildPost(path.basename(filePath)));
+  watcher.on("change", filePath => buildPost(path.basename(filePath)));
+}
