@@ -19,7 +19,7 @@ if (!isCI) {
 const SITE_URL = process.env.SITE_URL || "https://read.maxclickempire.com";
 const templatePath = path.join(process.cwd(), "template.html");
 
-// Swap these as requested:
+// Source and output directories swapped as requested
 const rawPostsDir = path.join(process.cwd(), "dist");     // now source folder
 const wrappedPostsDir = path.join(process.cwd(), "posts"); // now output folder
 
@@ -161,6 +161,23 @@ function buildPost(file, postMetadata) {
 
     const extracted = extractMetadataFromHtml(rawHtml, slug);
 
+    // Accurate datePublished detection:
+    const stats = fs.statSync(rawPath);
+    // Try <meta name="datePublished" content="..."> in HTML
+    const metaDatePublishedMatch = rawHtml.match(/<meta\s+name=["']datePublished["']\s+content=["']([^"']+)["']/i);
+    let datePublished = "";
+    if (metaDatePublishedMatch && !isNaN(Date.parse(metaDatePublishedMatch[1]))) {
+      datePublished = new Date(metaDatePublishedMatch[1]).toISOString();
+    } else if (stats.birthtimeMs && stats.birthtimeMs > 0) {
+      datePublished = new Date(stats.birthtime).toISOString();
+    } else if (stats.mtimeMs && stats.mtimeMs > 0) {
+      datePublished = new Date(stats.mtime).toISOString();
+    } else if (stats.ctimeMs && stats.ctimeMs > 0) {
+      datePublished = new Date(stats.ctime).toISOString();
+    } else {
+      datePublished = new Date().toISOString();
+    }
+
     // Updated canonical URL with /posts/ path:
     const canonical = `${SITE_URL.replace(/\/$/, "")}/posts/${slug}.html`;
     const now = new Date().toISOString();
@@ -176,7 +193,7 @@ function buildPost(file, postMetadata) {
       canonical,
       slug,
       author: postMetadata[slug]?.author || "Ogunlana Akinola Okikiola",
-      datePublished: postMetadata[slug]?.datePublished || now,
+      datePublished: postMetadata[slug]?.datePublished || datePublished,
       dateModified: now,
     };
 
