@@ -3,15 +3,14 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'posts/'
+      - 'posts/**'              # ✅ matches all HTML in posts/
       - 'scripts/internal-linker.cjs'
-      - 'scripts/'
+      - 'scripts/**'
       - 'seo-ecosystem-generator.cjs'
       - 'scripts/fix-post-meta.cjs'
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
