@@ -1,5 +1,7 @@
+// wrap-with-template.js
 const fs = require("fs");
 const path = require("path");
+const chokidar = require("chokidar");
 
 // Paths (relative to repo root)
 const templatePath = path.join(process.cwd(), "template.html");
@@ -20,23 +22,6 @@ if (!fs.existsSync(rawPostsDir)) {
 // Ensure output directory exists
 fs.mkdirSync(wrappedPostsDir, { recursive: true });
 
-// Load HTML template
-const template = fs.readFileSync(templatePath, "utf8");
-
-// Load existing metadata if available
-let postMetadata = {};
-if (fs.existsSync(metaPath)) {
-  try {
-    const rawMeta = fs.readFileSync(metaPath, "utf8");
-    const match = rawMeta.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
-    if (match) {
-      postMetadata = eval(`(${match[1]})`);
-    }
-  } catch (err) {
-    console.warn("⚠️ Failed to parse post-meta.js. Starting fresh.");
-  }
-}
-
 // Escape HTML quotes for meta tags
 const escapeQuotes = (str = "") =>
   str.replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -55,23 +40,44 @@ const injectTemplate = (html, metadata, content) =>
     .replace(/{{DATE_MODIFIED}}/g, metadata.dateModified || "")
     .replace(/{{CONTENT}}/g, content || "");
 
-// Get all raw HTML post files
-const rawFiles = fs.readdirSync(rawPostsDir).filter(file => file.endsWith(".html"));
-
-if (rawFiles.length === 0) {
-  console.warn(`⚠️ No .html files found in ${rawPostsDir}. Nothing to build.`);
-  process.exit(0);
+// Load existing metadata if available
+function loadMetadata() {
+  if (fs.existsSync(metaPath)) {
+    try {
+      const rawMeta = fs.readFileSync(metaPath, "utf8");
+      const match = rawMeta.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
+      if (match) {
+        return eval(`(${match[1]})`);
+      }
+    } catch {
+      console.warn("⚠️ Failed to parse post-meta.js. Starting fresh.");
+    }
+  }
+  return {};
 }
 
-// Process each post
-rawFiles.forEach(file => {
-  const slug = file.replace(/\.html$/, "");
+// Save metadata
+function saveMetadata(postMetadata) {
+  const metaContent = `// Auto-generated metadata
+let postMetadata = ${JSON.stringify(postMetadata, null, 2)};
+module.exports = { postMetadata };
+`;
+  fs.writeFileSync(metaPath, metaContent);
+}
+
+// Build one post
+function buildPost(file) {
+  if (!file.endsWith(".html")) return;
+  const template = fs.readFileSync(templatePath, "utf8");
+  let postMetadata = loadMetadata();
+
+  const slug = path.basename(file, ".html");
   const rawPath = path.join(rawPostsDir, file);
   const outputPath = path.join(wrappedPostsDir, file);
 
   const rawHtml = fs.readFileSync(rawPath, "utf8");
 
-  // Extract metadata
+  // Extract metadata from raw HTML
   const titleMatch = rawHtml.match(/<title[^>]*>(.*?)<\/title>/i);
   const descMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
   const keywordsMatch = rawHtml.match(/<meta\s+name=["']keywords["']\s+content=["'](.*?)["']/i);
@@ -98,7 +104,7 @@ rawFiles.forEach(file => {
     dateModified: now,
   };
 
-  // Strip outer HTML, head, meta, and scripts
+  // Strip out unnecessary wrapping tags
   const cleaned = rawHtml
     .replace(/<!DOCTYPE html>/gi, "")
     .replace(/<\/?(html|head|body)[^>]*>/gi, "")
@@ -108,20 +114,21 @@ rawFiles.forEach(file => {
     .replace(/<\/?(main|article)[^>]*>/gi, "")
     .trim();
 
-  // Wrap into template
+  // Inject into template
   const finalHtml = injectTemplate(template, postMetadata[slug], cleaned);
 
-  // Save to dist
+  // Save wrapped post
   fs.writeFileSync(outputPath, finalHtml, "utf8");
+  saveMetadata(postMetadata);
   console.log(`✅ Built: dist/${file}`);
-});
+}
 
-// Save updated metadata
-const metaContent = `// Auto-generated metadata
-let postMetadata = ${JSON.stringify(postMetadata, null, 2)};
-module.exports = { postMetadata };
-`;
-fs.writeFileSync(metaPath, metaContent);
+// Build all posts initially
+fs.readdirSync(rawPostsDir).forEach(buildPost);
 
-console.log("💾 Updated metadata in data/post-meta.js");
-console.log("🎉 Wrap complete. Output written to /dist/");
+// Watch for changes
+const watcher = chokidar.watch(rawPostsDir, { ignoreInitial: true });
+watcher.on("add", filePath => buildPost(path.basename(filePath)));
+watcher.on("change", filePath => buildPost(path.basename(filePath)));
+
+console.log("🚀 Watching posts/ for changes...");
