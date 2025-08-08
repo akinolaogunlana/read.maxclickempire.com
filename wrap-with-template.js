@@ -18,8 +18,11 @@ if (!isCI) {
 // Config
 const SITE_URL = process.env.SITE_URL || "https://read.maxclickempire.com";
 const templatePath = path.join(process.cwd(), "template.html");
-const rawPostsDir = path.join(process.cwd(), "posts");
-const wrappedPostsDir = path.join(process.cwd(), "dist");
+
+// Swap these as requested:
+const rawPostsDir = path.join(process.cwd(), "dist");     // now source folder
+const wrappedPostsDir = path.join(process.cwd(), "posts"); // now output folder
+
 const metaPath = path.join(process.cwd(), "data", "post-meta.js");
 
 // === SAFETY CHECKS ===
@@ -28,7 +31,7 @@ if (!fs.existsSync(templatePath)) {
   process.exit(1);
 }
 if (!fs.existsSync(rawPostsDir)) {
-  console.error(`❌ posts directory not found at ${rawPostsDir}`);
+  console.error(`❌ dist directory not found at ${rawPostsDir}`);
   process.exit(1);
 }
 fs.mkdirSync(wrappedPostsDir, { recursive: true });
@@ -57,11 +60,9 @@ function parseMetaTags(html) {
 
 // Extract metadata (supports <!-- Meta description: ... --> style comments + <meta> tags + <h1> fallback)
 function extractMetadataFromHtml(html, slug) {
-  // 1) comment-based metadata (e.g. <!-- Meta description: ... -->)
   const commentDesc = html.match(/<!--\s*(?:Meta|meta)\s+description\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
   const commentKeys = html.match(/<!--\s*(?:Meta|meta)\s+keywords\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
 
-  // 2) meta tag parsing
   const metas = parseMetaTags(html);
   let description = "";
   let keywords = "";
@@ -79,7 +80,6 @@ function extractMetadataFromHtml(html, slug) {
     }
   }
 
-  // 3) fallbacks
   if (!description && commentDesc) {
     description = commentDesc[1].trim();
   }
@@ -87,7 +87,6 @@ function extractMetadataFromHtml(html, slug) {
     keywords = commentKeys[1].trim();
   }
 
-  // title: <title> or <h1>
   let title = "";
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   if (titleTag) title = titleTag[1].trim();
@@ -95,7 +94,6 @@ function extractMetadataFromHtml(html, slug) {
     const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
     if (h1) title = h1[1].replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
-  // fallback slug -> readable
   if (!title) title = slug.replace(/-/g, " ");
 
   return {
@@ -110,22 +108,18 @@ function extractMetadataFromHtml(html, slug) {
 function loadMetadata() {
   if (!fs.existsSync(metaPath)) return {};
   try {
-    // use require with full path and invalidate cache to always get latest
     const resolved = require.resolve(metaPath);
     delete require.cache[resolved];
     const mod = require(resolved);
     return mod && mod.postMetadata && typeof mod.postMetadata === "object" ? mod.postMetadata : (typeof mod === "object" ? mod : {});
   } catch (err) {
-    // fallback to parsing the file contents
     try {
       const raw = fs.readFileSync(metaPath, "utf8");
       const match = raw.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
       if (match) {
         return eval(`(${match[1]})`);
       }
-    } catch (e) {
-      // ignore and fall through
-    }
+    } catch (e) {}
   }
   return {};
 }
@@ -143,16 +137,12 @@ function saveMetadata(postMetadata) {
 // Clean post HTML before injection into template
 function cleanPostHtml(rawHtml) {
   return rawHtml
-    // remove comment-based meta lines like <!-- Meta description: ... -->
     .replace(/<!--\s*(?:Meta|meta)\s+(?:description|keywords)\s*[:\-\s][\s\S]*?-->/gi, "")
-    // remove doctype / html / head / body tags
     .replace(/<!DOCTYPE[^>]*>/gi, "")
     .replace(/<\/?(html|head|body)[^>]*>/gi, "")
-    // remove <title>, <meta> and <script> blocks
     .replace(/<title[\s\S]*?<\/title>/gi, "")
     .replace(/<meta[^>]*>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
-    // remove wrapping <main> or <article> tags
     .replace(/<\/?(main|article)[^>]*>/gi, "")
     .trim();
 }
@@ -169,13 +159,12 @@ function buildPost(file, postMetadata) {
     }
     const rawHtml = fs.readFileSync(rawPath, "utf8");
 
-    // extract metadata (title, description, keywords, ogImage)
     const extracted = extractMetadataFromHtml(rawHtml, slug);
 
-    const canonical = `${SITE_URL.replace(/\/$/, "")}/${slug}.html`;
+    // Updated canonical URL with /posts/ path:
+    const canonical = `${SITE_URL.replace(/\/$/, "")}/posts/${slug}.html`;
     const now = new Date().toISOString();
 
-    // ensure in-memory metadata object exists
     postMetadata[slug] = postMetadata[slug] || {};
 
     postMetadata[slug] = {
@@ -191,7 +180,6 @@ function buildPost(file, postMetadata) {
       dateModified: now,
     };
 
-    // clean content and inject into template
     const cleaned = cleanPostHtml(rawHtml);
     const template = fs.readFileSync(templatePath, "utf8");
     const finalHtml = template
@@ -206,10 +194,9 @@ function buildPost(file, postMetadata) {
       .replace(/{{DATE_MODIFIED}}/g, postMetadata[slug].dateModified || "")
       .replace(/{{CONTENT}}/g, cleaned || "");
 
-    // write wrapped file
     const outputPath = path.join(wrappedPostsDir, file);
     fs.writeFileSync(outputPath, finalHtml, "utf8");
-    console.log(`✅ Built: dist/${file}`);
+    console.log(`✅ Built: posts/${file}`);
     return true;
   } catch (err) {
     console.error(`❌ Error building ${file}:`, err.message);
@@ -221,7 +208,7 @@ function buildPost(file, postMetadata) {
 function buildAll() {
   const files = (fs.readdirSync(rawPostsDir) || []).filter(f => f.endsWith(".html"));
   if (!files.length) {
-    console.warn("⚠️ No .html files found in posts/. Nothing to build.");
+    console.warn("⚠️ No .html files found in dist/. Nothing to build.");
     return { processed: 0, files: [] };
   }
 
@@ -259,7 +246,7 @@ function startWatch() {
     buildPost(name, pm);
     saveMetadata(pm);
   });
-  console.log("🚀 Watching posts/ for changes (local mode)...");
+  console.log("🚀 Watching dist/ for changes (local mode)...");
 }
 
 // --- MAIN ---
