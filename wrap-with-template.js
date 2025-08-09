@@ -243,6 +243,10 @@ function buildPost(file, postMetadata) {
 
     const cleaned = cleanPostHtml(rawHtml);
     const template = fs.readFileSync(templatePath, "utf8");
+
+    // Get timestamp (milliseconds) from datePublished ISO string or 0 if invalid
+    const timestamp = datePublished ? (new Date(datePublished)).getTime() : 0;
+
     const finalHtml = template
       .replace(/{{TITLE}}/g, postMetadata[slug].title || "")
       .replace(/{{DESCRIPTION}}/g, postMetadata[slug].description || "")
@@ -256,6 +260,7 @@ function buildPost(file, postMetadata) {
       .replace(/{{CANONICAL}}/g, postMetadata[slug].canonical || "")
       .replace(/{{DATE_PUBLISHED}}/g, postMetadata[slug].datePublished || "")
       .replace(/{{DATE_MODIFIED}}/g, postMetadata[slug].dateModified || "")
+      .replace(/{{TIMESTAMP}}/g, String(timestamp))
       .replace(/{{CONTENT}}/g, cleaned || "");
 
     const outputPath = path.join(wrappedPostsDir, file);
