@@ -56,15 +56,17 @@ function parseMetaTags(html) {
   return out;
 }
 
-// Extract metadata from HTML
+// Extract metadata from HTML, including datePublished
 function extractMetadataFromHtml(html, slug) {
   const commentDesc = html.match(/<!--\s*(?:Meta|meta)\s+description\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
   const commentKeys = html.match(/<!--\s*(?:Meta|meta)\s+keywords\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
+  const commentDate = html.match(/<!--\s*(?:Meta|meta)\s+datePublished\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
 
   const metas = parseMetaTags(html);
   let description = "";
   let keywords = "";
   let ogImage = "";
+  let datePublished = null;
 
   for (const m of metas) {
     if (m.name && m.name.toLowerCase() === "description" && m.content) {
@@ -76,10 +78,55 @@ function extractMetadataFromHtml(html, slug) {
     if ((m.property && m.property.toLowerCase() === "og:image") || (m.name && m.name.toLowerCase() === "og:image")) {
       ogImage = ogImage || m.content || m["content"];
     }
+    // Extract datePublished or date meta tag
+    if (m.name && (m.name.toLowerCase() === "datepublished" || m.name.toLowerCase() === "date") && m.content) {
+      if (!datePublished) {
+        const dt = new Date(m.content);
+        if (!isNaN(dt.getTime())) {
+          datePublished = dt.toISOString();
+        }
+      }
+    }
   }
 
-  if (!description && commentDesc) description = commentDesc[1].trim();
-  if (!keywords && commentKeys) keywords = commentKeys[1].trim();
+  // Fallback: extract datePublished from JSON-LD script if not found yet
+  if (!datePublished) {
+    const ldMatches = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+    for (const match of ldMatches) {
+      try {
+        const ldJson = JSON.parse(match[1]);
+        if (ldJson) {
+          if (ldJson.datePublished) {
+            const dt = new Date(ldJson.datePublished);
+            if (!isNaN(dt.getTime())) {
+              datePublished = dt.toISOString();
+              break;
+            }
+          } else if (Array.isArray(ldJson)) {
+            for (const entry of ldJson) {
+              if (entry && entry.datePublished) {
+                const dt = new Date(entry.datePublished);
+                if (!isNaN(dt.getTime())) {
+                  datePublished = dt.toISOString();
+                  break;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // ignore JSON parse errors
+      }
+    }
+  }
+
+  // Fallback: extract from comment meta
+  if (!datePublished && commentDate) {
+    const dt = new Date(commentDate[1]);
+    if (!isNaN(dt.getTime())) {
+      datePublished = dt.toISOString();
+    }
+  }
 
   let title = "";
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
@@ -95,6 +142,7 @@ function extractMetadataFromHtml(html, slug) {
     description: (description || "").trim(),
     keywords: (keywords || "").trim(),
     ogImage: (ogImage || "").trim(),
+    datePublished,
   };
 }
 
@@ -134,7 +182,7 @@ function saveMetadata(postMetadata) {
 // Clean HTML before injecting into template
 function cleanPostHtml(rawHtml) {
   return rawHtml
-    .replace(/<!--\s*(?:Meta|meta)\s+(?:description|keywords)\s*[:\-\s][\s\S]*?-->/gi, "")
+    .replace(/<!--\s*(?:Meta|meta)\s+(?:description|keywords|datePublished)\s*[:\-\s][\s\S]*?-->/gi, "")
     .replace(/<!DOCTYPE[^>]*>/gi, "")
     .replace(/<\/?(html|head|body)[^>]*>/gi, "")
     .replace(/<title[\s\S]*?<\/title>/gi, "")
@@ -163,7 +211,8 @@ function buildPost(file, postMetadata) {
     const now = new Date().toISOString();
     const existingMeta = postMetadata[slug] || {};
 
-    let datePublished = existingMeta.datePublished;
+    // Prefer extracted datePublished, fallback to existing or file birthtime or now
+    let datePublished = extracted.datePublished || existingMeta.datePublished;
     if (!datePublished) {
       datePublished =
         stats.birthtimeMs && stats.birthtimeMs > 0
