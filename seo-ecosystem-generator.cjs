@@ -1,4 +1,5 @@
-// MaxClickEmpire SEO Ecosystem Generator (Improved Date Handling + Debug Logging)
+// seo-ecosystem-generator.cjs
+// MaxClickEmpire SEO Ecosystem Generator — robust, debug-friendly, with safe fallbacks
 
 const fs = require("fs");
 const path = require("path");
@@ -15,78 +16,230 @@ const sitemapFile = path.join(distDir, "sitemap.xml");
 const rssFile = path.join(distDir, "rss.xml");
 const robotsFile = path.join(distDir, "robots.txt");
 const noJekyllFile = path.join(distDir, ".nojekyll");
+const indexNowKeyFile = path.join(distDir, indexNowKey); // file at root containing the key
 
 fs.mkdirSync(distDir, { recursive: true });
 
-// Force reload post-meta.js without cache
+// ---------- Helpers ----------
+function safeParseDate(d) {
+  if (!d) return null;
+  const dt = new Date(d);
+  return isNaN(dt.getTime()) ? null : dt.toISOString();
+}
+
+function readPostMetaFile(filePath) {
+  // Try require (fresh), then fallback to parsing the file as text
+  try {
+    delete require.cache[require.resolve(filePath)];
+    const mod = require(filePath);
+    // Accept module.exports = { postMetadata } OR module.exports = postMetadata
+    if (mod && typeof mod === "object") {
+      if (mod.postMetadata && typeof mod.postMetadata === "object") return mod.postMetadata;
+      // Some versions may export the object directly
+      return mod;
+    }
+  } catch (e) {
+    // fallback to parsing file content
+    try {
+      const raw = fs.readFileSync(filePath, "utf8");
+      // Match patterns like:
+      // let postMetadata = { ... };
+      // const postMetadata = { ... };
+      // module.exports = { postMetadata };
+      let m = raw.match(/(?:let|const|var)\s+postMetadata\s*=\s*(\{[\s\S]*\});?/m);
+      if (m && m[1]) return eval("(" + m[1] + ")");
+      m = raw.match(/module\.exports\s*=\s*(\{[\s\S]*\});?/m);
+      if (m && m[1]) return eval("(" + m[1] + ")");
+      // Try last resort: entire file contains the object directly
+      m = raw.match(/^\s*(\{[\s\S]*\})\s*;?\s*$/m);
+      if (m && m[1]) return eval("(" + m[1] + ")");
+    } catch (e2) {
+      console.warn("⚠️ Could not parse post-meta.js via fallback:", e2.message);
+    }
+  }
+  return null;
+}
+
+function extractFromHtml(html, slug, fileStats) {
+  // meta name="description"
+  const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  const descriptionTag = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
+  const keywordsTag = html.match(/<meta\s+name=["']keywords["']\s+content=["']([^"']+)["']/i);
+  const dateMeta = html.match(/<meta\s+name=["']date(?:published|Published|Date)?["']\s+content=["']([^"']+)["']/i);
+  const ogImage = html.match(/<meta\s+(?:property|name)=["'](?:og:image)["']\s+content=["']([^"']+)["']/i);
+
+  // look for JSON-LD datePublished
+  let ldDate = null;
+  const ldMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (ldMatch) {
+    try {
+      const ld = JSON.parse(ldMatch[1]);
+      if (ld && (ld.datePublished || (ld.author && ld.author.datePublished))) {
+        ldDate = ld.datePublished || null;
+      } else if (Array.isArray(ld)) {
+        for (const entry of ld) if (entry && entry.datePublished) { ldDate = entry.datePublished; break; }
+      }
+    } catch (e) { /* ignore invalid json-ld */ }
+  }
+
+  const title = (titleTag && titleTag[1].trim()) || (h1 && h1[1].replace(/<\/?[^>]+(>|$)/g, "").trim()) || slug.replace(/-/g, " ");
+  const description = descriptionTag ? descriptionTag[1].trim() : "";
+  const keywords = keywordsTag ? keywordsTag[1].trim() : "";
+  const og = ogImage ? ogImage[1].trim() : "";
+  const published = safeParseDate(dateMeta ? dateMeta[1] : (ldDate || null))
+    || (fileStats && fileStats.birthtime ? fileStats.birthtime.toISOString() : null)
+    || (fileStats && fileStats.mtime ? fileStats.mtime.toISOString() : null);
+
+  return {
+    title,
+    description,
+    keywords,
+    ogImage: og,
+    published,
+  };
+}
+
+// ---------- Load metadata (primary source: data/post-meta.js) ----------
 const postMetaModulePath = path.resolve(__dirname, "data", "post-meta.js");
-if (!fs.existsSync(postMetaModulePath)) {
-  console.error("❌ post-meta.js file not found at:", postMetaModulePath);
-  process.exit(1);
-}
-delete require.cache[require.resolve(postMetaModulePath)];
-const postMetadataRaw = require(postMetaModulePath);
-const postMetadata = postMetadataRaw.postMetadata || postMetadataRaw;
+let postMetadata = {};
+let usedSource = null;
 
-if (!postMetadata || typeof postMetadata !== "object") {
-  console.error("❌ postMetadata is undefined or invalid in post-meta.js");
-  process.exit(1);
+if (fs.existsSync(postMetaModulePath)) {
+  const loaded = readPostMetaFile(postMetaModulePath);
+  if (loaded && typeof loaded === "object" && Object.keys(loaded).length > 0) {
+    postMetadata = loaded;
+    usedSource = "data/post-meta.js";
+    console.log("ℹ️ Loaded post metadata from data/post-meta.js (" + Object.keys(postMetadata).length + " entries).");
+  } else {
+    console.warn("⚠️ post-meta.js found but could not load entries (it may be empty). Will attempt to scan dist/ as fallback.");
+  }
+} else {
+  console.warn("⚠️ data/post-meta.js not found. Will attempt to scan dist/ for posts.");
 }
 
-// Convert postMetadata to enriched array with full URLs
+// ---------- Fallback: scan dist/ for HTML posts if postMetadata is empty or missing entries ----------
+function scanDistAndFillMeta() {
+  const files = fs.readdirSync(distDir).filter(f => f.endsWith(".html"));
+  if (!files.length) {
+    console.warn("⚠️ No HTML files found in dist/. Nothing to generate.");
+    return {};
+  }
+  const generated = {};
+  for (const f of files) {
+    const slug = f.replace(/\.html$/, "");
+    try {
+      const raw = fs.readFileSync(path.join(distDir, f), "utf8");
+      const stats = fs.statSync(path.join(distDir, f));
+      const extracted = extractFromHtml(raw, slug, stats);
+      generated[slug] = {
+        title: extracted.title,
+        description: extracted.description,
+        keywords: extracted.keywords,
+        ogImage: extracted.ogImage,
+        canonical: `${siteUrl}/posts/${slug}.html`,
+        published: extracted.published,
+        modified: stats.mtime ? stats.mtime.toISOString() : new Date().toISOString(),
+      };
+      console.log(`ℹ️ Scanned dist/${f} → title="${extracted.title}", published=${generated[slug].published}`);
+    } catch (err) {
+      console.warn(`⚠️ Failed to scan ${f}: ${err.message}`);
+    }
+  }
+  return generated;
+}
+
+if (!postMetadata || Object.keys(postMetadata).length === 0) {
+  // Build metadata from dist
+  const fallback = scanDistAndFillMeta();
+  if (Object.keys(fallback).length === 0) {
+    console.error("❌ No posts available to generate sitemap/rss. Exiting.");
+    process.exit(1);
+  }
+  postMetadata = fallback;
+
+  // write to data/post-meta.js for persistence (safe auto-generated, will be used next run)
+  try {
+    const content = `// Auto-generated fallback post-meta\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
+    fs.mkdirSync(path.dirname(postMetaModulePath), { recursive: true });
+    fs.writeFileSync(postMetaModulePath, content, "utf8");
+    console.log("✅ Wrote fallback metadata to data/post-meta.js");
+    usedSource = "scanned dist/ (written to data/post-meta.js)";
+  } catch (e) {
+    console.warn("⚠️ Failed to persist fallback post-meta.js:", e.message);
+    usedSource = "scanned dist/ (in-memory)";
+  }
+}
+
+// ---------- Build normalized allMetadata array ----------
 const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
-  if (!meta.title) console.warn(`⚠️ Missing title for slug: ${slug}`);
-  if (!meta.description) console.warn(`⚠️ Missing description for slug: ${slug}`);
-
-  const canonicalUrl = meta.canonical || `${siteUrl}/${slug}`;
-  const datePublished = meta.published || meta.datePublished || null;
-  const dateModified = meta.modified || meta.dateModified || datePublished;
-
-  if (!datePublished) console.warn(`⚠️ Missing published date for slug: ${slug}`);
-
+  const canonicalUrl = meta.canonical || `${siteUrl}/posts/${slug}.html`;
+  const datePublished = safeParseDate(meta.published || meta.datePublished || meta.publishedDate) || null;
+  const dateModified = safeParseDate(meta.modified || meta.dateModified || meta.updated) || datePublished || null;
   return {
     ...meta,
     slug,
     url: canonicalUrl,
     datePublished,
-    dateModified
+    dateModified,
+    title: meta.title || slug.replace(/-/g, " "),
+    description: meta.description || "",
   };
 });
 
-console.log(`🧠 Loaded ${allMetadata.length} posts from post-meta.js`);
+// Sanity: filter out entries without a URL or title (log the reasons)
+const usable = [];
+const skipped = [];
+for (const p of allMetadata) {
+  const problems = [];
+  if (!p.url) problems.push("missing url");
+  if (!p.title) problems.push("missing title");
+  if (!p.datePublished) problems.push("missing datePublished");
+  if (problems.length) {
+    skipped.push({ slug: p.slug, reasons: problems });
+  } else {
+    usable.push(p);
+  }
+}
+console.log(`🧠 Source of metadata: ${usedSource || "unknown"}`);
+console.log(`ℹ️ Total entries loaded: ${allMetadata.length}. Usable for RSS/sitemap: ${usable.length}. Skipped: ${skipped.length}`);
+if (skipped.length) {
+  skipped.slice(0, 10).forEach(s => console.warn(`⚠️ Skipped ${s.slug}: ${s.reasons.join(", ")}`));
+}
 
-// Generate Sitemap
-const sitemap = create({ version: "1.0" }).ele("urlset", {
+// ---------- Generate sitemap.xml ----------
+const sitemapRoot = create({ version: "1.0" }).ele("urlset", {
   xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
 });
-
-allMetadata.forEach((post) => {
-  if (!post.dateModified) return;
-  sitemap
-    .ele("url")
+usable.forEach((post) => {
+  const lastmod = post.dateModified || post.datePublished || new Date().toISOString();
+  sitemapRoot.ele("url")
     .ele("loc").txt(post.url).up()
-    .ele("lastmod").txt(new Date(post.dateModified).toISOString()).up()
+    .ele("lastmod").txt(new Date(lastmod).toISOString()).up()
     .up();
 });
-
-fs.writeFileSync(sitemapFile, sitemap.end({ prettyPrint: true }), "utf8");
+fs.writeFileSync(sitemapFile, sitemapRoot.end({ prettyPrint: true }), "utf8");
 console.log(`✅ sitemap.xml generated (${fs.statSync(sitemapFile).size} bytes)`);
 
-// Generate RSS Feed
-const latestPosts = allMetadata
-  .filter(p => p.datePublished)
+// ---------- Generate rss.xml ----------
+const sorted = usable
+  .slice()
   .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
   .slice(0, rssLimit);
 
-const rssItems = latestPosts.map((post) => `
+const rssItems = sorted.map(post => {
+  const safeTitle = (post.title || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
+  const safeDesc = (post.description || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
+  const pubDate = new Date(post.datePublished).toUTCString();
+  return `
   <item>
-    <title><![CDATA[${(post.title || "").replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></title>
-    <description><![CDATA[${(post.description || "").replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></description>
+    <title><![CDATA[${safeTitle}]]></title>
+    <description><![CDATA[${safeDesc}]]></description>
     <link>${post.url}</link>
     <guid>${post.url}</guid>
-    <pubDate>${new Date(post.datePublished).toUTCString()}</pubDate>
-  </item>
-`).join("\n");
+    <pubDate>${pubDate}</pubDate>
+  </item>`;
+}).join("\n");
 
 const rssFeed = `<?xml version="1.0"?>
 <rss version="2.0">
@@ -97,11 +250,10 @@ const rssFeed = `<?xml version="1.0"?>
     ${rssItems}
   </channel>
 </rss>`;
-
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log(`✅ rss.xml generated (${fs.statSync(rssFile).size} bytes)`);
 
-// Generate robots.txt
+// ---------- robots.txt & .nojekyll & IndexNow key file ----------
 const robotsTxt = `User-agent: *
 Allow: /
 
@@ -109,75 +261,105 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log(`✅ robots.txt generated (${fs.statSync(robotsFile).size} bytes)`);
 
-// Create .nojekyll
 fs.writeFileSync(noJekyllFile, "");
 console.log("✅ .nojekyll created");
 
-// Google Indexing + IndexNow
+// Write IndexNow key file at site root for verification (some IndexNow setups expect this)
+try {
+  fs.writeFileSync(indexNowKeyFile, indexNowKey, "utf8");
+  console.log(`✅ IndexNow key file written: ${path.basename(indexNowKeyFile)}`);
+} catch (e) {
+  console.warn("⚠️ Could not write IndexNow key file:", e.message);
+}
+
+// ---------- Notify Indexing APIs ----------
+// Build URL list (all usable)
+const urlList = usable.map(p => p.url);
+
+// Indexing: Google Indexing API (only if credentials present)
 (async () => {
-  const indexedUrls = [];
-  try {
-    const { google } = require("googleapis");
-    const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
-
-    const auth = new google.auth.JWT(
-      credentials.client_email,
-      null,
-      credentials.private_key,
-      ["https://www.googleapis.com/auth/indexing"]
-    );
-
-    const indexing = google.indexing({ version: "v3", auth });
-    for (const post of allMetadata) {
-      if (!post.url) continue;
-      try {
-        await indexing.urlNotifications.publish({
-          requestBody: {
-            url: post.url,
-            type: "URL_UPDATED",
-          },
-        });
-        console.log(`📢 Google Indexed: ${post.url}`);
-        indexedUrls.push(post.url);
-      } catch (err) {
-        console.error(`❌ Failed to index ${post.url}: ${err.message}`);
-      }
-    }
-  } catch (err) {
-    console.warn("⚠️ Skipping Google Indexing API:", err.message);
+  // Resolve Google credentials file: prefer env var then common filenames
+  const googleCredEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CREDENTIALS_PATH;
+  const candidatePaths = [
+    googleCredEnv,
+    path.join(__dirname, "google-credentials.json"),
+    path.join(__dirname, "credentials.json")
+  ].filter(Boolean);
+  let googleCredPath = null;
+  for (const c of candidatePaths) {
+    if (c && fs.existsSync(c)) { googleCredPath = c; break; }
   }
 
-  function pingIndexNow(urls) {
-    if (urls.length === 0) return;
-    const payload = {
-      host: "read.maxclickempire.com",
+  if (googleCredPath) {
+    try {
+      const { google } = require("googleapis");
+      const credentials = JSON.parse(fs.readFileSync(googleCredPath, "utf8"));
+
+      const auth = new google.auth.JWT(
+        credentials.client_email,
+        null,
+        credentials.private_key,
+        ["https://www.googleapis.com/auth/indexing"]
+      );
+
+      const indexing = google.indexing({ version: "v3", auth });
+
+      for (const u of urlList) {
+        try {
+          await indexing.urlNotifications.publish({
+            requestBody: { url: u, type: "URL_UPDATED" }
+          });
+          console.log(`📢 Google: notified ${u}`);
+        } catch (err) {
+          console.warn(`⚠️ Google indexing failed for ${u}: ${err.message}`);
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ Skipping Google Indexing — error loading client/credentials:", err.message);
+    }
+  } else {
+    console.log("ℹ️ Google credentials not found — skipping Google Indexing.");
+  }
+
+  // IndexNow (send all urls)
+  if (urlList.length) {
+    const payload = JSON.stringify({
+      host: new URL(siteUrl).host,
       key: indexNowKey,
       keyLocation: `${siteUrl}/${indexNowKey}`,
-      urlList: urls,
-    };
-    const data = JSON.stringify(payload);
+      urlList
+    });
+
     const options = {
       hostname: "api.indexnow.org",
       path: "/indexnow",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Content-Length": data.length,
-      },
+        "Content-Length": Buffer.byteLength(payload)
+      }
     };
-    const req = https.request(options, (res) => {
-      console.log(`📡 IndexNow: Sent ${urls.length} URLs → Status: ${res.statusCode}`);
-    });
-    req.on("error", (e) => console.error("❌ IndexNow Ping Error:", e.message));
-    req.write(data);
-    req.end();
-  }
-  pingIndexNow(indexedUrls);
 
+    const req = https.request(options, res => {
+      console.log(`📡 IndexNow ping status: ${res.statusCode}`);
+      res.on("data", () => {});
+    });
+    req.on("error", e => console.warn("⚠️ IndexNow error:", e.message));
+    req.write(payload);
+    req.end();
+  } else {
+    console.log("ℹ️ No URLs to send to IndexNow.");
+  }
+
+  // Optional: run fix-post-meta.cjs to create browser-friendly export (safe to ignore errors)
   try {
-    execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
-    console.log("✅ post-meta.js fixed for Node.js + browser environments");
-  } catch (err) {
-    console.error("❌ Error fixing post-meta.js:", err.message);
+    if (fs.existsSync(path.join(__dirname, "scripts", "fix-post-meta.cjs"))) {
+      execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
+      console.log("✅ Ran scripts/fix-post-meta.cjs");
+    } else {
+      // skip silently if not present
+    }
+  } catch (e) {
+    console.warn("⚠️ Running fix-post-meta.cjs failed:", e.message);
   }
 })();
