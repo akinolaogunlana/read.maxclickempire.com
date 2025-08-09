@@ -1,6 +1,7 @@
 // wrap-with-template.js — robust, CI-friendly, local-watch safe
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 // Detect CI environment (GitHub Actions sets CI=true)
 const isCI = process.env.CI === "true";
@@ -11,18 +12,15 @@ if (!isCI) {
   try {
     chokidar = require("chokidar");
   } catch (err) {
-    console.warn("⚠️ chokidar not installed — live watch disabled. Run `npm install chokidar` to enable.");
+    console.warn("⚠️ chokidar not installed — live watch disabled. Run npm install chokidar to enable.");
   }
 }
 
 // Config
 const SITE_URL = process.env.SITE_URL || "https://read.maxclickempire.com";
 const templatePath = path.join(process.cwd(), "template.html");
-
-// Source and output directories swapped as requested
 const rawPostsDir = path.join(process.cwd(), "dist");     // now source folder
 const wrappedPostsDir = path.join(process.cwd(), "posts"); // now output folder
-
 const metaPath = path.join(process.cwd(), "data", "post-meta.js");
 
 // === SAFETY CHECKS ===
@@ -43,9 +41,9 @@ function parseMetaTags(html) {
   const tags = html.match(/<meta\b[^>]*>/gi) || [];
   for (const tag of tags) {
     const attrs = {};
-    const attrPairs = tag.match(/([a-zA-Z\-:]+)\s*=\s*(".*?"|'.*?'|\S+)/g) || [];
+    const attrPairs = tag.match(/([a-zA-Z-:]+)\s*=\s*(".*?"|'.*?'|\S+)/g) || [];
     for (const pair of attrPairs) {
-      const eqIdx = pair.indexOf('=');
+      const eqIdx = pair.indexOf("=");
       const key = pair.slice(0, eqIdx).trim().toLowerCase();
       let val = pair.slice(eqIdx + 1).trim();
       if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
@@ -58,7 +56,7 @@ function parseMetaTags(html) {
   return out;
 }
 
-// Extract metadata (supports <!-- Meta description: ... --> style comments + <meta> tags + <h1> fallback)
+// Extract metadata from HTML
 function extractMetadataFromHtml(html, slug) {
   const commentDesc = html.match(/<!--\s*(?:Meta|meta)\s+description\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
   const commentKeys = html.match(/<!--\s*(?:Meta|meta)\s+keywords\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
@@ -80,12 +78,8 @@ function extractMetadataFromHtml(html, slug) {
     }
   }
 
-  if (!description && commentDesc) {
-    description = commentDesc[1].trim();
-  }
-  if (!keywords && commentKeys) {
-    keywords = commentKeys[1].trim();
-  }
+  if (!description && commentDesc) description = commentDesc[1].trim();
+  if (!keywords && commentKeys) keywords = commentKeys[1].trim();
 
   let title = "";
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
@@ -104,18 +98,20 @@ function extractMetadataFromHtml(html, slug) {
   };
 }
 
-// Load metadata: try require first, fallback to parsing file content
+// Load metadata
 function loadMetadata() {
   if (!fs.existsSync(metaPath)) return {};
   try {
     const resolved = require.resolve(metaPath);
     delete require.cache[resolved];
     const mod = require(resolved);
-    return mod && mod.postMetadata && typeof mod.postMetadata === "object" ? mod.postMetadata : (typeof mod === "object" ? mod : {});
+    return mod && mod.postMetadata && typeof mod.postMetadata === "object"
+      ? mod.postMetadata
+      : (typeof mod === "object" ? mod : {});
   } catch (err) {
     try {
       const raw = fs.readFileSync(metaPath, "utf8");
-      const match = raw.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
+      const match = raw.match(/let postMetadata\s*=\s*({[\s\S]*?});/);
       if (match) {
         return eval(`(${match[1]})`);
       }
@@ -124,17 +120,18 @@ function loadMetadata() {
   return {};
 }
 
-// Save metadata safely
+// Save metadata
 function saveMetadata(postMetadata) {
   try {
-    const metaContent = `// Auto-generated metadata\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
+    const metaContent =
+      `// Auto-generated metadata\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
     fs.writeFileSync(metaPath, metaContent, "utf8");
   } catch (err) {
     console.error("❌ Failed to write post-meta.js:", err.message);
   }
 }
 
-// Clean post HTML before injection into template
+// Clean HTML before injecting into template
 function cleanPostHtml(rawHtml) {
   return rawHtml
     .replace(/<!--\s*(?:Meta|meta)\s+(?:description|keywords)\s*[:\-\s][\s\S]*?-->/gi, "")
@@ -147,7 +144,7 @@ function cleanPostHtml(rawHtml) {
     .trim();
 }
 
-// Build a single post (file should be filename e.g. my-post.html)
+// Build a single post
 function buildPost(file, postMetadata) {
   try {
     if (!file || !file.endsWith(".html")) return false;
@@ -157,44 +154,42 @@ function buildPost(file, postMetadata) {
       console.warn(`⚠️ raw post not found: ${rawPath}`);
       return false;
     }
-    const rawHtml = fs.readFileSync(rawPath, "utf8");
 
+    const rawHtml = fs.readFileSync(rawPath, "utf8");
+    const htmlHash = crypto.createHash("md5").update(rawHtml).digest("hex");
     const extracted = extractMetadataFromHtml(rawHtml, slug);
 
-    // Accurate datePublished detection:
     const stats = fs.statSync(rawPath);
-    // Try <meta name="datePublished" content="..."> in HTML
-    const metaDatePublishedMatch = rawHtml.match(/<meta\s+name=["']datePublished["']\s+content=["']([^"']+)["']/i);
-    let datePublished = "";
-    if (metaDatePublishedMatch && !isNaN(Date.parse(metaDatePublishedMatch[1]))) {
-      datePublished = new Date(metaDatePublishedMatch[1]).toISOString();
-    } else if (stats.birthtimeMs && stats.birthtimeMs > 0) {
-      datePublished = new Date(stats.birthtime).toISOString();
-    } else if (stats.mtimeMs && stats.mtimeMs > 0) {
-      datePublished = new Date(stats.mtime).toISOString();
-    } else if (stats.ctimeMs && stats.ctimeMs > 0) {
-      datePublished = new Date(stats.ctime).toISOString();
-    } else {
-      datePublished = new Date().toISOString();
+    const now = new Date().toISOString();
+    const existingMeta = postMetadata[slug] || {};
+
+    let datePublished = existingMeta.datePublished;
+    if (!datePublished) {
+      datePublished =
+        stats.birthtimeMs && stats.birthtimeMs > 0
+          ? stats.birthtime.toISOString()
+          : now;
     }
 
-    // Updated canonical URL with /posts/ path:
-    const canonical = `${SITE_URL.replace(/\/$/, "")}/posts/${slug}.html`;
-    const now = new Date().toISOString();
+    let dateModified = existingMeta.dateModified || now;
+    if (existingMeta.htmlHash !== htmlHash) {
+      dateModified = now;
+    }
 
-    postMetadata[slug] = postMetadata[slug] || {};
+    const canonical = `${SITE_URL.replace(/\/$/, "")}/posts/${slug}.html`;
 
     postMetadata[slug] = {
-      ...postMetadata[slug],
+      ...existingMeta,
       title: extracted.title,
       description: extracted.description,
       keywords: extracted.keywords,
       ogImage: extracted.ogImage,
       canonical,
       slug,
-      author: postMetadata[slug]?.author || "Ogunlana Akinola Okikiola",
-      datePublished: postMetadata[slug]?.datePublished || datePublished,
-      dateModified: now,
+      author: existingMeta.author || "Ogunlana Akinola Okikiola",
+      datePublished,
+      dateModified,
+      htmlHash,
     };
 
     const cleaned = cleanPostHtml(rawHtml);
@@ -202,7 +197,10 @@ function buildPost(file, postMetadata) {
     const finalHtml = template
       .replace(/{{TITLE}}/g, postMetadata[slug].title || "")
       .replace(/{{DESCRIPTION}}/g, postMetadata[slug].description || "")
-      .replace(/{{DESCRIPTION_ESCAPED}}/g, (postMetadata[slug].description || "").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"))
+      .replace(/{{DESCRIPTION_ESCAPED}}/g, (postMetadata[slug].description || "")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;"))
       .replace(/{{KEYWORDS}}/g, postMetadata[slug].keywords || "")
       .replace(/{{AUTHOR}}/g, postMetadata[slug].author || "")
       .replace(/{{OG_IMAGE}}/g, postMetadata[slug].ogImage || "")
@@ -221,7 +219,7 @@ function buildPost(file, postMetadata) {
   }
 }
 
-// Build all posts (batch) and return summary
+// Build all posts
 function buildAll() {
   const files = (fs.readdirSync(rawPostsDir) || []).filter(f => f.endsWith(".html"));
   if (!files.length) {
@@ -242,10 +240,10 @@ function buildAll() {
   return { processed: processedFiles.length, files: processedFiles };
 }
 
-// Watch single file changes (local only)
+// Watch for changes (local only)
 function startWatch() {
   if (!chokidar) {
-    console.warn("⚠️ Live watch not available (chokidar missing). Run `npm install chokidar` locally to enable.");
+    console.warn("⚠️ Live watch not available (chokidar missing). Run npm install chokidar locally to enable.");
     return;
   }
   const watcher = chokidar.watch(rawPostsDir, { ignoreInitial: true });
