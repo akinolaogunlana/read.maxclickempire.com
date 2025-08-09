@@ -12,21 +12,27 @@ https.get(sitemapUrl, (res) => {
   let data = "";
   res.on("data", (chunk) => (data += chunk));
   res.on("end", () => {
-    xml2js.parseString(data, (err, result) => {
-      if (err) {
-        return console.error("Failed to parse sitemap:", err.message);
+    // Parse XML ignoring namespaces
+    xml2js.parseString(
+      data,
+      { explicitArray: true, ignoreAttrs: false, ignoreNamespaces: true },
+      (err, result) => {
+        if (err) {
+          return console.error("Failed to parse sitemap:", err.message);
+        }
+
+        // Now urlset and url are accessible normally without namespaces
+        const urlset = result?.urlset?.url || [];
+        if (!urlset.length) console.warn("No entries found in sitemap.");
+
+        const posts = urlset.map((entry) => ({
+          title: extractSlug(entry.loc?.[0] || ""),
+          link: entry.loc?.[0] || "#",
+        }));
+
+        generateHTML(posts);
       }
-
-      const urlset = result?.urlset?.url || [];
-      if (!urlset.length) console.warn("No entries found in sitemap.");
-
-      const posts = urlset.map((entry) => ({
-        title: extractSlug(entry.loc?.[0] || ""),
-        link: entry.loc?.[0] || "#"
-      }));
-
-      generateHTML(posts);
-    });
+    );
   });
 }).on("error", (err) => {
   console.error("Error fetching sitemap:", err.message);
@@ -56,7 +62,7 @@ function generateHTML(posts) {
   <h1>📚 All Blog Posts</h1>
   <ul>
     ${posts
-      .map(p => `<li><a href="${p.link}">${p.title}</a></li>`)
+      .map((p) => `<li><a href="${p.link}">${p.title}</a></li>`)
       .join("\n    ")}
   </ul>
 </body>
@@ -69,9 +75,14 @@ function generateHTML(posts) {
 // === Helper ===
 function extractSlug(url) {
   try {
-    const slug = new URL(url).pathname
-      .split("/").filter(Boolean).pop();
-    return decodeURIComponent(slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+    const slug = new URL(url)
+      .pathname
+      .split("/")
+      .filter(Boolean)
+      .pop();
+    return decodeURIComponent(slug)
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   } catch {
     return "Untitled";
   }
