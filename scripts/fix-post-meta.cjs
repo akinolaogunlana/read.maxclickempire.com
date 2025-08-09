@@ -4,33 +4,48 @@ const path = require("path");
 const cheerio = require("cheerio");
 
 const SITE_URL = "https://read.maxclickempire.com";
-
-// Paths
-// ✅ Change to posts directory, not dist
-const postsDir = path.join(__dirname, "..", "posts");
+const postsDir = path.join(__dirname, "..", "posts"); // ✅ Wrapped HTML output
 const outputPath = path.join(__dirname, "..", "data", "post-meta.js");
 
-// Load existing metadata (for persistence)
+console.log("🔍 Checking posts directory:", postsDir);
+
+// ---------------------
+// 1️⃣ Ensure posts directory exists
+// ---------------------
+if (!fs.existsSync(postsDir)) {
+  console.error(`❌ ERROR: posts directory not found at ${postsDir}`);
+  console.error("💡 You must run your wrapping/build step before generating post metadata.");
+  process.exit(1);
+}
+
+// ---------------------
+// 2️⃣ Load existing metadata
+// ---------------------
 let postMetadata = {};
 if (fs.existsSync(outputPath)) {
   try {
     const existing = require(outputPath);
     if (existing && typeof existing.postMetadata === "object") {
       postMetadata = existing.postMetadata;
+      console.log(`📦 Loaded existing metadata for ${Object.keys(postMetadata).length} posts`);
     }
   } catch (err) {
     console.warn("⚠ Could not load existing post metadata:", err.message);
   }
 }
 
-if (!fs.existsSync(postsDir)) {
-  console.error(`❌ posts directory not found: ${postsDir}`);
+// ---------------------
+// 3️⃣ Scan posts
+// ---------------------
+const htmlFiles = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
+if (htmlFiles.length === 0) {
+  console.error("❌ No HTML posts found in posts/ directory.");
   process.exit(1);
 }
 
-fs.readdirSync(postsDir).forEach((file) => {
-  if (!file.endsWith(".html")) return;
+let updatedCount = 0;
 
+htmlFiles.forEach(file => {
   const filePath = path.join(postsDir, file);
   const slug = file.replace(/\.html$/, "");
   const html = fs.readFileSync(filePath, "utf8");
@@ -48,17 +63,16 @@ fs.readdirSync(postsDir).forEach((file) => {
     return;
   }
 
-  // Detect file modification time
   const stats = fs.statSync(filePath);
   const fileModifiedTime = stats.mtimeMs || 0;
-
-  // Use saved metadata if no change in source file
   const savedMeta = postMetadata[slug] || {};
+
+  // Skip unchanged files
   if (savedMeta.sourceLastModified === fileModifiedTime) {
     return;
   }
 
-  // Accurate datePublished
+  // Determine datePublished
   let datePublished = savedMeta.datePublished;
   if (!datePublished || savedMeta.sourceLastModified !== fileModifiedTime) {
     const metaDate = $('meta[name="datePublished"]').attr("content")?.trim();
@@ -82,9 +96,19 @@ fs.readdirSync(postsDir).forEach((file) => {
     datePublished,
     sourceLastModified: fileModifiedTime
   };
+
+  updatedCount++;
 });
 
+// ---------------------
+// 4️⃣ Save metadata
+// ---------------------
 const output = `// Auto-generated metadata\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
 fs.writeFileSync(outputPath, output, "utf8");
 
-console.log(`✅ post-meta.js updated with ${Object.keys(postMetadata).length} posts → ${outputPath}`);
+console.log(`✅ Metadata updated → ${outputPath}`);
+console.log(`📄 Total posts in metadata: ${Object.keys(postMetadata).length}`);
+console.log(`🆕 Updated posts this run: ${updatedCount}`);
+if (updatedCount === 0) {
+  console.log("ℹ No changes detected — RSS and sitemap will be unchanged unless forced to regenerate.");
+}
