@@ -6,9 +6,9 @@ let postMetadata = {
     "keywords": "affiliate disclosure statement template, sample affiliate disclosure, FTC compliant disclosure",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
-    "datePublished": "2025-08-09T18:07:23.551Z",
+    "datePublished": "2025-08-09T18:08:50.506Z",
     "timestamp": "2025-08-08T12:00:00.000Z",
-    "sourceLastModified": 1754762856902.5603
+    "sourceLastModified": 1754762943923.4148
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates That Actually Get You Hired",
@@ -16,9 +16,9 @@ let postMetadata = {
     "keywords": "free google docs resume templates, best google docs resume template, professional resume google docs, editable resume templates google docs",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
-    "datePublished": "2025-08-09T18:07:23.551Z",
-    "timestamp": "2025-08-09T18:03:49.184Z",
-    "sourceLastModified": 1754762856920.5605
+    "datePublished": "2025-08-09T18:08:50.506Z",
+    "timestamp": "2025-08-07T11:00:00.000Z",
+    "sourceLastModified": 1754762943941.4148
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -26,9 +26,9 @@ let postMetadata = {
     "keywords": "ATS friendly resume, Google Docs resume, resume template, applicant tracking system, resume tips",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
-    "datePublished": "2025-08-09T18:07:23.551Z",
-    "timestamp": "2025-08-09T18:03:49.184Z",
-    "sourceLastModified": 1754762856946.561
+    "datePublished": "2025-08-09T18:08:50.506Z",
+    "timestamp": "2025-08-09T18:07:23.551Z",
+    "sourceLastModified": 1754762943968.4148
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
@@ -36,9 +36,9 @@ let postMetadata = {
     "keywords": "modern resume templates, Google Docs resume, resume templates that get jobs, professional resume design, job-winning resumes",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
-    "datePublished": "2025-08-09T18:07:23.551Z",
-    "timestamp": "2025-08-09T18:03:49.184Z",
-    "sourceLastModified": 1754762856954.561
+    "datePublished": "2025-08-09T18:08:50.507Z",
+    "timestamp": "2025-08-09T18:07:23.551Z",
+    "sourceLastModified": 1754762943976.4148
   }
 };
 module.exports = { postMetadata };
