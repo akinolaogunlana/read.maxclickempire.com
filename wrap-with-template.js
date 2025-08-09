@@ -168,8 +168,11 @@ function buildPost(file, postMetadata) {
     const now = new Date().toISOString();
     const existingMeta = postMetadata[slug] || {};
 
+    // Use manual timestamp if valid ISO date, else fallback to existing or file birthtime
     let datePublished = existingMeta.datePublished;
-    if (!datePublished) {
+    if (extracted.timestamp && !isNaN(Date.parse(extracted.timestamp))) {
+      datePublished = new Date(extracted.timestamp).toISOString();
+    } else if (!datePublished) {
       datePublished =
         stats.birthtimeMs && stats.birthtimeMs > 0
           ? stats.birthtime.toISOString()
@@ -181,8 +184,10 @@ function buildPost(file, postMetadata) {
       dateModified = now;
     }
 
-    // If timestamp missing, fallback to datePublished
-    let timestamp = extracted.timestamp || datePublished;
+    // Store timestamp (manual or datePublished)
+    const timestamp = extracted.timestamp && !isNaN(Date.parse(extracted.timestamp))
+      ? new Date(extracted.timestamp).toISOString()
+      : datePublished;
 
     const canonical = `${SITE_URL.replace(/\/$/, "")}/posts/${slug}.html`;
 
