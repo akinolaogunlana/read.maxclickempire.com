@@ -87,6 +87,15 @@ htmlFiles.forEach(file => {
     }
   }
 
+  // --- NEW: Extract timestamp ---
+  let timestamp = $('meta[name="timestamp"]').attr("content")?.trim();
+  if (!timestamp || isNaN(Date.parse(timestamp))) {
+    // fallback to file modified time as ISO string
+    timestamp = new Date(fileModifiedTime).toISOString();
+  } else {
+    timestamp = new Date(timestamp).toISOString();
+  }
+
   postMetadata[slug] = {
     title,
     description,
@@ -94,6 +103,7 @@ htmlFiles.forEach(file => {
     ogImage,
     canonical: `${SITE_URL}/posts/${slug}.html`,
     datePublished,
+    timestamp,             // <-- New field added here
     sourceLastModified: fileModifiedTime
   };
 
