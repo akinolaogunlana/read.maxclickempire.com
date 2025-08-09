@@ -3,14 +3,12 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'dist/'                      # ✅ matches all HTML in posts/
-      - 'scripts/internal-linker.cjs'
-      - 'scripts/'
-      - 'seo-ecosystem-generator.cjs'
-      - 'scripts/fix-post-meta.cjs'
+      - 'dist/**'              # your trigger: authors push HTML into dist/
       - 'wrap-with-template.js'
+      - 'scripts/**'
+      - 'seo-ecosystem-generator.cjs'
       - 'data/post-meta.js'
-      - 'assets/seo-enhancer.js'
+      - 'assets/**'
 
 jobs:
   build-and-deploy:
@@ -19,6 +17,8 @@ jobs:
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0         # important for git first-commit date fallback
 
       - name: 🛠️ Setup Node.js
         uses: actions/setup-node@v3
@@ -27,30 +27,19 @@ jobs:
 
       - name: 📦 Install Dependencies
         run: |
-          if [ ! -f package.json ]; then
-            echo "⚙️ No package.json found, initializing..."
-            npm init -y
-          fi
+          if [ ! -f package.json ]; then npm init -y; fi
           npm install xmlbuilder2@^3.0.2 googleapis axios cheerio xml2js chokidar --save
 
-      - name: 🧩 Wrap Raw Dist with SEO Template (to posts/)
+      - name: 🧩 Wrap Raw Dist with SEO Template → posts/
         run: node wrap-with-template.js
 
       - name: 🛠️ Fix post-meta.js (Node + Browser compatible)
         run: node scripts/fix-post-meta.cjs
 
-      - name: 🔗 Add Internal Links
+      - name: 🔗 Add Internal Links (operates on posts/)
         run: node scripts/internal-linker.cjs
 
-      - name: 🔐 Decode Firebase and Google Credentials
-        run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > firebase-credentials.json
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > google-credentials.json
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
-
-      - name: 📡 Generate Sitemap and RSS
+      - name: 📡 Generate Sitemap and RSS (writes to dist/)
         run: node seo-ecosystem-generator.cjs
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/google-credentials.json
@@ -65,15 +54,15 @@ jobs:
       - name: 🚀 Submit URLs to Google Indexing + IndexNow
         if: ${{ always() }}
         run: |
-          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
-          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"
+          curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml" || true
+          curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml" || true
 
-      - name: 🔄 Commit SEO, Sitemap, Metadata, Archive, and posts
+      - name: 🔄 Commit SEO, Metadata & posts (do NOT commit dist/)
         run: |
           git config --global user.name "maxclick-seo-bot"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger archive.html posts/ || true
-          git commit -m "♻️ Auto SEO, Metadata, Posts & Archive Update" || echo "No changes to commit"
+          git add data/post-meta.js posts/ archive.html .deploy-trigger || true
+          git commit -m "♻️ Auto SEO, Metadata & posts Update" || echo "No changes to commit"
           git push || echo "No changes to push"
 
       - name: 🌍 Deploy to GitHub Pages
