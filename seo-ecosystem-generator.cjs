@@ -1,4 +1,4 @@
-// MaxClickEmpire SEO Ecosystem Generator (post-meta.js Version)
+// MaxClickEmpire SEO Ecosystem Generator (Improved Date Handling)
 
 const fs = require("fs");
 const path = require("path");
@@ -36,12 +36,19 @@ if (!postMetadata || typeof postMetadata !== "object") {
 // === Convert postMetadata to enriched array with full URLs ===
 const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
   const canonicalUrl = meta.canonical || `${siteUrl}/${slug}`;
+
+  // Use original published date, don't override unless missing
+  const datePublished = meta.published || meta.datePublished || new Date().toISOString();
+
+  // Keep modified date only if explicitly set, else fall back to published date
+  const dateModified = meta.modified || meta.dateModified || datePublished;
+
   return {
     ...meta,
     slug,
     url: canonicalUrl,
-    datePublished: meta.published || meta.datePublished,
-    dateModified: meta.modified || meta.dateModified || meta.published || meta.datePublished,
+    datePublished,
+    dateModified
   };
 });
 
@@ -70,8 +77,8 @@ const latestPosts = allMetadata
 
 const rssItems = latestPosts.map((post) => `
   <item>
-    <title><![CDATA[${post.title.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></title>
-    <description><![CDATA[${post.description.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></description>
+    <title><![CDATA[${(post.title || "").replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></title>
+    <description><![CDATA[${(post.description || "").replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></description>
     <link>${post.url}</link>
     <guid>${post.url}</guid>
     <pubDate>${new Date(post.datePublished).toUTCString()}</pubDate>
@@ -166,7 +173,7 @@ console.log("✅ .nojekyll created");
     const req = https.request(options, (res) => {
       console.log(`📡 IndexNow: Sent ${urls.length} URLs → Status: ${res.statusCode}`);
     });
-
+just
     req.on("error", (e) => {
       console.error("❌ IndexNow Ping Error:", e.message);
     });
