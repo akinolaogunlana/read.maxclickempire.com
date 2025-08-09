@@ -30,29 +30,20 @@ function safeParseDate(d) {
 }
 
 function readPostMetaFile(filePath) {
-  // Try require (fresh), then fallback to parsing the file as text
   try {
     delete require.cache[require.resolve(filePath)];
     const mod = require(filePath);
-    // Accept module.exports = { postMetadata } OR module.exports = postMetadata
     if (mod && typeof mod === "object") {
       if (mod.postMetadata && typeof mod.postMetadata === "object") return mod.postMetadata;
-      // Some versions may export the object directly
       return mod;
     }
   } catch (e) {
-    // fallback to parsing file content
     try {
       const raw = fs.readFileSync(filePath, "utf8");
-      // Match patterns like:
-      // let postMetadata = { ... };
-      // const postMetadata = { ... };
-      // module.exports = { postMetadata };
       let m = raw.match(/(?:let|const|var)\s+postMetadata\s*=\s*(\{[\s\S]*\});?/m);
       if (m && m[1]) return eval("(" + m[1] + ")");
       m = raw.match(/module\.exports\s*=\s*(\{[\s\S]*\});?/m);
       if (m && m[1]) return eval("(" + m[1] + ")");
-      // Try last resort: entire file contains the object directly
       m = raw.match(/^\s*(\{[\s\S]*\})\s*;?\s*$/m);
       if (m && m[1]) return eval("(" + m[1] + ")");
     } catch (e2) {
@@ -63,23 +54,19 @@ function readPostMetaFile(filePath) {
 }
 
 function extractFromHtml(html, slug, fileStats) {
-  // Extract title, description, keywords, dates, images from HTML content
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const descriptionTag = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
   const keywordsTag = html.match(/<meta\s+name=["']keywords["']\s+content=["']([^"']+)["']/i);
   const dateMeta = html.match(/<meta\s+name=["']date(?:published|Published|Date)?["']\s+content=["']([^"']+)["']/i);
 
-  // OG and Twitter images
   const ogImage = html.match(/<meta\s+(?:property|name)=["']og:image["']\s+content=["']([^"']+)["']/i);
   const twitterImage = html.match(/<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i);
 
-  // First <img> src fallback
   let firstImg = null;
   const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
   if (imgMatch && imgMatch[1]) firstImg = imgMatch[1];
 
-  // JSON-LD datePublished
   let ldDate = null;
   const ldMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
   if (ldMatch) {
@@ -176,7 +163,6 @@ function scanDistAndFillMeta() {
 }
 
 if (!postMetadata || Object.keys(postMetadata).length === 0) {
-  // Build metadata from dist
   const fallback = scanDistAndFillMeta();
   if (Object.keys(fallback).length === 0) {
     console.error("❌ No posts available to generate sitemap/rss. Exiting.");
@@ -184,7 +170,6 @@ if (!postMetadata || Object.keys(postMetadata).length === 0) {
   }
   postMetadata = fallback;
 
-  // write to data/post-meta.js for persistence (safe auto-generated, will be used next run)
   try {
     const content = `// Auto-generated fallback post-meta\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
     fs.mkdirSync(path.dirname(postMetaModulePath), { recursive: true });
@@ -213,7 +198,6 @@ const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
   };
 });
 
-// Sanity: filter out entries without a URL or title or published date (log the reasons)
 const usable = [];
 const skipped = [];
 for (const p of allMetadata) {
@@ -233,21 +217,34 @@ if (skipped.length) {
   skipped.slice(0, 10).forEach(s => console.warn(`⚠️ Skipped ${s.slug}: ${s.reasons.join(", ")}`));
 }
 
-// ---------- Generate sitemap.xml ----------
+// ---------- Generate sitemap.xml with SEO fields ----------
 const sitemapRoot = create({ version: "1.0" }).ele("urlset", {
   xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+  "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"
 });
 usable.forEach((post) => {
   const lastmod = post.dateModified || post.datePublished || new Date().toISOString();
-  sitemapRoot.ele("url")
-    .ele("loc").txt(post.url).up()
-    .ele("lastmod").txt(new Date(lastmod).toISOString()).up()
-    .up();
+
+  const urlEle = sitemapRoot.ele("url");
+  urlEle.ele("loc").txt(post.url).up();
+  urlEle.ele("lastmod").txt(new Date(lastmod).toISOString()).up();
+  urlEle.ele("changefreq").txt("weekly").up();   // Changefreq example
+  urlEle.ele("priority").txt("0.7").up();       // Priority example
+
+  if (post.ogImage) {
+    const imgUrl = post.ogImage.startsWith("http") ? post.ogImage : siteUrl + post.ogImage;
+    urlEle.ele("image:image")
+      .ele("image:loc").txt(imgUrl).up()
+      .ele("image:title").txt(post.title).up()
+      .up();
+  }
+
+  urlEle.up();
 });
 fs.writeFileSync(sitemapFile, sitemapRoot.end({ prettyPrint: true }), "utf8");
 console.log(`✅ sitemap.xml generated (${fs.statSync(sitemapFile).size} bytes)`);
 
-// ---------- Generate rss.xml ----------
+// ---------- Generate rss.xml with SEO structure ----------
 const sorted = usable
   .slice()
   .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
@@ -257,28 +254,43 @@ const rssItems = sorted.map(post => {
   const safeTitle = (post.title || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
   const safeDesc = (post.description || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
   const pubDate = new Date(post.datePublished).toUTCString();
-  // Include image as <enclosure> if present (image/jpeg fallback, might not always be jpeg)
+
+  const categories = (post.keywords || "").split(",").map(k => k.trim()).filter(Boolean);
+  const categoryTags = categories.map(cat => `<category><![CDATA[${cat}]]></category>`).join("\n    ");
+
   const imageTag = post.ogImage ? `<enclosure url="${post.ogImage}" type="image/jpeg" />` : "";
+
+  const authorTag = `<author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>`;
+
+  const contentEncoded = `<content:encoded><![CDATA[${safeDesc}]]></content:encoded>`;
+
   return `
   <item>
-    <title><![CDATA[${safeTitle}]]></title>
+  <title><![CDATA[${safeTitle}]]></title>
     <description><![CDATA[${safeDesc}]]></description>
     <link>${post.url}</link>
-    <guid>${post.url}</guid>
+    <guid isPermaLink="true">${post.url}</guid>
     <pubDate>${pubDate}</pubDate>
+    ${authorTag}
+    ${categoryTags}
     ${imageTag}
+    ${contentEncoded}
   </item>`;
 }).join("\n");
 
-const rssFeed = `<?xml version="1.0"?>
-<rss version="2.0">
+const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>MaxClickEmpire Blog</title>
     <description>Latest blog posts and updates from MaxClickEmpire</description>
     <link>${siteUrl}</link>
+    <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml" />
     ${rssItems}
   </channel>
 </rss>`;
+
 fs.writeFileSync(rssFile, rssFeed.trim(), "utf8");
 console.log(`✅ rss.xml generated (${fs.statSync(rssFile).size} bytes)`);
 
@@ -286,7 +298,8 @@ console.log(`✅ rss.xml generated (${fs.statSync(rssFile).size} bytes)`);
 const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: ${siteUrl}/sitemap.xml`;
+Sitemap: ${siteUrl}/sitemap.xml
+`;
 fs.writeFileSync(robotsFile, robotsTxt.trim(), "utf8");
 console.log(`✅ robots.txt generated (${fs.statSync(robotsFile).size} bytes)`);
 
@@ -305,7 +318,6 @@ try {
 const urlList = usable.map(p => p.url);
 
 (async () => {
-  // Resolve Google credentials file: prefer env var then common filenames
   const googleCredEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CREDENTIALS_PATH;
   const candidatePaths = [
     googleCredEnv,
@@ -348,7 +360,6 @@ const urlList = usable.map(p => p.url);
     console.log("ℹ️ Google credentials not found — skipping Google Indexing.");
   }
 
-  // IndexNow (send all urls)
   if (urlList.length) {
     const payload = JSON.stringify({
       host: new URL(siteUrl).host,
@@ -378,7 +389,6 @@ const urlList = usable.map(p => p.url);
     console.log("ℹ️ No URLs to send to IndexNow.");
   }
 
-  // Optional: run fix-post-meta.cjs to create browser-friendly export (safe to ignore errors)
   try {
     if (fs.existsSync(path.join(__dirname, "scripts", "fix-post-meta.cjs"))) {
       execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
