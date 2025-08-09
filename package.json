@@ -9,7 +9,6 @@
     "submit": "node submit-to-indexing-api.js",
     "link": "node scripts/internal-linker.cjs",
     "fix-meta": "node scripts/fix-post-meta.cjs",
-  
     "wrap": "node scripts/wrap-clean.cjs",
     "archive": "node scripts/generate-archive.cjs",
     "watch": "node scripts/watch-posts.cjs"
