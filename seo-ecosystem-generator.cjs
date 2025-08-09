@@ -12,11 +12,13 @@ const indexNowKey = "9b1fb73319b04fb3abb5ed09be53d65e";
 const rssLimit = 20;
 
 const distDir = path.join(__dirname, "dist");
-const sitemapFile = path.join(distDir, "sitemap.xml");
-const rssFile = path.join(distDir, "rss.xml");
-const robotsFile = path.join(distDir, "robots.txt");
-const noJekyllFile = path.join(distDir, ".nojekyll");
-const indexNowKeyFile = path.join(distDir, indexNowKey); // file at root containing the key
+
+// Output files now at project root, not in dist/
+const sitemapFile = path.join(__dirname, "sitemap.xml");
+const rssFile = path.join(__dirname, "rss.xml");
+const robotsFile = path.join(__dirname, "robots.txt");
+const noJekyllFile = path.join(__dirname, ".nojekyll");
+const indexNowKeyFile = path.join(__dirname, indexNowKey);
 
 fs.mkdirSync(distDir, { recursive: true });
 
@@ -61,42 +63,66 @@ function readPostMetaFile(filePath) {
 }
 
 function extractFromHtml(html, slug, fileStats) {
-  // meta name="description"
+  // Extract title, description, keywords, dates, images from HTML content
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const descriptionTag = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
   const keywordsTag = html.match(/<meta\s+name=["']keywords["']\s+content=["']([^"']+)["']/i);
   const dateMeta = html.match(/<meta\s+name=["']date(?:published|Published|Date)?["']\s+content=["']([^"']+)["']/i);
-  const ogImage = html.match(/<meta\s+(?:property|name)=["'](?:og:image)["']\s+content=["']([^"']+)["']/i);
 
-  // look for JSON-LD datePublished
+  // OG and Twitter images
+  const ogImage = html.match(/<meta\s+(?:property|name)=["']og:image["']\s+content=["']([^"']+)["']/i);
+  const twitterImage = html.match(/<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i);
+
+  // First <img> src fallback
+  let firstImg = null;
+  const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch && imgMatch[1]) firstImg = imgMatch[1];
+
+  // JSON-LD datePublished
   let ldDate = null;
   const ldMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
   if (ldMatch) {
     try {
       const ld = JSON.parse(ldMatch[1]);
-      if (ld && (ld.datePublished || (ld.author && ld.author.datePublished))) {
-        ldDate = ld.datePublished || null;
-      } else if (Array.isArray(ld)) {
-        for (const entry of ld) if (entry && entry.datePublished) { ldDate = entry.datePublished; break; }
+      if (ld) {
+        if (ld.datePublished) ldDate = ld.datePublished;
+        else if (Array.isArray(ld)) {
+          for (const entry of ld) {
+            if (entry && entry.datePublished) {
+              ldDate = entry.datePublished;
+              break;
+            }
+          }
+        }
       }
-    } catch (e) { /* ignore invalid json-ld */ }
+    } catch (e) {}
   }
 
-  const title = (titleTag && titleTag[1].trim()) || (h1 && h1[1].replace(/<\/?[^>]+(>|$)/g, "").trim()) || slug.replace(/-/g, " ");
+  const title = (titleTag && titleTag[1].trim()) ||
+                (h1 && h1[1].replace(/<\/?[^>]+(>|$)/g, "").trim()) ||
+                slug.replace(/-/g, " ");
+
   const description = descriptionTag ? descriptionTag[1].trim() : "";
   const keywords = keywordsTag ? keywordsTag[1].trim() : "";
-  const og = ogImage ? ogImage[1].trim() : "";
+
+  const image = (ogImage && ogImage[1].trim()) ||
+                (twitterImage && twitterImage[1].trim()) ||
+                firstImg || "";
+
   const published = safeParseDate(dateMeta ? dateMeta[1] : (ldDate || null))
     || (fileStats && fileStats.birthtime ? fileStats.birthtime.toISOString() : null)
     || (fileStats && fileStats.mtime ? fileStats.mtime.toISOString() : null);
+
+  const modified = (fileStats && fileStats.mtime ? fileStats.mtime.toISOString() : null) || published || new Date().toISOString();
 
   return {
     title,
     description,
     keywords,
-    ogImage: og,
+    ogImage: image,
     published,
+    modified,
   };
 }
 
@@ -139,7 +165,7 @@ function scanDistAndFillMeta() {
         ogImage: extracted.ogImage,
         canonical: `${siteUrl}/posts/${slug}.html`,
         published: extracted.published,
-        modified: stats.mtime ? stats.mtime.toISOString() : new Date().toISOString(),
+        modified: extracted.modified,
       };
       console.log(`ℹ️ Scanned dist/${f} → title="${extracted.title}", published=${generated[slug].published}`);
     } catch (err) {
@@ -187,7 +213,7 @@ const allMetadata = Object.entries(postMetadata).map(([slug, meta]) => {
   };
 });
 
-// Sanity: filter out entries without a URL or title (log the reasons)
+// Sanity: filter out entries without a URL or title or published date (log the reasons)
 const usable = [];
 const skipped = [];
 for (const p of allMetadata) {
@@ -231,6 +257,8 @@ const rssItems = sorted.map(post => {
   const safeTitle = (post.title || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
   const safeDesc = (post.description || "").replace(/\]\]>/g, "]]]]><![CDATA[>");
   const pubDate = new Date(post.datePublished).toUTCString();
+  // Include image as <enclosure> if present (image/jpeg fallback, might not always be jpeg)
+  const imageTag = post.ogImage ? `<enclosure url="${post.ogImage}" type="image/jpeg" />` : "";
   return `
   <item>
     <title><![CDATA[${safeTitle}]]></title>
@@ -238,6 +266,7 @@ const rssItems = sorted.map(post => {
     <link>${post.url}</link>
     <guid>${post.url}</guid>
     <pubDate>${pubDate}</pubDate>
+    ${imageTag}
   </item>`;
 }).join("\n");
 
@@ -273,10 +302,8 @@ try {
 }
 
 // ---------- Notify Indexing APIs ----------
-// Build URL list (all usable)
 const urlList = usable.map(p => p.url);
 
-// Indexing: Google Indexing API (only if credentials present)
 (async () => {
   // Resolve Google credentials file: prefer env var then common filenames
   const googleCredEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CREDENTIALS_PATH;
@@ -356,8 +383,6 @@ const urlList = usable.map(p => p.url);
     if (fs.existsSync(path.join(__dirname, "scripts", "fix-post-meta.cjs"))) {
       execSync("node scripts/fix-post-meta.cjs", { stdio: "inherit" });
       console.log("✅ Ran scripts/fix-post-meta.cjs");
-    } else {
-      // skip silently if not present
     }
   } catch (e) {
     console.warn("⚠️ Running fix-post-meta.cjs failed:", e.message);
