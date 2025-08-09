@@ -6,7 +6,8 @@ const cheerio = require("cheerio");
 const SITE_URL = "https://read.maxclickempire.com";
 
 // Paths
-const postsDir = path.join(__dirname, "..", "dist");
+// ✅ Change to posts directory, not dist
+const postsDir = path.join(__dirname, "..", "posts");
 const outputPath = path.join(__dirname, "..", "data", "post-meta.js");
 
 // Load existing metadata (for persistence)
@@ -23,7 +24,7 @@ if (fs.existsSync(outputPath)) {
 }
 
 if (!fs.existsSync(postsDir)) {
-  console.error(`❌ dist directory not found: ${postsDir}`);
+  console.error(`❌ posts directory not found: ${postsDir}`);
   process.exit(1);
 }
 
@@ -54,7 +55,6 @@ fs.readdirSync(postsDir).forEach((file) => {
   // Use saved metadata if no change in source file
   const savedMeta = postMetadata[slug] || {};
   if (savedMeta.sourceLastModified === fileModifiedTime) {
-    // Keep previous record unchanged
     return;
   }
 
@@ -73,7 +73,6 @@ fs.readdirSync(postsDir).forEach((file) => {
     }
   }
 
-  // Save/Update metadata
   postMetadata[slug] = {
     title,
     description,
@@ -85,7 +84,6 @@ fs.readdirSync(postsDir).forEach((file) => {
   };
 });
 
-// Save updated metadata file
 const output = `// Auto-generated metadata\nlet postMetadata = ${JSON.stringify(postMetadata, null, 2)};\nmodule.exports = { postMetadata };\n`;
 fs.writeFileSync(outputPath, output, "utf8");
 
