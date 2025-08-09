@@ -3,7 +3,7 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'dist/'              # ✅ matches all HTML in posts/
+      - 'dist/**'              # ✅ matches any file inside dist/ recursively
       - 'scripts/internal-linker.cjs'
       - 'scripts/'
       - 'seo-ecosystem-generator.cjs'
@@ -11,6 +11,9 @@ on:
       - 'wrap-with-template.js'
       - 'data/post-meta.js'
       - 'assets/seo-enhancer.js'
+
+  schedule:
+    - cron: '0 3 * * *'        # Run every day at 03:00 UTC
 
 jobs:
   build-and-deploy:
