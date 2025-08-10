@@ -92,13 +92,6 @@
 </head>
 <body>
   <div id="progress-bar"></div>
-
-  <!-- Dark Mode Toggle Button 
-  <button id="darkModeToggle" style="position: fixed; top: 1rem; right: 1rem; z-index: 10000; padding: 0.5rem 1rem; cursor: pointer;">
-    Toggle Dark Mode
-  </button>
--->
-
   <h1>🧠 MaxClickEmpire</h1>
   <p class="subtitle">Strategic SEO guides, AI tools, and digital strategies to dominate online and build your legacy — all free.</p>
 
@@ -127,25 +120,6 @@
   </footer>
 
   <script>
-    // Dark Mode Toggle
-    const toggleBtn = document.getElementById('darkModeToggle');
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      // Optionally save preference to localStorage
-      if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme', 'dark');
-      } else {
-        localStorage.setItem('theme', 'light');
-      }
-    });
-
-    // Load saved theme preference on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
-      }
-    });
-
     async function loadPostMetadata() {
       try {
         const res = await fetch('/data/post-meta.js');
