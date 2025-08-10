@@ -9,11 +9,27 @@
     <atom:link href="https://read.maxclickempire.com/rss.xml" rel="self" type="application/rss+xml" />
     
   <item>
+  <title><![CDATA[How to create an ATS-friendly resume in Google Docs]]></title>
+    <description><![CDATA[Build a clean, human-first resume in Google Docs that parses correctly, reads well for hiring teams, and gets your experience noticed.]]></description>
+    <link>https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html</link>
+    <guid isPermaLink="true">https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html</guid>
+    <pubDate>Sun, 10 Aug 2025 04:43:12 GMT</pubDate>
+    <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
+    <category><![CDATA[ATS friendly resume]]></category>
+    <category><![CDATA[Google Docs resume]]></category>
+    <category><![CDATA[resume template]]></category>
+    <category><![CDATA[applicant tracking system]]></category>
+    <category><![CDATA[resume tips]]></category>
+    <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" />
+    <content:encoded><![CDATA[Build a clean, human-first resume in Google Docs that parses correctly, reads well for hiring teams, and gets your experience noticed.]]></content:encoded>
+  </item>
+
+  <item>
   <title><![CDATA[Modern Resume Templates in Google Docs That Get Jobs]]></title>
     <description><![CDATA[Discover how to create standout resumes with modern Google Docs templates that help you land interviews and job offers.]]></description>
     <link>https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html</link>
     <guid isPermaLink="true">https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html</guid>
-    <pubDate>Sun, 10 Aug 2025 04:37:00 GMT</pubDate>
+    <pubDate>Sun, 10 Aug 2025 04:43:12 GMT</pubDate>
     <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
     <category><![CDATA[modern resume templates]]></category>
     <category><![CDATA[Google Docs resume]]></category>
@@ -29,7 +45,7 @@
     <description><![CDATA[Simple, clear affiliate disclosure statement templates you can copy and customize.]]></description>
     <link>https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html</link>
     <guid isPermaLink="true">https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html</guid>
-    <pubDate>Sun, 10 Aug 2025 04:37:00 GMT</pubDate>
+    <pubDate>Sun, 10 Aug 2025 04:43:12 GMT</pubDate>
     <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
     <category><![CDATA[affiliate disclosure statement template]]></category>
     <category><![CDATA[sample affiliate disclosure]]></category>
@@ -43,7 +59,7 @@
     <description><![CDATA[Explore the top free Google Docs resume templates, tested by professionals, and learn how to tailor them for your career goals.]]></description>
     <link>https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html</link>
     <guid isPermaLink="true">https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html</guid>
-    <pubDate>Sun, 10 Aug 2025 04:37:00 GMT</pubDate>
+    <pubDate>Sun, 10 Aug 2025 04:43:12 GMT</pubDate>
     <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
     <category><![CDATA[free google docs resume templates]]></category>
     <category><![CDATA[best google docs resume template]]></category>
@@ -51,22 +67,6 @@
     <category><![CDATA[editable resume templates google docs]]></category>
     <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" />
     <content:encoded><![CDATA[Explore the top free Google Docs resume templates, tested by professionals, and learn how to tailor them for your career goals.]]></content:encoded>
-  </item>
-
-  <item>
-  <title><![CDATA[How to create an ATS-friendly resume in Google Docs]]></title>
-    <description><![CDATA[Build a clean, human-first resume in Google Docs that parses correctly, reads well for hiring teams, and gets your experience noticed.]]></description>
-    <link>https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html</link>
-    <guid isPermaLink="true">https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html</guid>
-    <pubDate>Sun, 10 Aug 2025 04:37:00 GMT</pubDate>
-    <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
-    <category><![CDATA[ATS friendly resume]]></category>
-    <category><![CDATA[Google Docs resume]]></category>
-    <category><![CDATA[resume template]]></category>
-    <category><![CDATA[applicant tracking system]]></category>
-    <category><![CDATA[resume tips]]></category>
-    <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" />
-    <content:encoded><![CDATA[Build a clean, human-first resume in Google Docs that parses correctly, reads well for hiring teams, and gets your experience noticed.]]></content:encoded>
   </item>
   </channel>
 </rss>
