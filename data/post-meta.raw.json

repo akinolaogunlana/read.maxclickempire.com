@@ -1,0 +1,8 @@
+{
+  "example-post": {
+    "title": "Example Post Title",
+    "description": "This is a sample description.",
+    "image": "https://read.maxclickempire.com/assets/og-image.jpg",
+    "published": "2025-07-08T10:00:00Z"
+  }
+}

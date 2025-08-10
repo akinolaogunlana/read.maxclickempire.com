@@ -1,15 +1,43 @@
 <?xml version="1.0"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html</loc>
-    <lastmod>2025-08-09T12:34:54.598Z</lastmod>
+    <lastmod>2025-08-10T03:25:40.703Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Affiliate Disclosure Statement Template</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html</loc>
-    <lastmod>2025-08-09T12:34:54.599Z</lastmod>
+    <lastmod>2025-08-10T03:25:40.703Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Best Free Google Docs Resume Templates That Actually Get You Hired</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html</loc>
-    <lastmod>2025-08-09T12:34:54.599Z</lastmod>
+    <lastmod>2025-08-10T03:25:40.703Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>How to create an ATS-friendly resume in Google Docs</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html</loc>
+    <lastmod>2025-08-10T03:25:40.703Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Modern Resume Templates in Google Docs That Get Jobs</image:title>
+    </image:image>
   </url>
 </urlset>
