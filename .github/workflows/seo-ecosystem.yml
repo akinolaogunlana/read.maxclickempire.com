@@ -3,6 +3,7 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
+      - 'dist/**'                 # <-- Added to trigger on changes inside dist/
       - 'sitemap.xml'
       - 'rss.xml'
       - 'robots.txt'
@@ -88,7 +89,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3  
         with:  
           github_token: ${{ secrets.GITHUB_TOKEN }}  
-          publish_dir: ./   # changed from ./dist to project root  
+          publish_dir: ./   # deploy project root  
 
       - name: 🧹 Cleanup Credentials  
         if: always()  
