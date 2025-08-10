@@ -1,10 +1,42 @@
 # Sensitive credential files
 credentials.json
+firebase-credentials.json
+google-credentials.json
 
-# Node modules and temp
-node_modules
-npm-debug.log
+# Node modules and logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# GitHub Actions artifacts
+# Logs
+logs/
+*.log
+*.log.*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE/editor specific
+.vscode/
+.idea/
+
+# GitHub Actions artifacts and environment files
 .github/*.log
 .github/*.env
+
+# Misc
+*.bak
+*.tmp
+*.swp
