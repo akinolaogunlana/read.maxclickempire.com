@@ -1,9 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-// Path to your post-meta.js file
-const metaPath = path.join(__dirname, "data", "post-meta.js");
-const outputFile = path.join(__dirname, "archive.html");
+// Correct paths relative to the scripts folder
+const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
+const outputFile = path.join(__dirname, "..", "archive.html");
 
 // Load metadata
 function loadMetadata() {
