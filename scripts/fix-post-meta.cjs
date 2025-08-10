@@ -72,30 +72,75 @@ htmlFiles.forEach(file => {
     return;
   }
 
-  // Determine datePublished
+  // ---------------------
+  // 📅 Detect datePublished
+  // ---------------------
   let datePublished = savedMeta.datePublished;
-  if (!datePublished || savedMeta.sourceLastModified !== fileModifiedTime) {
-    const metaDate = $('meta[name="datePublished"]').attr("content")?.trim();
-    if (metaDate && !isNaN(Date.parse(metaDate))) {
-      datePublished = new Date(metaDate).toISOString();
-    } else if (stats.birthtimeMs && stats.birthtimeMs > 0) {
-      datePublished = new Date(stats.birthtime).toISOString();
-    } else if (stats.ctimeMs && stats.ctimeMs > 0) {
-      datePublished = new Date(stats.ctime).toISOString();
-    } else {
-      datePublished = new Date(fileModifiedTime).toISOString();
-    }
+
+  // From meta tag (case-insensitive)
+  const metaDatePub = $('meta[name="datePublished" i]').attr("content")?.trim();
+
+  // From JSON-LD
+  let jsonDatePub;
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const data = JSON.parse($(el).contents().text());
+      if (typeof data === "object" && data.datePublished && !jsonDatePub) {
+        jsonDatePub = data.datePublished.trim();
+      }
+    } catch {}
+  });
+
+  if (metaDatePub && !isNaN(Date.parse(metaDatePub))) {
+    datePublished = new Date(metaDatePub).toISOString();
+  } else if (jsonDatePub && !isNaN(Date.parse(jsonDatePub))) {
+    datePublished = new Date(jsonDatePub).toISOString();
+  } else if (stats.birthtimeMs && stats.birthtimeMs > 0) {
+    datePublished = new Date(stats.birthtime).toISOString();
+  } else if (stats.ctimeMs && stats.ctimeMs > 0) {
+    datePublished = new Date(stats.ctime).toISOString();
+  } else {
+    datePublished = new Date(fileModifiedTime).toISOString();
   }
 
-  // --- NEW: Extract timestamp ---
+  // ---------------------
+  // 📅 Detect dateModified
+  // ---------------------
+  let dateModified = savedMeta.dateModified;
+
+  const metaDateMod = $('meta[name="dateModified" i]').attr("content")?.trim();
+
+  let jsonDateMod;
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const data = JSON.parse($(el).contents().text());
+      if (typeof data === "object" && data.dateModified && !jsonDateMod) {
+        jsonDateMod = data.dateModified.trim();
+      }
+    } catch {}
+  });
+
+  if (metaDateMod && !isNaN(Date.parse(metaDateMod))) {
+    dateModified = new Date(metaDateMod).toISOString();
+  } else if (jsonDateMod && !isNaN(Date.parse(jsonDateMod))) {
+    dateModified = new Date(jsonDateMod).toISOString();
+  } else {
+    dateModified = new Date(fileModifiedTime).toISOString();
+  }
+
+  // ---------------------
+  // 🕒 Extract timestamp (optional)
+  // ---------------------
   let timestamp = $('meta[name="timestamp"]').attr("content")?.trim();
   if (!timestamp || isNaN(Date.parse(timestamp))) {
-    // fallback to file modified time as ISO string
     timestamp = new Date(fileModifiedTime).toISOString();
   } else {
     timestamp = new Date(timestamp).toISOString();
   }
 
+  // ---------------------
+  // 📝 Save metadata
+  // ---------------------
   postMetadata[slug] = {
     title,
     description,
@@ -103,7 +148,8 @@ htmlFiles.forEach(file => {
     ogImage,
     canonical: `${SITE_URL}/posts/${slug}.html`,
     datePublished,
-    timestamp,             // <-- New field added here
+    dateModified, // ✅ Now included
+    timestamp,
     sourceLastModified: fileModifiedTime
   };
 
