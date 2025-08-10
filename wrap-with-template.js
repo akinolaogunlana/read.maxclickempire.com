@@ -66,8 +66,8 @@ function extractMetadataFromHtml(html, slug) {
   let keywords = "";
   let ogImage = "";
   let timestamp = "";
-  let datePublishedl = "";
-  let dateModifiedl = "";
+  let datePublishedManual = "";
+  let dateModifiedManual = "";
 
   for (const m of metas) {
     if (m.name && m.name.toLowerCase() === "description" && m.content) {
@@ -83,10 +83,10 @@ function extractMetadataFromHtml(html, slug) {
       timestamp = timestamp || m.content;
     }
     if (m.name && m.name.toLowerCase() === "datepublished" && m.content) {
-      datePublishedl = datePublished || m.content;
+      datePublishedManual = datePublishedManual || m.content;
     }
     if (m.name && m.name.toLowerCase() === "datemodified" && m.content) {
-      dateModified = dateModified || m.content;
+      dateModifiedManual = dateModifiedManual || m.content;
     }
   }
 
@@ -108,8 +108,8 @@ function extractMetadataFromHtml(html, slug) {
     keywords: (keywords || "").trim(),
     ogImage: (ogImage || "").trim(),
     timestamp: (timestamp || "").trim(),
-    datePublished: (datePublished || "").trim(),
-    dateModified: (dateModified || "").trim(),
+    datePublishedManual: (datePublishedManual || "").trim(),
+    dateModifiedManual: (dateModifiedManual || "").trim(),
   };
 }
 
