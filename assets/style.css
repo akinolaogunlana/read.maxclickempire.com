@@ -153,36 +153,6 @@ footer {
   transition: width 0.3s ease;
 }
 
-.related-posts {
-  background: #f4f6f8;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 2rem;
-}
-
-.related-posts h2 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.related-posts ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.related-posts li {
-  margin-bottom: 0.4rem;
-}
-
-.related-posts a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.related-posts a:hover {
-  text-decoration: underline;
-}
-
 /* Dark Mode Overrides */
 body.dark-mode nav,
 body.dark-mode footer,
@@ -254,8 +224,7 @@ img {
 }
 
 /* Responsive Video Embeds */
-iframe,
-video {
+iframe, video {
   max-width: 100%;
   height: auto;
 }
@@ -287,10 +256,28 @@ video {
 }
 
 /* SEO-Friendly Headings */
-h2,
-h3,
-h4 {
+h2, h3, h4 {
   margin-top: 2rem;
   color: var(--primary);
   font-weight: 700;
+}
+
+/* Dark Mode Toggle Button Style */
+#darkModeToggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10000;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 700;
+  transition: background 0.3s ease;
+}
+
+#darkModeToggle:hover {
+  background: #0843c9;
 }
