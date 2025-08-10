@@ -14,8 +14,8 @@
   <link rel="icon" href="/assets/favicon.png" type="image/png" sizes="32x32" />
 
   <!-- Preconnect & Preload Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" media="all" />
 
@@ -29,8 +29,8 @@
   <meta property="og:url" content="https://read.maxclickempire.com/" />
   <meta property="og:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
 
-<!-- webmaster bing-->
-<meta name="msvalidate.01" content="07E03E613D52D51568887E4838645939" />
+  <!-- webmaster bing -->
+  <meta name="msvalidate.01" content="07E03E613D52D51568887E4838645939" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -88,22 +88,19 @@
   <script defer data-domain="read.maxclickempire.com" src="https://plausible.io/js/plausible.js"></script>
 
   <!-- Styles -->
-  
-   <link rel="stylesheet" href="assets/style.css">
-  
+  <link rel="stylesheet" href="assets/style.css" />
 </head>
-
 <body>
   <div id="progress-bar"></div>
   <h1>🧠 MaxClickEmpire</h1>
   <p class="subtitle">Strategic SEO guides, AI tools, and digital strategies to dominate online and build your legacy — all free.</p>
 
- <nav>
-  <a href="/">Home</a>
-  <a href="/about.html">About</a>
-  <a href="/archive.html">All Posts</a>
-  <a href="/contact.html">Contact</a>
- </nav>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/archive.html">All Posts</a>
+    <a href="/contact.html">Contact</a>
+  </nav>
 
   <div class="main-content">
     <input class="search-input" type="text" id="search" placeholder="Search expert articles..." />
@@ -124,11 +121,16 @@
 
   <!-- Post Metadata -->
   <script src="/data/post-meta.js" defer></script>
-  <script>
+  <script defer>
+    // Fix to assign postMetadata globally since your file uses module.exports (not browser native)
+    window.postMetadata = window.postMetadata || postMetadata || {};
+  </script>
+
+  <script defer>
     window.addEventListener("load", () => {
       const list = document.getElementById("post-list");
       const search = document.getElementById("search");
-      const posts = window.postMetadata || [];
+      const posts = window.postMetadata || {};
 
       function render(filtered = Object.entries(posts)) {
         list.innerHTML = "";
@@ -145,7 +147,9 @@
 
       search.addEventListener("input", () => {
         const query = search.value.toLowerCase();
-        const filtered = Object.entries(posts).filter(([_, post]) => post.title.toLowerCase().includes(query));
+        const filtered = Object.entries(posts).filter(([_, post]) =>
+          post.title.toLowerCase().includes(query)
+        );
         render(filtered);
       });
 
