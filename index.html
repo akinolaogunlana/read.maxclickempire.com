@@ -119,48 +119,60 @@
     <p>Powered by <a href="https://read.maxclickempire.com" target="_blank">Maxclickempire</a>. Built to Impact.</p>
   </footer>
 
-  <!-- Post Metadata -->
-  <script src="/data/post-meta.js" defer></script>
-  <script defer>
-    // Fix to assign postMetadata globally since your file uses module.exports (not browser native)
-    window.postMetadata = window.postMetadata || postMetadata || {};
-  </script>
+  <script>
+    async function loadPostMetadata() {
+      try {
+        const res = await fetch('/data/post-meta.js');
+        if (!res.ok) throw new Error('Failed to load post metadata');
+        const text = await res.text();
 
-  <script defer>
-    window.addEventListener("load", () => {
-      const list = document.getElementById("post-list");
-      const search = document.getElementById("search");
-      const posts = window.postMetadata || {};
+        const match = text.match(/let postMetadata\s*=\s*(\{[\s\S]*?\});/);
 
-      function render(filtered = Object.entries(posts)) {
-        list.innerHTML = "";
-        if (filtered.length === 0) {
-          list.innerHTML = "<li>No matching posts found.</li>";
-          return;
-        }
-        filtered.forEach(([slug, post]) => {
-          const item = document.createElement("li");
-          item.innerHTML = `<a href="/posts/${slug}.html">${post.title}</a><p>${post.description}</p>`;
-          list.appendChild(item);
-        });
+        if (!match || match.length < 2) throw new Error('postMetadata not found in file');
+
+        const metadataObject = eval('(' + match[1] + ')');
+
+        window.postMetadata = metadataObject;
+
+        renderPosts(window.postMetadata);
+      } catch (e) {
+        console.error('Error loading post metadata:', e);
+        document.getElementById('post-list').innerHTML = '<li>Failed to load posts.</li>';
       }
+    }
 
-      search.addEventListener("input", () => {
+    function renderPosts(posts) {
+      const list = document.getElementById('post-list');
+      list.innerHTML = '';
+      if (!posts || Object.keys(posts).length === 0) {
+        list.innerHTML = '<li>No posts found.</li>';
+        return;
+      }
+      Object.entries(posts).forEach(([slug, post]) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="/posts/${slug}.html">${post.title}</a><p>${post.description}</p>`;
+        list.appendChild(li);
+      });
+    }
+
+    window.addEventListener('load', () => {
+      loadPostMetadata();
+
+      const search = document.getElementById('search');
+      search.addEventListener('input', () => {
         const query = search.value.toLowerCase();
-        const filtered = Object.entries(posts).filter(([_, post]) =>
+        const filtered = Object.entries(window.postMetadata || {}).filter(([_, post]) =>
           post.title.toLowerCase().includes(query)
         );
-        render(filtered);
+        renderPosts(Object.fromEntries(filtered));
       });
 
-      render();
-    });
-
-    window.addEventListener("scroll", () => {
-      const scrollTop = document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (scrollTop / scrollHeight) * 100;
-      document.getElementById("progress-bar").style.width = `${scrolled}%`;
+      window.addEventListener('scroll', () => {
+        const scrollTop = document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (scrollTop / scrollHeight) * 100;
+        document.getElementById('progress-bar').style.width = `${scrolled}%`;
+      });
     });
   </script>
 </body>
