@@ -3,7 +3,7 @@ name: 🚀 Supreme SEO Ecosystem Automation
 on:
   push:
     paths:
-      - 'dist/**'                 # <-- Added to trigger on changes inside dist/
+      - 'dist/**'                 # <-- Trigger on changes inside dist/
       - 'sitemap.xml'
       - 'rss.xml'
       - 'robots.txt'
@@ -81,6 +81,7 @@ jobs:
         run: |  
           git config --global user.name "maxclick-seo-bot"  
           git config --global user.email "github-actions@users.noreply.github.com"  
+          # Add only safe files (exclude credentials)
           git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger archive.html posts/ || true  
           git commit -m "♻️ Auto SEO, Metadata, Posts & Archive Update" || echo "No changes to commit"  
           git push || echo "No changes to push"  
