@@ -6,9 +6,10 @@ let postMetadata = {
     "keywords": "affiliate disclosure statement template, sample affiliate disclosure, FTC compliant disclosure",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
-    "datePublished": "2025-08-10T07:52:44.166Z",
-    "timestamp": "2025-08-10T07:52:57.277Z",
-    "sourceLastModified": 1754812377277.9556
+    "datePublished": "2025-08-08T12:00:00.000Z",
+    "dateModified": "2025-08-08T12:00:00.000Z",
+    "timestamp": "2025-08-10T08:13:00.884Z",
+    "sourceLastModified": 1754813580884.6973
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates That Actually Get You Hired",
@@ -17,8 +18,9 @@ let postMetadata = {
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T07:52:44.166Z",
-    "timestamp": "2025-08-10T07:52:57.295Z",
-    "sourceLastModified": 1754812377295.9558
+    "dateModified": "2025-08-10T08:13:00.144Z",
+    "timestamp": "2025-08-10T08:13:00.902Z",
+    "sourceLastModified": 1754813580902.6975
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -27,8 +29,9 @@ let postMetadata = {
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T07:52:44.167Z",
-    "timestamp": "2025-08-10T07:52:57.322Z",
-    "sourceLastModified": 1754812377322.956
+    "dateModified": "2025-08-10T08:13:00.144Z",
+    "timestamp": "2025-08-10T08:13:00.928Z",
+    "sourceLastModified": 1754813580928.6978
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern Resume Templates in Google Docs That Get Jobs",
@@ -37,8 +40,9 @@ let postMetadata = {
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T07:52:44.167Z",
-    "timestamp": "2025-08-10T07:52:57.328Z",
-    "sourceLastModified": 1754812377328.9563
+    "dateModified": "2025-08-10T08:13:00.145Z",
+    "timestamp": "2025-08-10T08:13:00.936Z",
+    "sourceLastModified": 1754813580936.6978
   }
 };
 module.exports = { postMetadata };
