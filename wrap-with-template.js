@@ -19,8 +19,8 @@ if (!isCI) {
 // Config
 const SITE_URL = process.env.SITE_URL || "https://read.maxclickempire.com";
 const templatePath = path.join(process.cwd(), "template.html");
-const rawPostsDir = path.join(process.cwd(), "dist");     // now source folder
-const wrappedPostsDir = path.join(process.cwd(), "posts"); // now output folder
+const rawPostsDir = path.join(process.cwd(), "dist");
+const wrappedPostsDir = path.join(process.cwd(), "posts");
 const metaPath = path.join(process.cwd(), "data", "post-meta.js");
 
 // === SAFETY CHECKS ===
@@ -35,7 +35,7 @@ if (!fs.existsSync(rawPostsDir)) {
 fs.mkdirSync(wrappedPostsDir, { recursive: true });
 fs.mkdirSync(path.dirname(metaPath), { recursive: true });
 
-// Helpers: parse meta tags robustly (handles attribute order & quoting)
+// Helpers: parse meta tags robustly
 function parseMetaTags(html) {
   const out = [];
   const tags = html.match(/<meta\b[^>]*>/gi) || [];
@@ -56,7 +56,7 @@ function parseMetaTags(html) {
   return out;
 }
 
-// Extract metadata from HTML, now including manual datepublished & datemodified
+// Extract metadata from HTML, now including datepublished & datemodified
 function extractMetadataFromHtml(html, slug) {
   const commentDesc = html.match(/<!--\s*(?:Meta|meta)\s+description\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
   const commentKeys = html.match(/<!--\s*(?:Meta|meta)\s+keywords\s*[:\-\s]\s*([\s\S]*?)\s*-->/i);
@@ -66,8 +66,8 @@ function extractMetadataFromHtml(html, slug) {
   let keywords = "";
   let ogImage = "";
   let timestamp = "";
-  let datePublishedl = "";
-  let dateModifiedl = "";
+  let datePublished = "";
+  let dateModified = "";
 
   for (const m of metas) {
     if (m.name && m.name.toLowerCase() === "description" && m.content) {
@@ -83,7 +83,7 @@ function extractMetadataFromHtml(html, slug) {
       timestamp = timestamp || m.content;
     }
     if (m.name && m.name.toLowerCase() === "datepublished" && m.content) {
-      datePublishedl = datePublished || m.content;
+      datePublished = datePublished || m.content;
     }
     if (m.name && m.name.toLowerCase() === "datemodified" && m.content) {
       dateModified = dateModified || m.content;
@@ -123,14 +123,14 @@ function loadMetadata() {
     return mod && mod.postMetadata && typeof mod.postMetadata === "object"
       ? mod.postMetadata
       : (typeof mod === "object" ? mod : {});
-  } catch (err) {
+  } catch {
     try {
       const raw = fs.readFileSync(metaPath, "utf8");
       const match = raw.match(/let postMetadata\s*=\s*({[\s\S]*?});/);
       if (match) {
         return eval(`(${match[1]})`);
       }
-    } catch (e) {}
+    } catch {}
   }
   return {};
 }
@@ -162,7 +162,7 @@ function cleanPostHtml(rawHtml) {
 // Build a single post
 function buildPost(file, postMetadata) {
   try {
-    if (!file || !file.endsWith(".html")) return false;
+    if (!file.endsWith(".html")) return false;
     const slug = path.basename(file, ".html");
     const rawPath = path.join(rawPostsDir, file);
     if (!fs.existsSync(rawPath)) {
@@ -178,34 +178,22 @@ function buildPost(file, postMetadata) {
     const now = new Date().toISOString();
     const existingMeta = postMetadata[slug] || {};
 
-    // Prefer manual datepublished if valid ISO date
     let datePublished = existingMeta.datePublished;
-    if (
-      extracted.datePublishedManual &&
-      !isNaN(Date.parse(extracted.datePublishedManual))
-    ) {
-      datePublished = new Date(extracted.datePublishedManual).toISOString();
+    if (extracted.datePublished && !isNaN(Date.parse(extracted.datePublished))) {
+      datePublished = new Date(extracted.datePublished).toISOString();
     } else if (extracted.timestamp && !isNaN(Date.parse(extracted.timestamp))) {
       datePublished = new Date(extracted.timestamp).toISOString();
     } else if (!datePublished) {
-      datePublished =
-        stats.birthtimeMs && stats.birthtimeMs > 0
-          ? stats.birthtime.toISOString()
-          : now;
+      datePublished = stats.birthtimeMs ? stats.birthtime.toISOString() : now;
     }
 
-    // Prefer manual datemodified if valid ISO date, else fallback to existing or now if content changed
     let dateModified = existingMeta.dateModified || now;
-    if (
-      extracted.dateModifiedManual &&
-      !isNaN(Date.parse(extracted.dateModifiedManual))
-    ) {
-      dateModified = new Date(extracted.dateModifiedManual).toISOString();
+    if (extracted.dateModified && !isNaN(Date.parse(extracted.dateModified))) {
+      dateModified = new Date(extracted.dateModified).toISOString();
     } else if (existingMeta.htmlHash !== htmlHash) {
       dateModified = now;
     }
 
-    // Store timestamp (manual or datePublished)
     const timestamp =
       extracted.timestamp && !isNaN(Date.parse(extracted.timestamp))
         ? new Date(extracted.timestamp).toISOString()
@@ -233,13 +221,10 @@ function buildPost(file, postMetadata) {
     const finalHtml = template
       .replace(/{{TITLE}}/g, postMetadata[slug].title || "")
       .replace(/{{DESCRIPTION}}/g, postMetadata[slug].description || "")
-      .replace(
-        /{{DESCRIPTION_ESCAPED}}/g,
-        (postMetadata[slug].description || "")
-          .replace(/"/g, "&quot;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-      )
+      .replace(/{{DESCRIPTION_ESCAPED}}/g, (postMetadata[slug].description || "")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;"))
       .replace(/{{KEYWORDS}}/g, postMetadata[slug].keywords || "")
       .replace(/{{AUTHOR}}/g, postMetadata[slug].author || "")
       .replace(/{{OG_IMAGE}}/g, postMetadata[slug].ogImage || "")
@@ -261,46 +246,36 @@ function buildPost(file, postMetadata) {
 
 // Build all posts
 function buildAll() {
-  const files = (fs.readdirSync(rawPostsDir) || []).filter((f) =>
-    f.endsWith(".html")
-  );
+  const files = fs.readdirSync(rawPostsDir).filter(f => f.endsWith(".html"));
   if (!files.length) {
     console.warn("⚠️ No .html files found in dist/. Nothing to build.");
     return { processed: 0, files: [] };
   }
-
   const postMetadata = loadMetadata();
   const processedFiles = [];
-
   for (const f of files) {
-    const ok = buildPost(f, postMetadata);
-    if (ok) processedFiles.push(f);
+    if (buildPost(f, postMetadata)) processedFiles.push(f);
   }
-
   saveMetadata(postMetadata);
-  console.log(
-    `\n📦 Build summary: ${processedFiles.length} / ${files.length} posts processed.`
-  );
+  console.log(`\n📦 Build summary: ${processedFiles.length} / ${files.length} posts processed.`);
   return { processed: processedFiles.length, files: processedFiles };
 }
 
 // Watch for changes (local only)
 function startWatch() {
   if (!chokidar) {
-    console.warn(
-      "⚠️ Live watch not available (chokidar missing). Run npm install chokidar locally to enable."
-    );
+    console.warn("⚠️ Live watch not available (chokidar missing). Run npm install chokidar locally to enable.");
     return;
   }
   const watcher = chokidar.watch(rawPostsDir, { ignoreInitial: true });
-  watcher.on("add", (filePath) => {
+  watcher.on("add", filePath => {
     const name = path.basename(filePath);
     console.log(`🆕 Detected new post: ${name}`);
     const pm = loadMetadata();
     buildPost(name, pm);
     saveMetadata(pm);
   });
-  watcher.on("change", (filePath) => {
+  watcher.on("change", filePath => {
     const name = path.basename(filePath);
     console.log(`✏️ Detected change in: ${name}`);
     const pm = loadMetadata();
