@@ -1,48 +1,48 @@
 // Auto-generated metadata
 let postMetadata = {
   "affiliate-disclosure-statement-template": {
-    "title": "Affiliate Disclosure Statement Template",
-    "description": "Simple, clear affiliate disclosure statement templates you can copy and customize.",
-    "keywords": "affiliate disclosure statement template, sample affiliate disclosure, FTC compliant disclosure",
+    "title": "Affiliate Disclosure Statement Template — Clear, Compliant, Copy-Paste Ready",
+    "description": "Copy-paste affiliate disclosure templates and placement rules for blogs, social, email, and Amazon — clear, compliant, and ready for Blogger.",
+    "keywords": "affiliate disclosure template, affiliate disclosure for blog, affiliate disclaimer sample",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
-    "datePublished": "2025-08-08T12:00:00.000Z",
-    "dateModified": "2025-08-08T12:00:00.000Z",
-    "timestamp": "2025-08-10T08:13:00.884Z",
-    "sourceLastModified": 1754813580884.6973
+    "datePublished": "2025-08-10T00:00:00.000Z",
+    "dateModified": "2025-08-10T00:00:00.000Z",
+    "timestamp": "2025-08-11T03:59:47.409Z",
+    "sourceLastModified": 1754884787409.6777
   },
   "best-docs-resume-templates-that-get-you-hired": {
-    "title": "Best Free Google Docs Resume Templates That Actually Get You Hired",
-    "description": "Explore the top free Google Docs resume templates, tested by professionals, and learn how to tailor them for your career goals.",
-    "keywords": "free google docs resume templates, best google docs resume template, professional resume google docs, editable resume templates google docs",
+    "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly & Ready-to-Use",
+    "description": "Best free Google Docs resume templates for 2025: ATS-friendly, editable, and ready to customize. Find the right template and make it hireable.",
+    "keywords": "free Google Docs resume templates, Google Docs resume 2025, ATS friendly resume templates",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
-    "datePublished": "2025-08-10T07:52:44.166Z",
-    "dateModified": "2025-08-10T08:13:00.144Z",
-    "timestamp": "2025-08-10T08:13:00.902Z",
-    "sourceLastModified": 1754813580902.6975
+    "datePublished": "2025-08-10T00:00:00.000Z",
+    "dateModified": "2025-08-10T00:00:00.000Z",
+    "timestamp": "2025-08-11T03:59:47.497Z",
+    "sourceLastModified": 1754884787497.6787
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
-    "description": "Build a clean, human-first resume in Google Docs that parses correctly, reads well for hiring teams, and gets your experience noticed.",
-    "keywords": "ATS friendly resume, Google Docs resume, resume template, applicant tracking system, resume tips",
+    "description": "Step-by-step guide to build an ATS-friendly resume in Google Docs — clean format, keyword strategy, testing checklist for consistent interview invites.",
+    "keywords": "ATS-friendly resume, Google Docs resume, ATS resume template, how to pass ATS, resume keywords",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
-    "datePublished": "2025-08-10T07:52:44.167Z",
-    "dateModified": "2025-08-10T08:13:00.144Z",
-    "timestamp": "2025-08-10T08:13:00.928Z",
-    "sourceLastModified": 1754813580928.6978
+    "datePublished": "2025-08-10T00:00:00.000Z",
+    "dateModified": "2025-08-10T00:00:00.000Z",
+    "timestamp": "2025-08-11T03:59:47.463Z",
+    "sourceLastModified": 1754884787463.6782
   },
   "modern-resume-templates-google-docs-get-jobs": {
-    "title": "Modern Resume Templates in Google Docs That Get Jobs",
-    "description": "Discover how to create standout resumes with modern Google Docs templates that help you land interviews and job offers.",
-    "keywords": "modern resume templates, Google Docs resume, resume templates that get jobs, professional resume design, job-winning resumes",
+    "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
+    "description": "Find modern Google Docs resume templates that pass ATS checks — choose, convert, and tailor templates that get interviews (step-by-step).",
+    "keywords": "Google Docs resume templates, ATS friendly resume templates, modern resume templates Google Docs, resume templates that get interviews",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
-    "datePublished": "2025-08-10T07:52:44.167Z",
-    "dateModified": "2025-08-10T08:13:00.145Z",
-    "timestamp": "2025-08-10T08:13:00.936Z",
-    "sourceLastModified": 1754813580936.6978
+    "datePublished": "2025-08-10T00:00:00.000Z",
+    "dateModified": "2025-08-10T00:00:00.000Z",
+    "timestamp": "2025-08-11T03:59:47.476Z",
+    "sourceLastModified": 1754884787476.6785
   }
 };
 module.exports = { postMetadata };
