@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-11T10:58:31.108Z",
-    "sourceLastModified": 1754909911108.524
+    "timestamp": "2025-08-12T03:42:24.134Z",
+    "sourceLastModified": 1754970144134.1543
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly & Ready-to-Use",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-11T10:58:31.200Z",
-    "sourceLastModified": 1754909911200.525
+    "timestamp": "2025-08-12T03:42:24.235Z",
+    "sourceLastModified": 1754970144235.1555
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-11T10:58:31.149Z",
-    "sourceLastModified": 1754909911149.5244
+    "timestamp": "2025-08-12T03:42:24.185Z",
+    "sourceLastModified": 1754970144185.155
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-11T10:58:31.175Z",
-    "sourceLastModified": 1754909911175.5247
+    "timestamp": "2025-08-12T03:42:24.210Z",
+    "sourceLastModified": 1754970144210.1553
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Google Docs resume template for fresh graduates",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-11T10:58:31.165Z",
-    "sourceLastModified": 1754909911165.5247
+    "timestamp": "2025-08-12T03:42:24.201Z",
+    "sourceLastModified": 1754970144201.1553
   }
 };
 module.exports = { postMetadata };
