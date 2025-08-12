@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.139Z",
-    "sourceLastModified": 1754985586139.4685
+    "timestamp": "2025-08-12T08:15:32.444Z",
+    "sourceLastModified": 1754986532444.4482
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly & Ready-to-Use",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.169Z",
-    "sourceLastModified": 1754985586169.469
+    "timestamp": "2025-08-12T08:15:32.478Z",
+    "sourceLastModified": 1754986532478.4485
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.181Z",
-    "sourceLastModified": 1754985586181.4692
+    "timestamp": "2025-08-12T08:15:32.491Z",
+    "sourceLastModified": 1754986532491.4487
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.209Z",
-    "sourceLastModified": 1754985586209.4695
+    "timestamp": "2025-08-12T08:15:32.523Z",
+    "sourceLastModified": 1754986532523.4487
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Google Docs resume template for fresh graduates",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.195Z",
-    "sourceLastModified": 1754985586195.4692
+    "timestamp": "2025-08-12T08:15:32.501Z",
+    "sourceLastModified": 1754986532501.4487
   },
   "one-page-resume-template-google-docs-free-download": {
     "title": "One-Page Resume Template in Google Docs (Free Download)",
@@ -63,8 +63,19 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-12T07:59:46.224Z",
-    "sourceLastModified": 1754985586224.4697
+    "timestamp": "2025-08-12T08:15:32.534Z",
+    "sourceLastModified": 1754986532534.449
+  },
+  "minimalist-docs-resume-template-free-ats-friendly": {
+    "title": "Best Minimalist Google Docs Resume Template (Free & ATS-Friendly)",
+    "description": "Find the best minimalist Google Docs resume template — free, ATS-friendly, and easy to customize. Step-by-step setup, formatting hacks, and template picks.",
+    "keywords": "minimalist Google Docs resume template, best Google Docs resume minimalist, free Google Docs resume template ATS-friendly",
+    "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
+    "canonical": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
+    "datePublished": "2025-08-12T00:00:00.000Z",
+    "dateModified": "2025-08-12T00:00:00.000Z",
+    "timestamp": "2025-08-12T08:15:32.513Z",
+    "sourceLastModified": 1754986532513.4487
   }
 };
 module.exports = { postMetadata };
