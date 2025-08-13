@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.354Z",
-    "sourceLastModified": 1755033201354.9424
+    "timestamp": "2025-08-13T03:44:46.189Z",
+    "sourceLastModified": 1755056686189.211
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly & Ready-to-Use",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.560Z",
-    "sourceLastModified": 1755033201560.945
+    "timestamp": "2025-08-13T03:44:46.413Z",
+    "sourceLastModified": 1755056686413.2273
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.407Z",
-    "sourceLastModified": 1755033201407.943
+    "timestamp": "2025-08-13T03:44:46.250Z",
+    "sourceLastModified": 1755056686250.212
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.598Z",
-    "sourceLastModified": 1755033201598.9456
+    "timestamp": "2025-08-13T03:44:46.457Z",
+    "sourceLastModified": 1755056686457.2314
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Google Docs resume template for fresh graduates",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.573Z",
-    "sourceLastModified": 1755033201573.9453
+    "timestamp": "2025-08-13T03:44:46.428Z",
+    "sourceLastModified": 1755056686428.2288
   },
   "one-page-resume-template-google-docs-free-download": {
     "title": "One-Page Resume Template in Google Docs (Free Download)",
@@ -63,8 +63,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.533Z",
-    "sourceLastModified": 1755033201533.9448
+    "timestamp": "2025-08-13T03:44:46.386Z",
+    "sourceLastModified": 1755056686386.2249
   },
   "minimalist-docs-resume-template-free-ats-friendly": {
     "title": "Best Minimalist Google Docs Resume Template (Free & ATS-Friendly)",
@@ -74,8 +74,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.575Z",
-    "sourceLastModified": 1755033201575.9453
+    "timestamp": "2025-08-13T03:44:46.430Z",
+    "sourceLastModified": 1755056686430.2288
   },
   "creative-graphic-designer-resume-google-docs": {
     "title": "Creative Resume Template for Graphic Designers in Google Docs (Free & Editable)",
@@ -85,8 +85,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/creative-graphic-designer-resume-google-docs.html",
     "datePublished": "2025-11-08T00:00:00.000Z",
     "dateModified": "2025-11-08T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.567Z",
-    "sourceLastModified": 1755033201567.945
+    "timestamp": "2025-08-13T03:44:46.422Z",
+    "sourceLastModified": 1755056686422.228
   },
   "remote-job-resume-template-google-docs": {
     "title": "Resume for Remote Jobs — Free Google Docs Template (Plus Freezer/Onsite Notes)",
@@ -96,8 +96,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.488Z",
-    "sourceLastModified": 1755033201488.944
+    "timestamp": "2025-08-13T03:44:46.333Z",
+    "sourceLastModified": 1755056686333.2197
   },
   "free-google-docs-resume-career-changers": {
     "title": "Free Google Docs resume for career changers",
@@ -107,8 +107,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/free-google-docs-resume-career-changers.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.571Z",
-    "sourceLastModified": 1755033201571.945
+    "timestamp": "2025-08-13T03:44:46.426Z",
+    "sourceLastModified": 1755056686426.2285
   },
   "cover-letter-template-matching-resume": {
     "title": "Google Docs cover letter template with matching resume",
@@ -118,8 +118,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/cover-letter-template-matching-resume.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-12T21:13:21.590Z",
-    "sourceLastModified": 1755033201590.9453
+    "timestamp": "2025-08-13T03:44:46.446Z",
+    "sourceLastModified": 1755056686446.2305
   }
 };
 module.exports = { postMetadata };
