@@ -1,0 +1,175 @@
+<h1>Google Docs Employee Timesheet Template (Free)</h1>
+<meta name="description" content="Grab a free Google Docs employee timesheet template and learn when to switch to Google Sheets for auto-totals, overtime, and locked approvals.">
+<meta name="keywords" content="Google Docs employee timesheet template, free timesheet template Google Docs, weekly timesheet, monthly timesheet, Google Sheets timesheet">
+<meta name="datePublished" content="2025-08-14">
+<meta name="dateModified" content="2025-08-14">
+
+<p><strong>Here’s a hard truth:</strong> the easiest timesheets to print and sign aren’t always the easiest to total. That’s why thousands of teams start with a clean, printable <strong>Google Docs</strong> timesheet and graduate to a <strong>Google Sheets</strong> version once they need auto-calculations, approvals, and audit trails. This guide gives you both—ready to copy—plus the exact structure payroll loves.</p>
+
+<h2>Why a Google Docs Timesheet Still Matters (and When Sheets Is Better)</h2>
+<p>Google Docs shines when you need a simple, professional time card that looks great on paper or PDF, captures a signature, and doesn’t require formulas. It’s ideal for volunteer shifts, small crews, field teams that print and post schedules, or clients who still expect a signed timesheet attached to an invoice.</p>
+<p>Google Sheets becomes essential the moment you need running totals, daily/weekly rollups, guardrails to stop edits, or any overtime logic. Sheets also gives you version history and protected ranges—perfect for month-end payroll and audits.</p>
+
+<h3>Docs vs Sheets: Printability, signatures, and calculations</h3>
+<ul>
+  <li><strong>Google Docs:</strong> clean layout, simple table, signature lines, easy PDF export, minimal training.</li>
+  <li><strong>Google Sheets:</strong> automatic totals, duration math, overtime flags, protect ranges, filter/sort by job or code.</li>
+</ul>
+
+<h3>A quick decision tree for your team size and payroll workflow</h3>
+<ul>
+  <li><strong>Solo or 1–5 people, no overtime:</strong> Start with the Docs template. Export weekly to PDF for signature.</li>
+  <li><strong>6–25 people or frequent edits:</strong> Use the Sheets version with protected ranges and a manager sign-off tab.</li>
+  <li><strong>Job costing or billable/non-billable split:</strong> Sheets with project columns and pivot summaries.</li>
+  <li><strong>Client-approved hours:</strong> Docs for signature + a mirrored Sheet that totals and archives.</li>
+</ul>
+
+<h2>Download-Ready: Free Google Docs Timesheet Templates (Daily, Weekly, Biweekly, Monthly)</h2>
+<p>You can work with any period (daily/weekly/biweekly/monthly). Choose the one that fits your payroll cycle and approval cadence.</p>
+
+<h3>What each period is best for (use cases and pitfalls)</h3>
+<ul>
+  <li><strong>Daily:</strong> Best for shift work, contractors, or sites needing same-day sign-off. Pitfall: more paperwork if you pay weekly.</li>
+  <li><strong>Weekly:</strong> Most common. Clean review and simple overtime check at 40 hours in many jurisdictions.</li>
+  <li><strong>Biweekly:</strong> Matches common payroll cycles. Watch that week-by-week overtime is still calculated per week.</li>
+  <li><strong>Monthly:</strong> Great for salaried staff logging projects; ensure weekly overtime rules are handled elsewhere if required.</li>
+</ul>
+
+<h3>How to copy a template to your Drive without request-access errors</h3>
+<ol>
+  <li>Open the shared template link.</li>
+  <li>Go to <strong>File &gt; Make a copy</strong> (never request edit access from the publisher).</li>
+  <li>Rename, choose your Drive folder, and click <strong>Make a copy</strong>.</li>
+  <li>Share with your team using <strong>Viewer</strong> or <strong>Commenter</strong> first—upgrade specific cells to <strong>Editor</strong> only where people must type.</li>
+</ol>
+
+<h2>Build Your Own in Google Docs (Step-by-Step)</h2>
+<p>If you prefer to craft a template from scratch, here’s a simple, payroll-friendly layout you can set up in five minutes.</p>
+
+<h3>Table structure that payroll actually understands</h3>
+<p>Create a one-page table with the following columns. Keep it to 7–9 columns for readability on paper.</p>
+<ul>
+  <li><strong>Date</strong></li>
+  <li><strong>Project/Client</strong> (optional but essential for job costing)</li>
+  <li><strong>Start</strong> (hh:mm AM/PM)</li>
+  <li><strong>End</strong> (hh:mm AM/PM)</li>
+  <li><strong>Break (min)</strong></li>
+  <li><strong>Hours (decimal)</strong> (filled manually in Docs)</li>
+  <li><strong>Notes</strong></li>
+</ul>
+<p>At the bottom, add a totals row, a <strong>Supervisor Approval</strong> line, <strong>Employee Signature</strong>, and the pay period dates.</p>
+
+<h3>Fields to include: employee ID, project, breaks, approval</h3>
+<ul>
+  <li><strong>Header block:</strong> Company, Employee Name &amp; ID, Supervisor, Week Starting, Pay Rate (if needed), Department/Project.</li>
+  <li><strong>Footer:</strong> Employee declaration and signature lines; Supervisor name, date, signature.</li>
+</ul>
+
+<h3>Formatting for clean printing and signatures</h3>
+<ul>
+  <li>Use <strong>1" margins</strong> and page size <strong>Letter</strong> or <strong>A4</strong>.</li>
+  <li>Set table width to page width; center headers; use alternating row shading for readability.</li>
+  <li>Add a second page for <strong>biweekly</strong> periods or keep one page per week and staple together for the pay period.</li>
+</ul>
+
+<h2>Upgrade Path: Convert Your Doc to a Google Sheet (for Auto-Totals)</h2>
+<p>When totals, overtime, or multiple projects become complex, move to Sheets. You can paste your Docs table headings into a Sheet and switch to time-aware formats.</p>
+
+<h3>Duration math that never breaks (time formats)</h3>
+<p>In Sheets, store start/end as times, not text. Use a duration formula for hours:</p>
+<ul>
+  <li><strong>Duration (hh:mm):</strong> <code>=IF(OR(Start="",End=""),"",End-Start)</code> then format as <strong>Duration &gt; [h]:mm</strong>.</li>
+  <li><strong>Subtract unpaid breaks:</strong> If Break is minutes, total hours = <code>=((End-Start)*24) - (Break/60)</code> and format as <strong>Number</strong> with 2 decimals.</li>
+</ul>
+<p>Modern Sheets tip: Array-fill durations down the column with one formula. Example using map logic: <code>=MAP(B2:B,C2:C,LAMBDA(s,e,IF(ISBLANK(e),"",TEXT(e-s,"[h]:mm"))))</code> (format output as Plain text or convert to value if needed).</p>
+
+<h3>Breaks, lunch, and daily/weekly totals (copy-paste formulas)</h3>
+<ul>
+  <li><strong>Daily hours (decimal):</strong> <code>=ROUND(((End-Start)*24) - (Break/60), 2)</code></li>
+  <li><strong>Weekly total:</strong> If the week is rows 2–8, <code>=SUM(F2:F8)</code></li>
+  <li><strong>Billable vs non-billable:</strong> Add a <em>Billable?</em> checkbox and use <code>=SUMIF(G2:G8,TRUE,F2:F8)</code> for billable hours.</li>
+</ul>
+
+<h3>Overtime concepts and weekly threshold examples</h3>
+<p>Many teams flag overtime after 40 hours in a 7-day workweek (jurisdiction dependent). A simple approach in Sheets:</p>
+<ol>
+  <li>Cell <strong>WEEK_TOTAL</strong> contains weekly hours.</li>
+  <li><strong>Regular hours:</strong> <code>=MIN(40, WEEK_TOTAL)</code></li>
+  <li><strong>Overtime hours:</strong> <code>=MAX(0, WEEK_TOTAL-40)</code></li>
+</ol>
+<p>If you pay overtime at 1.5x the regular rate, create a pay summary:</p>
+<ul>
+  <li><strong>Regular Pay:</strong> <code>=Regular_Hours * Rate</code></li>
+  <li><strong>Overtime Pay:</strong> <code>=Overtime_Hours * Rate * 1.5</code></li>
+  <li><strong>Total Pay:</strong> <code>=Regular_Pay + Overtime_Pay</code></li>
+</ul>
+<p><strong>Important:</strong> Always apply your local/industry rules. Use your payroll system as the system of record.</p>
+
+<h3>Monthly close-out and pay-period rollups</h3>
+<p>Create one tab per week and a <strong>Summary</strong> tab that uses <code>SUM</code> across tabs: <code>=SUM(Week1!F2:F8, Week2!F2:F8, ...)</code>. Protect prior weeks (see next section) when the month is closed.</p>
+
+<h2>Governance: Prevent After-the-Fact Edits and Keep an Audit Trail</h2>
+<p>Nothing derails payroll faster than changes after invoices go out. Here’s a pragmatic, Google-native control set:</p>
+
+<h3>Protect ranges, lock past weeks, and use version history</h3>
+<ul>
+  <li><strong>Protect ranges:</strong> Data &gt; Protect sheets and ranges. Lock prior weeks; leave the current week editable for employees.</li>
+  <li><strong>Use “Set permissions”:</strong> Allow <em>Only you</em> or <em>Specific people</em> for those ranges.</li>
+  <li><strong>Version history:</strong> File &gt; Version history &gt; Name current version each payroll close (“July 2025 Closed”).</li>
+</ul>
+
+<h3>Manager sign-off workflow and comment-only sharing</h3>
+<ul>
+  <li>Give employees <strong>Editor</strong> access only on their rows or their tab; managers keep full edit.</li>
+  <li>At the end of the week, switch the sheet to <strong>Commenter</strong> for employees. Managers review, then export PDFs to attach to payroll or client invoices.</li>
+</ul>
+
+<h2>Compliance-Aware Recordkeeping (Non-Legal, Practical Guidance)</h2>
+<p>Timesheets are more than admin—they’re part of your wage and hour records. While formats vary by country, most employers must keep accurate records of hours worked, pay, and deductions. Your template should help, not hinder, that requirement.</p>
+
+<h3>What to retain and for how long (U.S. &amp; U.K. references)</h3>
+<ul>
+  <li><strong>U.S. (FLSA context):</strong> Keep payroll records for several years; preserve the documents used to calculate pay (including time cards) for at least two years. Track hours worked and wages accurately. Always check for any stricter state rules.</li>
+  <li><strong>U.K. (Working Time &amp; PAYE context):</strong> Keep working time records and PAYE records for multiple years as required; ensure you can evidence accurate hours for audits.</li>
+</ul>
+<p><em>This article provides practical, experience-based setup guidance. It is not legal advice. Confirm requirements with your payroll provider or counsel.</em></p>
+
+<h2>Pro Setup: Small Team Stack That Just Works</h2>
+<ul>
+  <li>Start with the <strong>Docs</strong> template for a clean weekly time card.</li>
+  <li>Mirror entries in a <strong>Sheets</strong> template that totals hours, splits billable/non-billable, and highlights overtime.</li>
+  <li>Close each week: protect ranges, name the version, export PDFs, and email the pack to payroll/clients.</li>
+  <li>Quarterly: review columns you actually use; archive the rest to keep entry friction low.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Q: Is a timesheet legally required?</h3>
+<p>A: You must keep accurate records of hours worked and pay in many jurisdictions. A timesheet is a practical way to do it. Requirements and retention periods vary; use your payroll system as the authoritative store and keep timesheets consistent with it.</p>
+
+<h3>Q: Docs or Sheets—which should I use for a small team?</h3>
+<p>A: If you need printable, signable cards with minimal training, start with <strong>Docs</strong>. If you need auto-totals, overtime, filters, and edit locks, use <strong>Sheets</strong>. Many teams use both: Doc for client signatures, Sheet for calculations and archives.</p>
+
+<h3>Q: How do I calculate overtime correctly in Sheets?</h3>
+<p>A: Create weekly totals and split hours into regular vs overtime using simple <code>MIN</code>/<code>MAX</code> logic. Multiply overtime hours by your applicable overtime rate (e.g., 1.5×). Confirm your local rules and your payroll system’s configuration.</p>
+
+<h3>Q: How do I stop employees editing approved entries?</h3>
+<p>A: In Sheets, protect ranges for prior weeks and change employee access to Commenter after approval. Name the version at close, and export a PDF for the pay file.</p>
+
+<h3>Q: Can I attach timesheets to invoices automatically?</h3>
+<p>A: Yes. Export approved weekly tabs as PDFs and attach to your invoice template. If you invoice by project, add a Project column and summarize hours by project on a separate Summary tab.</p>
+
+<h3>Q: How long should I keep timesheets?</h3>
+<p>A: Keep them in line with your local wage/hour recordkeeping rules and tax requirements. In practice, many organizations retain time and pay calculations for several years. Confirm with your payroll provider or legal counsel.</p>
+
+<h2>Conclusion</h2>
+<p>Start simple, finish strong: use the <strong>Google Docs employee timesheet template</strong> when you need a clean, printable card and upgrade to a <strong>Google Sheets</strong> version when totals, overtime, and governance matter. With the structure and steps above, you’ll have fewer payroll headaches, faster approvals, and a defensible audit trail—without buying new software.</p>
+
+<!-- 
+High-authority references used to inform best practices:
+https://www.dol.gov/agencies/whd/fact-sheets/21-flsa-recordkeeping
+https://www.dol.gov/general/topic/workhours/hoursrecordkeeping
+https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay
+https://www.gov.uk/paye-for-employers/keeping-records
+https://www.acas.org.uk/working-time-rules
+-->
