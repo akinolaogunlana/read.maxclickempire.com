@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.173Z",
-    "sourceLastModified": 1755143116173.0376
+    "timestamp": "2025-08-14T06:35:20.387Z",
+    "sourceLastModified": 1755153320387.5151
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly & Ready-to-Use",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.464Z",
-    "sourceLastModified": 1755143116464.0808
+    "timestamp": "2025-08-14T06:35:20.757Z",
+    "sourceLastModified": 1755153320757.5198
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.498Z",
-    "sourceLastModified": 1755143116498.0857
+    "timestamp": "2025-08-14T06:35:20.817Z",
+    "sourceLastModified": 1755153320817.5203
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.453Z",
-    "sourceLastModified": 1755143116453.079
+    "timestamp": "2025-08-14T06:35:20.739Z",
+    "sourceLastModified": 1755153320739.5195
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Google Docs resume template for fresh graduates",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.471Z",
-    "sourceLastModified": 1755143116471.0818
+    "timestamp": "2025-08-14T06:35:20.768Z",
+    "sourceLastModified": 1755153320768.5198
   },
   "one-page-resume-template-google-docs-free-download": {
     "title": "One-Page Resume Template in Google Docs (Free Download)",
@@ -63,8 +63,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.520Z",
-    "sourceLastModified": 1755143116520.089
+    "timestamp": "2025-08-14T06:35:20.843Z",
+    "sourceLastModified": 1755153320843.5208
   },
   "minimalist-docs-resume-template-free-ats-friendly": {
     "title": "Best Minimalist Google Docs Resume Template (Free & ATS-Friendly)",
@@ -74,19 +74,19 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.423Z",
-    "sourceLastModified": 1755143116423.0747
+    "timestamp": "2025-08-14T06:35:20.697Z",
+    "sourceLastModified": 1755153320697.519
   },
   "creative-graphic-designer-resume-google-docs": {
-    "title": "Creative Resume Template for Graphic Designers in Google Docs (Free & Editable)",
+    "title": "Creative Resume Template for Graphic Designers | Google Docs Free",
     "description": "Free Google Docs resume templates for graphic designers—editable, creative, and ATS-aware. Step-by-step customization, one-page layout hacks, portfolio tips, and export guidance.",
     "keywords": "creative resume template Google Docs, graphic designer resume Google Docs, free Google Docs resume template, Google Docs designer resume download",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/creative-graphic-designer-resume-google-docs.html",
     "datePublished": "2025-11-08T00:00:00.000Z",
     "dateModified": "2025-11-08T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.414Z",
-    "sourceLastModified": 1755143116414.0732
+    "timestamp": "2025-08-14T06:35:20.687Z",
+    "sourceLastModified": 1755153320687.5188
   },
   "remote-job-resume-template-google-docs": {
     "title": "Resume for Remote Jobs — Free Google Docs Template (Plus Freezer/Onsite Notes)",
@@ -96,8 +96,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.345Z",
-    "sourceLastModified": 1755143116345.063
+    "timestamp": "2025-08-14T06:35:20.601Z",
+    "sourceLastModified": 1755153320601.5178
   },
   "free-google-docs-resume-career-changers": {
     "title": "Free Google Docs resume for career changers",
@@ -107,8 +107,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/free-google-docs-resume-career-changers.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.508Z",
-    "sourceLastModified": 1755143116508.0872
+    "timestamp": "2025-08-14T06:35:20.831Z",
+    "sourceLastModified": 1755153320831.5205
   },
   "cover-letter-template-matching-resume": {
     "title": "Google Docs cover letter template with matching resume",
@@ -118,8 +118,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/cover-letter-template-matching-resume.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.466Z",
-    "sourceLastModified": 1755143116466.081
+    "timestamp": "2025-08-14T06:35:20.760Z",
+    "sourceLastModified": 1755153320760.5198
   },
   "invoice-docs-templates-for-freelancers": {
     "title": "Free Google Docs Invoice Templates for Freelancers",
@@ -129,8 +129,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/invoice-docs-templates-for-freelancers.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.420Z",
-    "sourceLastModified": 1755143116420.0742
+    "timestamp": "2025-08-14T06:35:20.694Z",
+    "sourceLastModified": 1755153320694.5188
   },
   "professional-invoice-using-google-docs": {
     "title": "How to Create a Professional Invoice Using Google Docs",
@@ -140,8 +140,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/professional-invoice-using-google-docs.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.326Z",
-    "sourceLastModified": 1755143116326.0603
+    "timestamp": "2025-08-14T06:35:20.579Z",
+    "sourceLastModified": 1755153320579.5176
   },
   "proposal-template-google-docs-for-small-businesses": {
     "title": "Google Docs Proposal Template for Small Businesses",
@@ -151,8 +151,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-14T03:45:16.335Z",
-    "sourceLastModified": 1755143116335.0615
+    "timestamp": "2025-08-14T06:35:20.590Z",
+    "sourceLastModified": 1755153320590.5176
   }
 };
 module.exports = { postMetadata };
