@@ -171,4 +171,14 @@ timesheet-template-google-docs.html</loc>
       <image:title>Google Docs Employee Timesheet Template (Free)</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/letterhead-in-google-docs.html</loc>
+    <lastmod>2025-08-15T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>How to Make a Letterhead in Google Docs</image:title>
+    </image:image>
+  </url>
 </urlset>
