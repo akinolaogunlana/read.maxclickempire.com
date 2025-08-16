@@ -19,7 +19,7 @@ on:
       - 'assets/seo-enhancer.js'
 
   schedule:
-    - cron: '0 3 * * *'        # Run every day at 03:00 UTC
+    - cron: '0 3 * * *'        # Run every month at 03:00 UTC
 
 jobs:
   build-and-deploy:
