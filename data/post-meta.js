@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:21.404Z",
-    "sourceLastModified": 1755678321404.2407
+    "timestamp": "2025-08-20T08:40:48.125Z",
+    "sourceLastModified": 1755679248125.0825
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.115Z",
-    "sourceLastModified": 1755678322115.2466
+    "timestamp": "2025-08-20T08:40:48.313Z",
+    "sourceLastModified": 1755679248313.0862
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.122Z",
-    "sourceLastModified": 1755678322122.2466
+    "timestamp": "2025-08-20T08:40:48.371Z",
+    "sourceLastModified": 1755679248371.0874
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.139Z",
-    "sourceLastModified": 1755678322139.2466
+    "timestamp": "2025-08-20T08:40:48.291Z",
+    "sourceLastModified": 1755679248291.086
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Google Docs resume template for fresh graduates",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.128Z",
-    "sourceLastModified": 1755678322128.2466
+    "timestamp": "2025-08-20T08:40:48.329Z",
+    "sourceLastModified": 1755679248329.0867
   },
   "one-page-resume-template-google-docs-free-download": {
     "title": "One-Page Resume Template in Google Docs (Free Download)",
@@ -63,8 +63,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.141Z",
-    "sourceLastModified": 1755678322141.2466
+    "timestamp": "2025-08-20T08:40:48.389Z",
+    "sourceLastModified": 1755679248389.0876
   },
   "minimalist-docs-resume-template-free-ats-friendly": {
     "title": "Best Minimalist Google Docs Resume Template (Free & ATS-Friendly)",
@@ -74,8 +74,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.138Z",
-    "sourceLastModified": 1755678322138.2466
+    "timestamp": "2025-08-20T08:40:47.935Z",
+    "sourceLastModified": 1755679247935.0789
   },
   "creative-graphic-designer-resume-google-docs": {
     "title": "Creative Resume Template for Graphic Designers | Google Docs Free",
@@ -85,8 +85,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/creative-graphic-designer-resume-google-docs.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.123Z",
-    "sourceLastModified": 1755678322123.2466
+    "timestamp": "2025-08-20T08:40:47.834Z",
+    "sourceLastModified": 1755679247834.077
   },
   "remote-job-resume-template-google-docs": {
     "title": "Resume for Remote Jobs — Free Google Docs Template",
@@ -96,8 +96,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.146Z",
-    "sourceLastModified": 1755678322146.2468
+    "timestamp": "2025-08-20T08:40:48.018Z",
+    "sourceLastModified": 1755679248018.0806
   },
   "free-google-docs-resume-career-changers": {
     "title": "Free Google Docs resume for career changers",
@@ -107,8 +107,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/free-google-docs-resume-career-changers.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.204Z",
-    "sourceLastModified": 1755678322204.247
+    "timestamp": "2025-08-20T08:40:48.580Z",
+    "sourceLastModified": 1755679248580.0916
   },
   "cover-letter-template-matching-resume": {
     "title": "Google Docs cover letter template with matching resume",
@@ -118,8 +118,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/cover-letter-template-matching-resume.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.120Z",
-    "sourceLastModified": 1755678322120.2466
+    "timestamp": "2025-08-20T08:40:48.323Z",
+    "sourceLastModified": 1755679248323.0864
   },
   "invoice-docs-templates-for-freelancers": {
     "title": "Free Google Docs Invoice Templates for Freelancers",
@@ -129,8 +129,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/invoice-docs-templates-for-freelancers.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.000Z",
-    "sourceLastModified": 1755678322000.2456
+    "timestamp": "2025-08-20T08:40:48.419Z",
+    "sourceLastModified": 1755679248419.0884
   },
   "professional-invoice-using-google-docs": {
     "title": "How to Create a Professional Invoice Using Google Docs",
@@ -140,8 +140,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/professional-invoice-using-google-docs.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.143Z",
-    "sourceLastModified": 1755678322143.2466
+    "timestamp": "2025-08-20T08:40:47.968Z",
+    "sourceLastModified": 1755679247968.0796
   },
   "proposal-template-google-docs-for-small-businesses": {
     "title": "Google Docs Proposal Template for Small Businesses",
@@ -151,8 +151,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.145Z",
-    "sourceLastModified": 1755678322145.2468
+    "timestamp": "2025-08-20T08:40:48.432Z",
+    "sourceLastModified": 1755679248432.0886
   },
   "business-letter-template-google-docs-formal-format": {
     "title": "Business Letter Template Google Docs (Formal Format)",
@@ -162,8 +162,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/business-letter-template-google-docs-formal-format.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.117Z",
-    "sourceLastModified": 1755678322117.2466
+    "timestamp": "2025-08-20T08:40:48.448Z",
+    "sourceLastModified": 1755679248448.0889
   },
   "meeting-minutes-template-google-docs-free": {
     "title": "Meeting Minutes Template Google Docs (Free)",
@@ -173,8 +173,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/meeting-minutes-template-google-docs-free.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:21.608Z",
-    "sourceLastModified": 1755678321608.2424
+    "timestamp": "2025-08-20T08:40:47.925Z",
+    "sourceLastModified": 1755679247925.0786
   },
   "timesheet-template-google-docs.html\ntimesheet-template-google-docs": {
     "title": "Google Docs Employee Timesheet Template (Free)",
@@ -184,8 +184,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/timesheet-template-google-docs.html\ntimesheet-template-google-docs.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.154Z",
-    "sourceLastModified": 1755678322154.2468
+    "timestamp": "2025-08-20T08:40:48.061Z",
+    "sourceLastModified": 1755679248061.0813
   },
   "letterhead-in-google-docs": {
     "title": "How to Make a Letterhead in Google Docs",
@@ -195,19 +195,19 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/letterhead-in-google-docs.html",
     "datePublished": "2025-08-15T00:00:00.000Z",
     "dateModified": "2025-08-15T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.135Z",
-    "sourceLastModified": 1755678322135.2466
+    "timestamp": "2025-08-20T08:40:48.379Z",
+    "sourceLastModified": 1755679248379.0876
   },
   "purchase-order-templates-google-docs": {
-    "title": "Google Docs Purchase Order Template for Small Stores (Free, Printable, and Customizable)",
+    "title": "Purchase Order Template for Small Stores | Free Google Docs",
     "description": "Build a professional purchase order in Google Docs for your small store—free template layout, step-by-step setup, numbering, and a fast Docs + Sheets workflow.",
     "keywords": "Google Docs purchase order template, purchase order template Google Docs, small store purchase order, free purchase order, printable purchase order",
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/purchase-order-templates-google-docs.html",
     "datePublished": "2025-08-16T00:00:00.000Z",
     "dateModified": "2025-08-16T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:21.679Z",
-    "sourceLastModified": 1755678321679.243
+    "timestamp": "2025-08-20T08:40:48.005Z",
+    "sourceLastModified": 1755679248005.08
   },
   "delivery-note-template-google-docs-free-printable": {
     "title": "Delivery Note Template in Google Docs — Free, Printable & Mobile-Friendly",
@@ -217,8 +217,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/delivery-note-template-google-docs-free-printable.html",
     "datePublished": "2025-08-17T00:00:00.000Z",
     "dateModified": "2025-08-17T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.125Z",
-    "sourceLastModified": 1755678322125.2466
+    "timestamp": "2025-08-20T08:40:48.415Z",
+    "sourceLastModified": 1755679248415.0884
   },
   "sales-contract-template-free-editable-google-docs": {
     "title": "Sales Contract Template — Free, Editable Google Docs (Pro Legal Layout)",
@@ -228,8 +228,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/sales-contract-template-free-editable-google-docs.html",
     "datePublished": "2025-08-18T00:00:00.000Z",
     "dateModified": "2025-08-18T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.148Z",
-    "sourceLastModified": 1755678322148.2468
+    "timestamp": "2025-08-20T08:40:48.396Z",
+    "sourceLastModified": 1755679248396.088
   },
   "student-planner-template-google-docs": {
     "title": "Student Planner Template in Google Docs | Free & Printable",
@@ -239,8 +239,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/student-planner-template-google-docs.html",
     "datePublished": "2025-08-19T00:00:00.000Z",
     "dateModified": "2025-08-19T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.150Z",
-    "sourceLastModified": 1755678322150.2468
+    "timestamp": "2025-08-20T08:40:48.189Z",
+    "sourceLastModified": 1755679248189.0837
   },
   "classroom-seating-chart-google-docs-template": {
     "title": "Classroom seating chart Google Docs template",
@@ -250,8 +250,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/classroom-seating-chart-google-docs-template.html",
     "datePublished": "2025-08-19T00:00:00.000Z",
     "dateModified": "2025-08-19T00:00:00.000Z",
-    "timestamp": "2025-08-20T08:25:22.119Z",
-    "sourceLastModified": 1755678322119.2466
+    "timestamp": "2025-08-20T08:40:48.368Z",
+    "sourceLastModified": 1755679248368.0874
   }
 };
 module.exports = { postMetadata };
