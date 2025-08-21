@@ -4,8 +4,8 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^(www\.)?maxclickempire\.com$ [NC]
 RewriteRule ^(.*)$ https://read.maxclickempire.com/$1 [L,R=301]
 
-# 2️⃣ Redirect specific old post URL to new URL
-Redirect 301 /posts/Google-Docs-Student-Planner-Template.html /posts/student-planner-template-google-docs.html
+# 2️⃣ Redirect specific old post URL to new URL (Google-indexed old URL)
+RewriteRule ^posts/Google-Docs-Student-Planner-Template\.html$ /posts/student-planner-template-google-docs.html [L,R=301]
 
 # 3️⃣ Make all /posts/ URLs case-insensitive
 RewriteCond %{REQUEST_URI} ^/posts/(.*)$ [NC]
