@@ -291,37 +291,154 @@ if (headings.length && !document.querySelector("#toc")) {
 
 
 
-    // ✅ Related Posts
-    if (!document.querySelector("#related-posts") && window.postMetadata) {
-      const currentKeywords = (meta.title + " " + meta.description).toLowerCase();
-      const related = Object.entries(window.postMetadata)
-        .filter(([key, data]) =>
-          key !== slug &&
-          (data.title.toLowerCase().includes(currentKeywords) ||
-            data.description.toLowerCase().includes(currentKeywords))
-        )
-        .slice(0, 3);
+    // ✅ Ultra-Smart Related Posts + TOC
 
-      if (related.length) {
-        const relatedBlock = document.createElement("section");
-        relatedBlock.id = "related-posts";
-        relatedBlock.innerHTML = `
-          <h2>🔗 Related Posts</h2>
-          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-            ${related
-              .map(
-                ([slug, data]) => `
-              <a href="/posts/${slug}.html" style="flex:1 1 30%;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:1rem;">
-                <strong>${data.title}</strong><br/>
-                <small style="color:#777;">${data.description.slice(0, 100)}...</small>
-              </a>
-            `
-              )
-              .join("")}
-          </div>`;
-        article.appendChild(relatedBlock);
-      }
+if (!document.querySelector("#related-posts") && window.postMetadata) {
+  const meta = window.postMetadata[slug];
+  if (!meta) return;
+
+  const stopWords = ["the","and","or","of","a","an","in","on","for","with","to","at","by","is","it","this"];
+
+  const extractWords = text => (text.toLowerCase().match(/\b\w+\b/g) || []);
+  let keywords = [...extractWords(meta.title), ...extractWords(meta.description)];
+  if (meta.tags) keywords = [...keywords, ...meta.tags.map(tag => tag.toLowerCase())];
+  keywords = keywords.filter(word => !stopWords.includes(word));
+
+  // ✅ Weighted and partial matches
+  const scoredPosts = Object.entries(window.postMetadata)
+    .filter(([key]) => key !== slug)
+    .map(([key, data]) => {
+      const dataText = (data.title + " " + data.description + (data.tags ? " " + data.tags.join(" ") : "")).toLowerCase();
+      let score = 0;
+      keywords.forEach(word => {
+        const regex = new RegExp(word, "i"); // partial match
+        if (regex.test(data.title)) score += 3; // title weight
+        else if (regex.test(data.description)) score += 1; // description weight
+        else if (data.tags && data.tags.some(tag => regex.test(tag.toLowerCase()))) score += 2; // tag weight
+      });
+      return { slug: key, data, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0,3);
+
+  if (scoredPosts.length) {
+    const relatedBlock = document.createElement("section");
+    relatedBlock.id = "related-posts";
+    relatedBlock.style.marginTop = "3rem";
+    relatedBlock.innerHTML = `
+      <h2 style="margin-bottom:1rem;">🔗 Related Posts</h2>
+      <div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between;">
+        ${scoredPosts.map(item => `
+          <a href="/posts/${item.slug}.html" style="
+            flex:1 1 calc(33% - 1rem);
+            text-decoration:none;
+            border:1px solid #ccc;
+            border-radius:8px;
+            padding:1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background:#fff;
+            position:relative;
+          " data-slug="${item.slug}" data-preview="${item.data.description.slice(0,150)}">
+            <strong style="color:#333;">${item.data.title}</strong><br/>
+            <small style="color:#777;">${item.data.description.slice(0,100)}${item.data.description.length > 100 ? "..." : ""}</small>
+          </a>
+        `).join("")}
+      </div>
+    `;
+    article.appendChild(relatedBlock);
+
+    // Hover effects + TOC expand + scroll + preview tooltip
+    const links = relatedBlock.querySelectorAll("a");
+    links.forEach(a => {
+      // Hover animation
+      a.addEventListener("mouseenter", () => {
+        a.style.transform = "translateY(-3px)";
+        a.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+        // Tooltip preview
+        const tooltip = document.createElement("div");
+        tooltip.className = "related-tooltip";
+        tooltip.style.position = "absolute";
+        tooltip.style.top = "100%";
+        tooltip.style.left = "0";
+        tooltip.style.padding = "0.5rem";
+        tooltip.style.background = "#fff";
+        tooltip.style.border = "1px solid #ccc";
+        tooltip.style.borderRadius = "6px";
+        tooltip.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+        tooltip.style.width = "250px";
+        tooltip.style.zIndex = 9999;
+        tooltip.innerText = a.dataset.preview;
+        a.appendChild(tooltip);
+      });
+      a.addEventListener("mouseleave", () => {
+        a.style.transform = "translateY(0)";
+        a.style.boxShadow = "none";
+        const tooltip = a.querySelector(".related-tooltip");
+        if (tooltip) tooltip.remove();
+      });
+
+      // Click: scroll to section + TOC auto-expand
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const relatedSlug = a.dataset.slug;
+        const targetHeading = document.querySelector(`#toc a[href*='${relatedSlug}']`);
+        if (targetHeading) {
+          const parentLi = targetHeading.closest("li");
+          const arrow = parentLi.querySelector("span");
+          const subUl = parentLi.querySelector("ul");
+          if (subUl && subUl.style.maxHeight === "0px") {
+            subUl.style.maxHeight = subUl.scrollHeight + "px";
+            if (arrow) arrow.style.transform = "rotate(0deg)";
+          }
+          const targetSection = document.querySelector(`#${relatedSlug}`);
+          if (targetSection) {
+            window.scrollTo({ top: targetSection.offsetTop - 20, behavior: "smooth" });
+          }
+        } else {
+          window.location.href = `/posts/${relatedSlug}.html`; // fallback
+        }
+      });
+    });
+  }
+}
+
+// ✅ Ultra-smart TOC auto-highlight on scroll
+const tocLinks = document.querySelectorAll("#toc a");
+const headings = Array.from(tocLinks).map(a => {
+  const id = a.getAttribute("href").replace("#","");
+  return { id, link: a, offset: document.getElementById(id)?.offsetTop || 0 };
+});
+
+window.addEventListener("scroll", () => {
+  const scrollPos = window.scrollY + 30;
+  let current = headings[0];
+  for (const h of headings) {
+    if (scrollPos >= h.offset) current = h;
+  }
+  tocLinks.forEach(a => {
+    if (a === current.link) {
+      a.style.fontWeight = "bold";
+      a.style.color = "#007BFF";
+    } else {
+      a.style.fontWeight = "normal";
+      a.style.color = a.style.color.includes("#007BFF") ? "#333" : a.style.color;
     }
+  });
+
+  // Auto-expand collapsed TOC sections
+  const currentLi = current.link.closest("li");
+  if (currentLi) {
+    const subUl = currentLi.querySelector("ul");
+    const arrow = currentLi.querySelector("span");
+    if (subUl && subUl.style.maxHeight === "0px") {
+      subUl.style.maxHeight = subUl.scrollHeight + "px";
+      if (arrow) arrow.style.transform = "rotate(0deg)";
+    }
+  }
+});
+
+
 
 
 
