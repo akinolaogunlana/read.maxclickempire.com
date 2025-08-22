@@ -319,3 +319,68 @@
     }
   }
 })();
+
+// ===== SHARE ARTICLE (Universal + Native Mobile) =====
+(function addShareButtons() {
+  if (!document.querySelector(".share-article")) {
+    const article = document.querySelector("article");
+    if (!article) return;
+
+    const shareContainer = document.createElement("div");
+    shareContainer.className = "share-article";
+    shareContainer.style.cssText = `
+      display:flex;
+      gap:0.5rem;
+      margin:2rem 0;
+      justify-content:flex-start;
+      align-items:center;
+      font-family:Arial,sans-serif;
+    `;
+    shareContainer.innerHTML = `
+      <span style="font-weight:bold;">Share:</span>
+      <button class="share-btn" data-platform="facebook">Facebook</button>
+      <button class="share-btn" data-platform="twitter">Twitter</button>
+      <button class="share-btn" data-platform="linkedin">LinkedIn</button>
+      <button class="share-btn" data-platform="email">Email</button>
+      <button class="share-btn" data-platform="copy">Copy Link</button>
+      <button class="share-btn" data-platform="native">Share</button>
+    `;
+
+    // Insert share buttons after hero or at top of article
+    const hero = document.querySelector(".post-hero");
+    if (hero) hero.insertAdjacentElement("afterend", shareContainer);
+    else article.insertAdjacentElement("afterbegin", shareContainer);
+
+    const url = window.location.href;
+    const title = document.title;
+
+    shareContainer.querySelectorAll(".share-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const platform = btn.dataset.platform;
+
+        try {
+          if (platform === "facebook") {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank", "width=600,height=400");
+          } else if (platform === "twitter") {
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
+          } else if (platform === "linkedin") {
+            window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
+          } else if (platform === "email") {
+            window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
+          } else if (platform === "copy") {
+            await navigator.clipboard.writeText(url);
+            alert("✅ Link copied to clipboard!");
+          } else if (platform === "native") {
+            if (navigator.share) {
+              await navigator.share({ title, url });
+            } else {
+              alert("⚠️ Native sharing not supported on this device. Use the buttons above.");
+            }
+          }
+        } catch (err) {
+          console.error("Share failed:", err);
+        }
+      });
+    });
+  }
+})();
