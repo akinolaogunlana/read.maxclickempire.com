@@ -142,7 +142,7 @@
 
 
 
-    // ✅ Hierarchical TOC with toggle + smooth animation
+    // ✅ Full-feature TOC with Back to Top
 const headings = article.querySelectorAll("h2, h3");
 
 if (headings.length && !document.querySelector("#toc")) {
@@ -151,11 +151,14 @@ if (headings.length && !document.querySelector("#toc")) {
   toc.style.border = "1px solid #ccc";
   toc.style.padding = "1rem";
   toc.style.marginBottom = "1rem";
+  toc.style.background = "#f9f9f9";
+  toc.style.fontFamily = "Arial, sans-serif";
 
   toc.innerHTML = `
-    <h2>📚 Table of Contents</h2>
+    <h2 style="margin-top:0;">📚 Table of Contents</h2>
     <button id="toggle-toc" style="margin-bottom:0.5rem;">Hide TOC</button>
     <ul style="padding-left:1rem;"></ul>
+    <button id="back-to-top" style="margin-top:0.5rem; display:block;">Back to Top ↑</button>
   `;
 
   const ul = toc.querySelector("ul");
@@ -167,21 +170,28 @@ if (headings.length && !document.querySelector("#toc")) {
 
     if (h.tagName === "H2") {
       const li = document.createElement("li");
-      li.innerHTML = `<a href="#${id}" style="cursor:pointer;">${h.textContent}</a>`;
+      li.style.listStyle = "none";
+      li.style.marginBottom = "0.3rem";
+      li.innerHTML = `
+        <span style="display:inline-block; cursor:pointer; user-select:none; transition: transform 0.3s;">▼</span>
+        <a href="#${id}" style="margin-left:0.3rem; text-decoration:none; color:#333;">${h.textContent}</a>
+      `;
       ul.appendChild(li);
       currentH2Li = li;
     } else if (h.tagName === "H3" && currentH2Li) {
       let subUl = currentH2Li.querySelector("ul");
       if (!subUl) {
         subUl = document.createElement("ul");
-        subUl.style.paddingLeft = "1rem";
+        subUl.style.paddingLeft = "1.5rem";
         subUl.style.overflow = "hidden";
-        subUl.style.maxHeight = "500px"; // default expanded
+        subUl.style.maxHeight = "0px"; // start collapsed
         subUl.style.transition = "max-height 0.3s ease";
         currentH2Li.appendChild(subUl);
       }
       const li = document.createElement("li");
-      li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
+      li.style.listStyle = "disc";
+      li.style.marginBottom = "0.2rem";
+      li.innerHTML = `<a href="#${id}" style="text-decoration:none; color:#555;">${h.textContent}</a>`;
       subUl.appendChild(li);
     }
   });
@@ -189,8 +199,9 @@ if (headings.length && !document.querySelector("#toc")) {
   article.insertAdjacentElement("afterbegin", toc);
 
   const toggleBtn = toc.querySelector("#toggle-toc");
+  const backToTopBtn = toc.querySelector("#back-to-top");
 
-  // ✅ Load saved TOC state
+  // ✅ Load saved TOC visibility
   const tocState = localStorage.getItem("tocVisible");
   if (tocState === "hidden") {
     ul.style.display = "none";
@@ -210,24 +221,67 @@ if (headings.length && !document.querySelector("#toc")) {
     }
   });
 
-  // ✅ Make H2 collapsible for H3 items with animation
-  const h2Links = ul.querySelectorAll("li > a");
-  h2Links.forEach(a => {
-    a.addEventListener("click", e => {
-      const subUl = a.parentElement.querySelector("ul");
-      if (subUl) {
+  // ✅ Collapse/Expand sublists with rotating arrows
+  const h2Items = ul.querySelectorAll("li > span");
+  h2Items.forEach(span => {
+    const subUl = span.parentElement.querySelector("ul");
+    if (subUl) {
+      span.style.transform = "rotate(-90deg)"; // start collapsed
+      span.addEventListener("click", e => {
         if (subUl.style.maxHeight === "0px") {
           subUl.style.maxHeight = subUl.scrollHeight + "px";
+          span.style.transform = "rotate(0deg)";
         } else {
           subUl.style.maxHeight = "0px";
+          span.style.transform = "rotate(-90deg)";
         }
-        e.preventDefault(); // prevent jumping
+      });
+    } else {
+      span.style.visibility = "hidden"; // hide arrow if no subitems
+    }
+  });
+
+  // ✅ Smooth scroll for TOC links
+  const tocLinks = ul.querySelectorAll("a[href^='#']");
+  tocLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute("href"));
+      if (target) {
+        window.scrollTo({
+          top: target.offsetTop - 20,
+          behavior: "smooth"
+        });
       }
     });
+  });
 
-    // Initialize subUl height properly
-    const subUl = a.parentElement.querySelector("ul");
-    if (subUl) subUl.style.maxHeight = subUl.scrollHeight + "px";
+  // ✅ Back to Top button
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+
+  // ✅ Highlight current section while scrolling
+  const allTocLinks = ul.querySelectorAll("a");
+  const headingOffsets = Array.from(headings).map(h => ({
+    id: h.id,
+    offset: h.offsetTop
+  }));
+
+  window.addEventListener("scroll", () => {
+    const scrollPos = window.scrollY + 30;
+    let current = headingOffsets[0].id;
+    for (const h of headingOffsets) {
+      if (scrollPos >= h.offset) current = h.id;
+    }
+
+    allTocLinks.forEach(a => {
+      a.style.fontWeight = a.getAttribute("href").substring(1) === current ? "bold" : "normal";
+      a.style.color = a.getAttribute("href").substring(1) === current ? "#007BFF" : a.style.color;
+    });
   });
 }
 
