@@ -199,7 +199,7 @@ if (headings.length && !document.querySelector("#toc")) {
   article.insertAdjacentElement("afterbegin", toc);
 
   const toggleBtn = toc.querySelector("#toggle-toc");
-  const backToDownBtn = toc.querySelector("#Go-Down");
+  const backToTopBtn = toc.querySelector("#back-to-top");
 
   // ✅ Load saved TOC visibility
   const tocState = localStorage.getItem("tocVisible");
@@ -256,10 +256,10 @@ if (headings.length && !document.querySelector("#toc")) {
     });
   });
 
-  // ✅ Back to down button
-  backToDownBtn.addEventListener("click", () => {
+  // ✅ Back to Top button
+  backToTopBtn.addEventListener("click", () => {
     window.scrollTo({
-      down: 0,
+      top: 0,
       behavior: "smooth"
     });
   });
