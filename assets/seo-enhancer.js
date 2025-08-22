@@ -1,6 +1,8 @@
 (function () {
-  function waitFor(conditionFn, callback, interval = 50, timeout = 2000) {
-    console.log("✅ seo-enhancer.js is running");
+  console.log("✅ seo-enhancer.js loaded");
+
+  // Wait for a condition to be true
+  function waitFor(conditionFn, callback, interval = 50, timeout = 3000) {
     const start = Date.now();
     const poll = () => {
       if (conditionFn()) return callback();
@@ -10,7 +12,8 @@
     poll();
   }
 
-  function waitForDom(callback) {
+  // Run function after DOM is ready
+  function onDomReady(callback) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", callback);
     } else {
@@ -18,297 +21,301 @@
     }
   }
 
-  waitForDom(() => {
+  onDomReady(() => {
     waitFor(() => !!window.postMetadata, initSeoEnhancer);
   });
 
   function initSeoEnhancer() {
-    const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
-    const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
-    const skip = ["about", "contact", "privacy-policy", "terms"];
-    if (skip.includes(pathSlug)) return;
+    try {
+      const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
+      const pathSlug = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
+      const skip = ["about", "contact", "privacy-policy", "terms"];
+      if (skip.includes(pathSlug)) return;
 
-    const article = document.querySelector("article");
-    if (!article) return;
+      const article = document.querySelector("article");
+      if (!article) return;
 
-    // ✅ Header Navigation
-    if (!document.querySelector("header.site-header")) {
-      const nav = document.createElement("header");
-      nav.className = "site-header";
-      nav.innerHTML = `
-        <nav style="background:#fff;border-bottom:1px solid #eee;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;position:sticky;top:0;z-index:999;">
-          <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;">🧠MaxClickEmpire</a>
-          <ul style="display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;">
-            <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
-            <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
-            <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
-          </ul>
-        </nav>`;
-      document.body.insertAdjacentElement("afterbegin", nav);
-    }
-
-    // ✅ SEO Metadata
-    let h1 = article.querySelector("h1");
-    const titleText = h1?.textContent.trim() || document.title;
-    const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
-    const firstImg = article.querySelector("img");
-    const image = firstImg?.src || "/assets/og-image.jpg";
-
-    const meta = window.postMetadata?.[slug] || {
-      title: titleText,
-      description: desc,
-      image,
-      published: new Date().toISOString()
-    };
-
-    function injectMeta(name, content, attr = "name") {
-      if (!content) return;
-      const tag = document.createElement("meta");
-      tag.setAttribute(attr, name);
-      tag.setAttribute("content", content);
-      document.head.appendChild(tag);
-    }
-
-    document.title = meta.title;
-    injectMeta("description", meta.description);
-
-    const keywords = meta.title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/gi, "")
-      .split(/\s+/)
-      .filter(w => w.length > 2)
-      .slice(0, 10)
-      .join(", ");
-    injectMeta("keywords", keywords);
-
-    ["og:title","og:description","og:type","og:url","og:image"].forEach(name =>
-      injectMeta(name, {
-        "og:title": meta.title,
-        "og:description": meta.description,
-        "og:type": "article",
-        "og:url": location.href,
-        "og:image": meta.image
-      }[name], "property")
-    );
-
-    injectMeta("twitter:card", "summary_large_image");
-    injectMeta("twitter:title", meta.title);
-    injectMeta("twitter:description", meta.description);
-    injectMeta("twitter:image", meta.image);
-
-    // ✅ JSON-LD structured data
-    const ld = document.createElement("script");
-    ld.type = "application/ld+json";
-    ld.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "BlogPosting",
-      headline: meta.title,
-      description: meta.description,
-      image: meta.image,
-      author: { "@type": "Person", name: "Ogunlana Akinola Okikiola" },
-      datePublished: meta.published,
-      publisher: {
-        "@type": "Organization",
-        name: "MaxClickEmpire",
-        logo: { "@type": "ImageObject", url: "https://read.maxclickempire.com" }
-      },
-      mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
-    });
-    document.head.appendChild(ld);
-
-    // ✅ Hero Section
-    if (h1 && !document.querySelector(".post-hero")) {
-      const hero = document.createElement("section");
-      hero.className = "post-hero";
-      hero.innerHTML = `
-        <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
-          <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
-          <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
-          <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
-        </div>`;
-      const h1Clone = h1.cloneNode(true);
-      h1.remove();
-      hero.querySelector("div").insertAdjacentElement("afterbegin", h1Clone);
-      article.insertAdjacentElement("afterbegin", hero);
-    }
-
-    // ✅ Full-feature TOC + Back to Top
-    const headings = article.querySelectorAll("h2,h3");
-    if (headings.length && !document.querySelector("#toc")) {
-      const toc = document.createElement("div");
-      toc.id = "toc";
-      toc.style = "border:1px solid #ccc;padding:1rem;margin-bottom:1rem;background:#f9f9f9;font-family:Arial,sans-serif;";
-      toc.innerHTML = `
-        <h2 style="margin-top:0;">📚 Table of Contents</h2>
-        <button id="toggle-toc" style="margin-bottom:0.5rem;">Hide TOC</button>
-        <ul style="padding-left:1rem;"></ul>
-        <button id="back-to-top" style="margin-top:0.5rem; display:block;">Back to Top ↑</button>
-      `;
-      const ul = toc.querySelector("ul");
-      let currentH2Li = null;
-      headings.forEach((h,i)=>{
-        const id = `toc-${i}`;
-        h.id = id;
-        if(h.tagName==="H2"){
-          const li = document.createElement("li");
-          li.style.listStyle="none";
-          li.style.marginBottom="0.3rem";
-          li.innerHTML=`<span style="display:inline-block; cursor:pointer; user-select:none; transition: transform 0.3s;">▼</span><a href="#${id}" style="margin-left:0.3rem; text-decoration:none; color:#333;">${h.textContent}</a>`;
-          ul.appendChild(li);
-          currentH2Li=li;
-        } else if(h.tagName==="H3" && currentH2Li){
-          let subUl=currentH2Li.querySelector("ul");
-          if(!subUl){
-            subUl=document.createElement("ul");
-            subUl.style.paddingLeft="1.5rem";
-            subUl.style.overflow="hidden";
-            subUl.style.maxHeight="0px";
-            subUl.style.transition="max-height 0.3s ease";
-            currentH2Li.appendChild(subUl);
-          }
-          const li=document.createElement("li");
-          li.style.listStyle="disc";
-          li.style.marginBottom="0.2rem";
-          li.innerHTML=`<a href="#${id}" style="text-decoration:none; color:#555;">${h.textContent}</a>`;
-          subUl.appendChild(li);
-        }
-      });
-      article.insertAdjacentElement("afterbegin", toc);
-
-      const toggleBtn = toc.querySelector("#toggle-toc");
-      const backToTopBtn = toc.querySelector("#back-to-top");
-      const tocState = localStorage.getItem("tocVisible");
-      if(tocState==="hidden"){ul.style.display="none"; toggleBtn.textContent="Show TOC";}
-      toggleBtn.addEventListener("click", ()=>{
-        if(ul.style.display==="none"){ul.style.display="block"; toggleBtn.textContent="Hide TOC"; localStorage.setItem("tocVisible","visible");}
-        else{ul.style.display="none"; toggleBtn.textContent="Show TOC"; localStorage.setItem("tocVisible","hidden");}
-      });
-
-      // Collapse/Expand arrows
-      ul.querySelectorAll("li > span").forEach(span=>{
-        const subUl=span.parentElement.querySelector("ul");
-        if(subUl){span.style.transform="rotate(-90deg)";
-          span.addEventListener("click",()=>{if(subUl.style.maxHeight==="0px"){subUl.style.maxHeight=subUl.scrollHeight+"px"; span.style.transform="rotate(0deg)";}else{subUl.style.maxHeight="0px"; span.style.transform="rotate(-90deg)";}});
-        } else span.style.visibility="hidden";
-      });
-
-      // Smooth scroll
-      ul.querySelectorAll("a[href^='#']").forEach(link=>{
-        link.addEventListener("click",e=>{
-          e.preventDefault();
-          const target=document.querySelector(link.getAttribute("href"));
-          if(target){window.scrollTo({top:target.offsetTop-20, behavior:"smooth"});}
-        });
-      });
-
-      backToTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-
-      // Auto-highlight
-      const allTocLinks=ul.querySelectorAll("a");
-      const headingOffsets=Array.from(headings).map(h=>({id:h.id, offset:h.offsetTop}));
-      window.addEventListener("scroll",()=>{
-        const scrollPos=window.scrollY+30;
-        let current=headingOffsets[0].id;
-        for(const h of headingOffsets){if(scrollPos>=h.offset) current=h.id;}
-        allTocLinks.forEach(a=>{
-          a.style.fontWeight=a.getAttribute("href").substring(1)===current?"bold":"normal";
-          a.style.color=a.getAttribute("href").substring(1)===current?"#007BFF":"#333";
-        });
-        const currentLi=document.querySelector(`#toc a[href="#${current}"]`)?.closest("li");
-        if(currentLi){
-          const subUl=currentLi.querySelector("ul");
-          const arrow=currentLi.querySelector("span");
-          if(subUl && subUl.style.maxHeight==="0px"){subUl.style.maxHeight=subUl.scrollHeight+"px"; if(arrow) arrow.style.transform="rotate(0deg)";}
-        }
-      });
-    }
-
-    // ✅ Ultra-smart Related Posts
-    if(!document.querySelector("#related-posts") && window.postMetadata){
-      const meta=window.postMetadata[slug];
-      if(!meta) return;
-      const stopWords=["the","and","or","of","a","an","in","on","for","with","to","at","by","is","it","this"];
-      const extractWords=text=>(text.toLowerCase().match(/\b\w+\b/g)||[]);
-      let keywords=[...extractWords(meta.title),...extractWords(meta.description)];
-      if(meta.tags) keywords=[...keywords,...meta.tags.map(t=>t.toLowerCase())];
-      keywords=keywords.filter(w=>!stopWords.includes(w));
-      const scoredPosts=Object.entries(window.postMetadata).filter(([k])=>k!==slug).map(([k,d])=>{
-        const dt=(d.title+" "+d.description+(d.tags? " "+d.tags.join(" ") : "")).toLowerCase();
-        let score=0;
-        keywords.forEach(w=>{
-          const r=new RegExp(w,"i");
-          if(r.test(d.title)) score+=3;
-          else if(r.test(d.description)) score+=1;
-          else if(d.tags && d.tags.some(t=>r.test(t.toLowerCase()))) score+=2;
-        });
-        return {slug:k,data:d,score};
-      }).filter(i=>i.score>0).sort((a,b)=>b.score-a.score).slice(0,3);
-      if(scoredPosts.length){
-        const related=document.createElement("section");
-        related.id="related-posts";
-        related.style.marginTop="3rem";
-        related.innerHTML=`<h2 style="margin-bottom:1rem;">🔗 Related Posts</h2><div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between;">
-          ${scoredPosts.map(i=>`<a href="/posts/${i.slug}.html" style="flex:1 1 calc(33% - 1rem); text-decoration:none; border:1px solid #ccc; border-radius:8px; padding:1rem; transition: transform 0.2s, box-shadow 0.2s; background:#fff; position:relative;" data-slug="${i.slug}" data-preview="${i.data.description.slice(0,150)}"><strong style="color:#333;">${i.data.title}</strong><br/><small style="color:#777;">${i.data.description.slice(0,100)}${i.data.description.length>100?"...":""}</small></a>`).join("")}
-        </div>`;
-        article.appendChild(related);
-        related.querySelectorAll("a").forEach(a=>{
-          a.addEventListener("mouseenter",()=>{
-            a.style.transform="translateY(-3px)"; a.style.boxShadow="0 4px 12px rgba(0,0,0,0.15)";
-            const tooltip=document.createElement("div");
-            tooltip.className="related-tooltip";
-            tooltip.style= "position:absolute; top:100%; left:0; padding:0.5rem; background:#fff; border:1px solid #ccc; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.1); width:250px; z-index:9999;";
-            tooltip.innerText=a.dataset.preview;
-            a.appendChild(tooltip);
-          });
-          a.addEventListener("mouseleave",()=>{
-            a.style.transform="translateY(0)"; a.style.boxShadow="none";
-            const t=a.querySelector(".related-tooltip"); if(t) t.remove();
-          });
-          a.addEventListener("click",e=>{
-            e.preventDefault();
-            const relatedSlug=a.dataset.slug;
-            const targetHeading=document.querySelector(`#toc a[href*='${relatedSlug}']`);
-            if(targetHeading){
-              const parentLi=targetHeading.closest("li");
-              const arrow=parentLi.querySelector("span");
-              const subUl=parentLi.querySelector("ul");
-              if(subUl && subUl.style.maxHeight==="0px"){subUl.style.maxHeight=subUl.scrollHeight+"px"; if(arrow) arrow.style.transform="rotate(0deg)";}
-              const targetSection=document.querySelector(`#${relatedSlug}`);
-              if(targetSection) window.scrollTo({top:targetSection.offsetTop-20,behavior:"smooth"});
-            } else window.location.href=`/posts/${relatedSlug}.html`;
-          });
-        });
+      // ===== NAVIGATION =====
+      if (!document.querySelector("header.site-header")) {
+        const nav = document.createElement("header");
+        nav.className = "site-header";
+        nav.innerHTML = `
+          <nav style="background:#fff;border-bottom:1px solid #eee;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;position:sticky;top:0;z-index:999;">
+            <a href="/" style="font-weight:bold;color:#222;text-decoration:none;font-size:1.2rem;">🧠MaxClickEmpire</a>
+            <ul style="display:flex;gap:1.5rem;list-style:none;margin:0;padding:0;">
+              <li><a href="/" style="color:#444;text-decoration:none;">Home</a></li>
+              <li><a href="/about.html" style="color:#444;text-decoration:none;">About</a></li>
+              <li><a href="/contact.html" style="color:#444;text-decoration:none;">Contact</a></li>
+            </ul>
+          </nav>`;
+        document.body.insertAdjacentElement("afterbegin", nav);
       }
+
+      // ===== METADATA =====
+      let h1 = article.querySelector("h1");
+      const titleText = h1?.textContent.trim() || document.title;
+      const desc = document.querySelector("meta[name='description']")?.content || "Digital strategy and free tools.";
+      const firstImg = article.querySelector("img");
+      const image = firstImg?.src || "/assets/og-image.jpg";
+
+      const meta = window.postMetadata?.[slug] || {
+        title: titleText,
+        description: desc,
+        image,
+        published: new Date().toISOString()
+      };
+
+      // Remove old meta
+      ["og:title", "og:description", "og:url", "og:type", "og:image",
+       "twitter:title", "twitter:description", "twitter:image", "twitter:card",
+       "keywords", "description"].forEach(name => {
+        const selector = `meta[property='${name}'], meta[name='${name}']`;
+        document.querySelectorAll(selector).forEach(tag => tag.remove());
+      });
+
+      function injectMeta(name, content, attr = "name") {
+        if (!content) return;
+        const tag = document.createElement("meta");
+        tag.setAttribute(attr, name);
+        tag.setAttribute("content", content);
+        document.head.appendChild(tag);
+      }
+
+      document.title = meta.title;
+      injectMeta("description", meta.description);
+
+      const keywords = meta.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/gi, "")
+        .split(/\s+/)
+        .filter(w => w.length > 2)
+        .slice(0, 10)
+        .join(", ");
+      injectMeta("keywords", keywords);
+
+      injectMeta("og:title", meta.title, "property");
+      injectMeta("og:description", meta.description, "property");
+      injectMeta("og:type", "article", "property");
+      injectMeta("og:url", location.href, "property");
+      injectMeta("og:image", meta.image, "property");
+
+      injectMeta("twitter:card", "summary_large_image");
+      injectMeta("twitter:title", meta.title);
+      injectMeta("twitter:description", meta.description);
+      injectMeta("twitter:image", meta.image);
+
+      // JSON-LD structured data
+      const ld = document.createElement("script");
+      ld.type = "application/ld+json";
+      ld.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: meta.title,
+        description: meta.description,
+        image: meta.image,
+        author: { "@type": "Person", name: "Ogunlana Akinola Okikiola" },
+        datePublished: meta.published,
+        publisher: {
+          "@type": "Organization",
+          name: "MaxClickEmpire",
+          logo: { "@type": "ImageObject", url: "https://read.maxclickempire.com" }
+        },
+        mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
+      });
+      document.head.appendChild(ld);
+
+      // ===== HERO =====
+      if (h1 && !document.querySelector(".post-hero")) {
+        const hero = document.createElement("section");
+        hero.className = "post-hero";
+        hero.innerHTML = `
+          <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
+            <p style="font-size: 0.9rem; color: #666;">📅 ${meta.published.split("T")[0]}</p>
+            <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
+            <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
+          </div>`;
+        const h1Clone = h1.cloneNode(true);
+        h1.remove();
+        hero.querySelector("div").insertAdjacentElement("afterbegin", h1Clone);
+        article.insertAdjacentElement("afterbegin", hero);
+      }
+
+      // ===== TOC =====
+      const headings = article.querySelectorAll("h2, h3");
+      if (headings.length && !document.querySelector("#toc")) {
+        const toc = document.createElement("div");
+        toc.id = "toc";
+        toc.style.cssText = "border:1px solid #ccc;padding:1rem;margin-bottom:1rem;background:#f9f9f9;font-family:Arial,sans-serif;";
+        toc.innerHTML = `
+          <h2 style="margin-top:0;">📚 Table of Contents</h2>
+          <button id="toggle-toc" style="margin-bottom:0.5rem;">Hide TOC</button>
+          <ul style="padding-left:1rem;"></ul>
+          <button id="back-to-top" style="margin-top:0.5rem; display:block;">Back to Top ↑</button>
+        `;
+
+        const ul = toc.querySelector("ul");
+        let currentH2Li = null;
+
+        headings.forEach((h, i) => {
+          const id = `toc-${i}`;
+          h.id = id;
+
+          if (h.tagName === "H2") {
+            const li = document.createElement("li");
+            li.style.listStyle = "none";
+            li.style.marginBottom = "0.3rem";
+            li.innerHTML = `<span style="display:inline-block; cursor:pointer; user-select:none; transition: transform 0.3s;">▼</span>
+                            <a href="#${id}" style="margin-left:0.3rem;text-decoration:none;color:#333;">${h.textContent}</a>`;
+            ul.appendChild(li);
+            currentH2Li = li;
+          } else if (h.tagName === "H3" && currentH2Li) {
+            let subUl = currentH2Li.querySelector("ul");
+            if (!subUl) {
+              subUl = document.createElement("ul");
+              subUl.style.cssText = "padding-left:1.5rem;overflow:hidden;max-height:0;transition:max-height 0.3s;";
+              currentH2Li.appendChild(subUl);
+            }
+            const li = document.createElement("li");
+            li.style.listStyle = "disc";
+            li.style.marginBottom = "0.2rem";
+            li.innerHTML = `<a href="#${id}" style="text-decoration:none;color:#555;">${h.textContent}</a>`;
+            subUl.appendChild(li);
+          }
+        });
+
+        article.insertAdjacentElement("afterbegin", toc);
+
+        // TOC toggle
+        const toggleBtn = toc.querySelector("#toggle-toc");
+        const backToTopBtn = toc.querySelector("#back-to-top");
+        const tocState = localStorage.getItem("tocVisible");
+        if (tocState === "hidden") ul.style.display = "none", toggleBtn.textContent = "Show TOC";
+
+        toggleBtn.addEventListener("click", () => {
+          if (ul.style.display === "none") {
+            ul.style.display = "block";
+            toggleBtn.textContent = "Hide TOC";
+            localStorage.setItem("tocVisible", "visible");
+          } else {
+            ul.style.display = "none";
+            toggleBtn.textContent = "Show TOC";
+            localStorage.setItem("tocVisible", "hidden");
+          }
+        });
+
+        // Sublist collapse/expand
+        const h2Items = ul.querySelectorAll("li > span");
+        h2Items.forEach(span => {
+          const subUl = span.parentElement.querySelector("ul");
+          if (subUl) {
+            span.style.transform = "rotate(-90deg)";
+            span.addEventListener("click", () => {
+              if (subUl.style.maxHeight === "0px") {
+                subUl.style.maxHeight = subUl.scrollHeight + "px";
+                span.style.transform = "rotate(0deg)";
+              } else {
+                subUl.style.maxHeight = "0px";
+                span.style.transform = "rotate(-90deg)";
+              }
+            });
+          } else {
+            span.style.visibility = "hidden";
+          }
+        });
+
+        // Smooth scroll
+        ul.querySelectorAll("a[href^='#']").forEach(link => {
+          link.addEventListener("click", e => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute("href"));
+            if (target) window.scrollTo({ top: target.offsetTop - 20, behavior: "smooth" });
+          });
+        });
+
+        backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      }
+
+      // ===== RELATED POSTS =====
+      if (!document.querySelector("#related-posts") && window.postMetadata) {
+        const metaData = window.postMetadata[slug];
+        if (metaData) {
+          const stopWords = ["the","and","or","of","a","an","in","on","for","with","to","at","by","is","it","this"];
+          const extractWords = text => (text.toLowerCase().match(/\b\w+\b/g) || []);
+          let keywords = [...extractWords(metaData.title), ...extractWords(metaData.description)];
+          if (metaData.tags) keywords = [...keywords, ...metaData.tags.map(t => t.toLowerCase())];
+          keywords = keywords.filter(w => !stopWords.includes(w));
+
+          const scoredPosts = Object.entries(window.postMetadata)
+            .filter(([key]) => key !== slug)
+            .map(([key, data]) => {
+              const dataText = (data.title + " " + data.description + (data.tags ? " " + data.tags.join(" ") : "")).toLowerCase();
+              let score = 0;
+              keywords.forEach(word => {
+                const regex = new RegExp(word, "i");
+                if (regex.test(data.title)) score += 3;
+                else if (regex.test(data.description)) score += 1;
+                else if (data.tags && data.tags.some(tag => regex.test(tag.toLowerCase()))) score += 2;
+              });
+              return { slug: key, data, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a,b) => b.score - a.score)
+            .slice(0,3);
+
+          if (scoredPosts.length) {
+            const relatedBlock = document.createElement("section");
+            relatedBlock.id = "related-posts";
+            relatedBlock.style.marginTop = "3rem";
+            relatedBlock.innerHTML = `
+              <h2 style="margin-bottom:1rem;">🔗 Related Posts</h2>
+              <div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:space-between;">
+                ${scoredPosts.map(item => `
+                  <a href="/posts/${item.slug}.html" style="
+                    flex:1 1 calc(33% - 1rem);
+                    text-decoration:none;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                    padding:1rem;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    background:#fff;
+                    position:relative;
+                  " data-slug="${item.slug}" data-preview="${item.data.description.slice(0,150)}">
+                    <strong style="color:#333;">${item.data.title}</strong><br/>
+                    <small style="color:#777;">${item.data.description.slice(0,100)}${item.data.description.length>100?"...":""}</small>
+                  </a>
+                `).join("")}
+              </div>
+            `;
+            article.appendChild(relatedBlock);
+          }
+        }
+      }
+
+      // ===== FOOTER =====
+      (function addFooter() {
+        if (document.querySelector("footer.site-footer")) return;
+
+        const footer = document.createElement("footer");
+        footer.className = "site-footer";
+        footer.style.cssText = "text-align:center;padding:2rem;color:#888;font-size:0.9rem;border-top:1px solid #eee;margin-top:3rem;background:#fafafa;";
+        footer.innerHTML = `
+          &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
+          <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
+        `;
+        document.body.insertAdjacentElement("beforeend", footer);
+      })();
+
+      // ===== DARK MODE =====
+      if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+        document.body.classList.add("dark-theme");
+      }
+
+      // ===== DEBUG =====
+      if (location.search.includes("debugSEO")) {
+        console.log("🔍 SEO Meta Loaded:", meta);
+      }
+    } catch (e) {
+      console.error("❌ SEO Enhancer Error:", e);
     }
-
-    // ✅ Footer (fixed)
-function addFooter() {
-  if (document.querySelector("footer.site-footer")) return;
-
-  const footer = document.createElement("footer");
-  footer.className = "site-footer";
-  footer.style.cssText = "text-align:center; padding:2rem; color:#888; font-size:0.9rem; border-top:1px solid #eee; margin-top:3rem; background:#fafafa;";
-
-  footer.innerHTML = `
-    &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
-    <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
-  `;
-
-  // Ensure footer is inserted after body content
-  document.body.insertAdjacentElement("beforeend", footer);
-}
-
-// Run after DOM is ready
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", addFooter);
-} else {
-  addFooter();
-}
-
-    // ✅ Dark Mode
-    if(window.matchMedia?.("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark-theme");
-
-    // ✅ Debug
-    if(location.search.includes("debugSEO")) console.log("🔍 SEO Meta Loaded:", meta);
   }
 })();
