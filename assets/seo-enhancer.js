@@ -137,22 +137,105 @@
       article.insertAdjacentElement("afterbegin", hero);
     }
 
-    // ✅ TOC
-    const headings = article.querySelectorAll("h2, h3");
-    if (headings.length && !document.querySelector("#toc")) {
-      const toc = document.createElement("div");
-      toc.id = "toc";
-      toc.innerHTML = `<h2>📚 Table of Contents</h2><ul style="padding-left:1rem;"></ul>`;
-      const ul = toc.querySelector("ul");
-      headings.forEach((h, i) => {
-        const id = `toc-${i}`;
-        h.id = id;
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
-        ul.appendChild(li);
-      });
-      article.insertAdjacentElement("afterbegin", toc);
+
+
+
+
+
+    // ✅ Hierarchical TOC with toggle + smooth animation
+const headings = article.querySelectorAll("h2, h3");
+
+if (headings.length && !document.querySelector("#toc")) {
+  const toc = document.createElement("div");
+  toc.id = "toc";
+  toc.style.border = "1px solid #ccc";
+  toc.style.padding = "1rem";
+  toc.style.marginBottom = "1rem";
+
+  toc.innerHTML = `
+    <h2>📚 Table of Contents</h2>
+    <button id="toggle-toc" style="margin-bottom:0.5rem;">Hide TOC</button>
+    <ul style="padding-left:1rem;"></ul>
+  `;
+
+  const ul = toc.querySelector("ul");
+  let currentH2Li = null;
+
+  headings.forEach((h, i) => {
+    const id = `toc-${i}`;
+    h.id = id;
+
+    if (h.tagName === "H2") {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="#${id}" style="cursor:pointer;">${h.textContent}</a>`;
+      ul.appendChild(li);
+      currentH2Li = li;
+    } else if (h.tagName === "H3" && currentH2Li) {
+      let subUl = currentH2Li.querySelector("ul");
+      if (!subUl) {
+        subUl = document.createElement("ul");
+        subUl.style.paddingLeft = "1rem";
+        subUl.style.overflow = "hidden";
+        subUl.style.maxHeight = "500px"; // default expanded
+        subUl.style.transition = "max-height 0.3s ease";
+        currentH2Li.appendChild(subUl);
+      }
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
+      subUl.appendChild(li);
     }
+  });
+
+  article.insertAdjacentElement("afterbegin", toc);
+
+  const toggleBtn = toc.querySelector("#toggle-toc");
+
+  // ✅ Load saved TOC state
+  const tocState = localStorage.getItem("tocVisible");
+  if (tocState === "hidden") {
+    ul.style.display = "none";
+    toggleBtn.textContent = "Show TOC";
+  }
+
+  // ✅ Toggle TOC visibility
+  toggleBtn.addEventListener("click", () => {
+    if (ul.style.display === "none") {
+      ul.style.display = "block";
+      toggleBtn.textContent = "Hide TOC";
+      localStorage.setItem("tocVisible", "visible");
+    } else {
+      ul.style.display = "none";
+      toggleBtn.textContent = "Show TOC";
+      localStorage.setItem("tocVisible", "hidden");
+    }
+  });
+
+  // ✅ Make H2 collapsible for H3 items with animation
+  const h2Links = ul.querySelectorAll("li > a");
+  h2Links.forEach(a => {
+    a.addEventListener("click", e => {
+      const subUl = a.parentElement.querySelector("ul");
+      if (subUl) {
+        if (subUl.style.maxHeight === "0px") {
+          subUl.style.maxHeight = subUl.scrollHeight + "px";
+        } else {
+          subUl.style.maxHeight = "0px";
+        }
+        e.preventDefault(); // prevent jumping
+      }
+    });
+
+    // Initialize subUl height properly
+    const subUl = a.parentElement.querySelector("ul");
+    if (subUl) subUl.style.maxHeight = subUl.scrollHeight + "px";
+  });
+}
+
+
+
+
+
+
 
     // ✅ Related Posts
     if (!document.querySelector("#related-posts") && window.postMetadata) {
