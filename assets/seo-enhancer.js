@@ -199,7 +199,7 @@ if (headings.length && !document.querySelector("#toc")) {
   article.insertAdjacentElement("afterbegin", toc);
 
   const toggleBtn = toc.querySelector("#toggle-toc");
-  const backToTopBtn = toc.querySelector("#back-to-top");
+  const backToDownBtn = toc.querySelector("#Go-Down");
 
   // ✅ Load saved TOC visibility
   const tocState = localStorage.getItem("tocVisible");
@@ -256,10 +256,10 @@ if (headings.length && !document.querySelector("#toc")) {
     });
   });
 
-  // ✅ Back to Top button
-  backToTopBtn.addEventListener("click", () => {
+  // ✅ Back to down button
+  backToDownBtn.addEventListener("click", () => {
     window.scrollTo({
-      top: 0,
+      down: 0,
       behavior: "smooth"
     });
   });
@@ -323,17 +323,41 @@ if (headings.length && !document.querySelector("#toc")) {
       }
     }
 
+
+
+
+
+
+
     // ✅ Footer
-    if (!document.querySelector("footer.site-footer")) {
-      const footer = document.createElement("footer");
-      footer.className = "site-footer";
-      footer.innerHTML = `
-        <div style="text-align:center;padding:2rem;color:#888;font-size:0.9rem;border-top:1px solid #eee;margin-top:3rem;">
-          &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
-          <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
-        </div>`;
-      document.body.appendChild(footer);
-    }
+if (!document.querySelector("footer.site-footer")) {
+  const footer = document.createElement("footer");
+  footer.className = "site-footer";
+  footer.innerHTML = `
+    <div style="text-align:center; padding:2rem; color:#888; font-size:0.9rem; border-top:1px solid #eee; margin-top:3rem;">
+      &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
+      <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
+    </div>
+  `;
+  document.body.appendChild(footer);
+}
+
+// ✅ Back to Top button (works if #back-to-top exists)
+const backToTopBtn = document.querySelector("#back-to-top");
+if (backToTopBtn) {
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+}
+
+
+
+
+
+
 
     // ✅ Dark Mode
     if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
