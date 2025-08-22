@@ -281,13 +281,29 @@
       }
     }
 
-    // ✅ Footer
-    if(!document.querySelector("footer.site-footer")){
-      const footer=document.createElement("footer");
-      footer.className="site-footer";
-      footer.innerHTML=`<div style="text-align:center; padding:2rem; color:#888; font-size:0.9rem; border-top:1px solid #eee; margin-top:3rem;">&copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. | <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a></div>`;
-      document.body.appendChild(footer);
-    }
+    // ✅ Footer (fixed)
+function addFooter() {
+  if (document.querySelector("footer.site-footer")) return;
+
+  const footer = document.createElement("footer");
+  footer.className = "site-footer";
+  footer.style.cssText = "text-align:center; padding:2rem; color:#888; font-size:0.9rem; border-top:1px solid #eee; margin-top:3rem; background:#fafafa;";
+
+  footer.innerHTML = `
+    &copy; ${new Date().getFullYear()} MaxClickEmpire. All rights reserved. |
+    <a href="/privacy-policy.html" style="color:#666;">Privacy Policy</a>
+  `;
+
+  // Ensure footer is inserted after body content
+  document.body.insertAdjacentElement("beforeend", footer);
+}
+
+// Run after DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", addFooter);
+} else {
+  addFooter();
+}
 
     // ✅ Dark Mode
     if(window.matchMedia?.("(prefers-color-scheme: dark)").matches) document.body.classList.add("dark-theme");
