@@ -443,7 +443,7 @@ transition: background 0.2s;
 (function () {
   console.log("✅ enhancer.js loaded");
 
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCO-ekZJ_sT3oJM3JdvPzlwsJOU3VvU0Hu2zSFSuqDuH8KI/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC8HZbhEIKF-BiMjGoc6wjMA1uNhjsHAs3RUxzYvWswr8B36bCSPGo7YFYVj6IiaSm/exec";
   const IPINFO_TOKEN = "91dbe52aeb0873";
   const SW_PATH = "/sw.js";
   const AUTO_DISMISS_TIME = 25000; // 25 seconds
