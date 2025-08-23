@@ -431,19 +431,11 @@ transition: background 0.2s;
 
 
 
-
-
-
-
-
-
-
-
 // ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push =====
 (function () {
   console.log("✅ enhancer.js loaded");
 
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC8HZbhEIKF-BiMjGoc6wjMA1uNhjsHAs3RUxzYvWswr8B36bCSPGo7YFYVj6IiaSm/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyI7g02k3QPmFg6cK6CF1NRRGgl_YpUVLgLNpnEOTyjp4lUcyNG08hIVhTZ3pcRVK7/exec";
   const IPINFO_TOKEN = "91dbe52aeb0873";
   const SW_PATH = "/sw.js";
   const AUTO_DISMISS_TIME = 25000; // 25 seconds
@@ -501,7 +493,6 @@ transition: background 0.2s;
       const text = await res.text();
       console.log("📩 Apps Script response:", text);
 
-      // Save local consent to prevent re-showing popup
       localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
     } catch (err) {
       console.error("❌ Failed to save data:", err);
