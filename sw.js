@@ -1,42 +1,36 @@
-// sw.js – Service Worker for Push Notifications
-
-self.addEventListener("install", event => {
-  // Activate immediately
-  event.waitUntil(self.skipWaiting());
+self.addEventListener('install', (event) => {
+  console.log('✅ SW installed');
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (event) => {
+  console.log('✅ SW activated');
+  self.clients.claim();
 });
 
-// Handle incoming push events
-self.addEventListener("push", event => {
+self.addEventListener('push', (event) => {
   let data = {};
   try {
-    data = event.data.json();
-  } catch (e) {
-    console.warn("Push event data invalid:", e);
-    data = { title: "📢 Notification", body: "You have a new alert.", icon: "/favicon.ico", url: "/" };
-  }
+    data = event.data ? event.data.json() : {};
+  } catch (e) {}
 
+  const title = data.title || "🔥 MaxClickEmpire Update!";
   const options = {
-    body: data.body || "You have a new alert.",
+    body: data.body || "Stay ahead with the latest updates!",
     icon: data.icon || "/favicon.ico",
-    data: { url: data.url || "/" },
-    badge: data.icon || "/favicon.ico"
+    data: { url: data.url || "/" }
   };
 
-  event.waitUntil(self.registration.showNotification(data.title || "📢 Notification", options));
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Handle notification click
-self.addEventListener("notificationclick", event => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data.url || "/";
+  const url = event.notification.data.url || '/';
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url === url && "focus" in client) return client.focus();
+    clients.matchAll({ type: 'window' }).then(windowClients => {
+      for (let client of windowClients) {
+        if (client.url === url && 'focus' in client) return client.focus();
       }
       if (clients.openWindow) return clients.openWindow(url);
     })
