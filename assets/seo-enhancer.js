@@ -679,241 +679,154 @@ transition: background 0.2s;
 
 
 
-<!-- NOTHING to add in HTML. The script below injects the popup automatically. -->
 
-/* ===========================
-   MaxClickEmpire – One-Click Email + Push
-   - Injects a psychological popup
-   - Saves email to Google Sheets (Apps Script)
-   - Requests Push permission + registers Service Worker
-   - Hides forever once user opts in (email OR push)
-   - Optional OneSignal support if present
-   =========================== */
 
+
+
+
+                     // ===== Email + Push Subscription Popup with Autofill & Auto-Dismiss + Welcome Push =====
 (function () {
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCO-ekZJ_sT3oJM3JdvPzlwsJOU3VvU0Hu2zSFSuqDuH8KI4B5JcnXumL9ZWxDazFL/exec";
-  const SW_PATH = "/sw.js"; // place sw.js at your site root
-  const LS = {
-    subscribed: "mce_subscribed",
-    pushAllowed: "mce_pushAllowed",
-    userId: "mce_userId",
-    lastShown: "mce_lastShown",
-  };
+  console.log("✅ seo-enhancer.js – email + push module loaded");
 
-  // ---------- tiny helpers ----------
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCO-ekZJ_sT3oJM3JdvPzlwsJOU3VvU0Hu2zSFSuqDuH8KI4B5JcnXumL9ZWxDazFL/exec";
+  const SW_PATH = "/sw.js"; // Make sure sw.js is at your site root
+  const AUTO_DISMISS_TIME = 10000; // 10 seconds
+
   const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
     .replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c/4))).toString(16));
 
-  const get = (k, d=null) => {
-    try { return JSON.parse(localStorage.getItem(k)); } catch { return localStorage.getItem(k) ?? d; }
-  };
-  const set = (k, v) => localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v));
-  const daysAgo = (n) => Date.now() - n*24*60*60*1000;
+  async function saveToSheets(email, pushPermission) {
+    const timestamp = new Date().toISOString();
+    if (!localStorage.getItem("user_id")) localStorage.setItem("user_id", uuid());
+    const userId = localStorage.getItem("user_id");
 
-  function shouldShow() {
-    // Don’t show if already opted in via email OR push
-    if (get(LS.subscribed) === "true" || get(LS.pushAllowed) === "true") return false;
-
-    // Gentle frequency: if user dismissed, show again every 3 days
-    const last = Number(get(LS.lastShown, 0));
-    if (last && last > daysAgo(3)) return false;
-
-    // Only show on article pages (optional): require an <article>
-    if (!document.querySelector("article")) return false;
-
-    return true;
-  }
-
-  // ---------- inject popup ----------
-  function injectPopup() {
-    if (document.getElementById("mce-subscribe-popup")) return;
-
-    const wrap = document.createElement("div");
-    wrap.id = "mce-subscribe-popup";
-    wrap.setAttribute("style", `
-      position:fixed; inset:auto 20px 20px auto; z-index:99999; max-width:360px;
-      background:#ffffff; border:1px solid #e9eef3; border-radius:16px;
-      box-shadow:0 15px 40px rgba(0,0,0,.12); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      padding:18px; display:none;
-    `);
-
-    wrap.innerHTML = `
-      <div style="display:flex; gap:12px; align-items:flex-start;">
-        <div style="font-size:28px; line-height:1;">🚀</div>
-        <div style="flex:1;">
-          <div style="font-weight:700; font-size:18px; color:#111">Stay Ahead — Instantly</div>
-          <div style="font-size:13px; color:#555; margin:6px 0 10px">
-            One click unlocks <b>instant alerts</b> + <b>exclusive updates</b>. No spam — unsubscribe anytime.
-          </div>
-          <form id="mce-form" style="display:flex; gap:8px; margin-bottom:10px">
-            <input id="mce-email" type="email" required
-              placeholder="Enter your email"
-              style="flex:1; padding:10px 12px; border:1px solid #dfe5ec; border-radius:10px; font-size:14px; outline:none;">
-            <button id="mce-cta" type="submit"
-              style="padding:10px 12px; border:0; border-radius:10px; font-weight:600; cursor:pointer; font-size:14px;
-                     background:#111; color:#fff;">
-              Unlock Free Access
-            </button>
-          </form>
-          <button id="mce-oneclick" type="button"
-            style="width:100%; padding:10px 12px; border:1px solid #e5e9ef; background:#f7fafc; color:#111; border-radius:10px; font-size:13px; cursor:pointer;">
-            Not ready to share email? Enable push only
-          </button>
-          <div style="font-size:11px; color:#7a8794; margin-top:8px">
-            Protected by your browser. We never sell your data.
-          </div>
-        </div>
-        <button id="mce-close" aria-label="Close"
-          style="background:transparent; border:0; font-size:18px; line-height:1; cursor:pointer; color:#98a1ac;">✕</button>
-      </div>
-    `;
-
-    document.body.appendChild(wrap);
-    requestAnimationFrame(() => wrap.style.display = "block");
-
-    // events
-    document.getElementById("mce-close").addEventListener("click", () => {
-      set(LS.lastShown, Date.now().toString());
-      wrap.remove();
-    });
-
-    document.getElementById("mce-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = /** @type {HTMLInputElement} */(document.getElementById("mce-email")).value.trim();
-      if (!email) return alert("Please enter your email.");
-
-      await handleEmailThenPush(email);
-      wrap.remove();
-    });
-
-    document.getElementById("mce-oneclick").addEventListener("click", async () => {
-      await handlePushOnly();
-      wrap.remove();
-    });
-  }
-
-  // ---------- core actions ----------
-  async function handleEmailThenPush(email) {
-    // ensure local user id
-    if (!get(LS.userId)) set(LS.userId, uuid());
-    const userId = get(LS.userId);
-
-    // 1) Save to Google Sheet
     try {
-      await fetch(APPS_SCRIPT_URL, {
+      const response = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body: new URLSearchParams({
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           email,
           userId,
-          referrer: document.referrer || "",
           page: location.href,
+          referrer: document.referrer || "",
           ua: navigator.userAgent,
           tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-          // pushPermission will be updated after we ask below
-          pushPermission: Notification?.permission || "default"
+          pushPermission
         })
       });
-      set(LS.subscribed, "true"); // stop showing forever if email captured
-    } catch (err) {
-      console.warn("Email save failed (will not block push ask):", err);
-    }
+      const data = await response.json();
 
-    // 2) Ask for Push
-    await requestPushPermission();
+      localStorage.setItem("user_consent", JSON.stringify({ email, timestamp, pushPermission }));
 
-    // done
-    set(LS.lastShown, Date.now().toString());
-  }
-
-  async function handlePushOnly() {
-    if (!get(LS.userId)) set(LS.userId, uuid());
-
-    await requestPushPermission();
-    set(LS.lastShown, Date.now().toString());
-  }
-
-  // ---------- push permission (Two modes: OneSignal OR Native) ----------
-  async function requestPushPermission() {
-    // A) If OneSignal is present, use its optimized prompt
-    if (window.OneSignal && typeof OneSignal.showSlidedownPrompt === "function") {
-      try {
-        await new Promise((resolve) => {
-          OneSignal.push(function () {
-            OneSignal.once('subscriptionChange', function (isSubscribed) {
-              if (isSubscribed) set(LS.pushAllowed, "true");
-              resolve();
-            });
-            OneSignal.showSlidedownPrompt();
+      // Trigger welcome push if payload exists
+      if (data.pushNotification && "serviceWorker" in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(data.pushNotification.title, {
+            body: data.pushNotification.body,
+            icon: data.pushNotification.icon,
+            data: { url: data.pushNotification.url }
           });
         });
-      } catch (e) {
-        console.warn("OneSignal prompt error:", e);
-      }
-      return;
-    }
-
-    // B) Native browser permission + SW registration
-    if (!("Notification" in window)) return;
-
-    try {
-      // Must be https + requires a SW to show pushes later
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        set(LS.pushAllowed, "true");
-        // immediate friendly ping so user feels reward
-        try {
-          if ("serviceWorker" in navigator) {
-            const reg = await navigator.serviceWorker.register(SW_PATH);
-            await navigator.serviceWorker.ready;
-            new Notification("You're in! 🎉", {
-              body: "You’ll get instant alerts when we publish. Thanks!",
-              icon: "/favicon.ico"
-            });
-          }
-        } catch (swErr) {
-          console.warn("Service worker registration failed:", swErr);
-        }
-        // (Optional) send updated permission to your sheet
-        try {
-          await fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-            body: new URLSearchParams({
-              userId: get(LS.userId),
-              pushPermission: "granted",
-              page: location.href
-            })
-          });
-        } catch {}
-      } else {
-        // user declined or closed
-        try {
-          await fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-            body: new URLSearchParams({
-              userId: get(LS.userId),
-              pushPermission: permission,
-              page: location.href
-            })
-          });
-        } catch {}
       }
     } catch (err) {
-      console.warn("Notification permission error:", err);
+      console.warn("Google Sheets save failed:", err);
     }
   }
 
-  // ---------- boot ----------
-  function boot() {
-    // hard stop if already opted in either way
-    if (get(LS.subscribed) === "true" || get(LS.pushAllowed) === "true") return;
-    if (shouldShow()) injectPopup();
+  async function requestPush() {
+    if (!("Notification" in window)) return "unsupported";
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        if ("serviceWorker" in navigator) {
+          try {
+            await navigator.serviceWorker.register(SW_PATH);
+            await navigator.serviceWorker.ready;
+          } catch (swErr) {
+            console.warn("SW registration failed:", swErr);
+          }
+        }
+      }
+      return permission;
+    } catch (err) {
+      console.warn("Push permission error:", err);
+      return "error";
+    }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else boot();
+  async function showPopup() {
+    // Load SweetAlert2 dynamically if not loaded
+    if (typeof Swal === "undefined") {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    // Autofill email if stored previously
+    let storedEmail = null;
+    try {
+      const consent = JSON.parse(localStorage.getItem("user_consent"));
+      if (consent && consent.email) storedEmail = consent.email;
+    } catch (e) {
+      console.warn("Failed to parse stored consent:", e);
+    }
+
+    const popup = Swal.fire({
+      title: "✨ Stay Ahead ✨",
+      html: `
+        <p style="font-size:16px; line-height:1.5; color:#444;">
+          Join <b>10,000+ smart users</b> who get instant updates, insights & tools.  
+          <br><br>
+          Just one click gives you:<br>
+          ✅ Free insider updates to your email<br>
+          ✅ Push notifications directly to your device
+        </p>
+        <input type="email" id="userEmail" class="swal2-input" placeholder="Enter your email" value="${storedEmail || ''}" required>
+      `,
+      icon: "info",
+      confirmButtonText: "🚀 Subscribe & Enable Alerts",
+      confirmButtonColor: "#3085d6",
+      allowOutsideClick: true,
+      didOpen: () => {
+        // Auto-dismiss after 10 seconds if no interaction
+        setTimeout(() => {
+          if (Swal.isVisible()) Swal.close();
+        }, AUTO_DISMISS_TIME);
+      },
+      preConfirm: () => {
+        const emailInput = document.getElementById("userEmail").value.trim();
+        if (!emailInput || !/^[^@\s]+@[^\s@]+\.[^@\s]+$/.test(emailInput)) {
+          Swal.showValidationMessage("⚠️ Please enter a valid email address");
+          return false;
+        }
+        return emailInput;
+      }
+    });
+
+    const { value: email } = await popup;
+
+    if (email) {
+      const pushPermission = await requestPush();
+      await saveToSheets(email, pushPermission);
+
+      Swal.fire({
+        icon: "success",
+        title: "🎉 You're In!",
+        html: `Thanks! You're subscribed and push alerts are <b>${pushPermission}</b>.`,
+        confirmButtonText: "Awesome!"
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!localStorage.getItem("user_consent")) {
+      showPopup();
+    }
+  });
 
 })();
