@@ -431,14 +431,21 @@ transition: background 0.2s;
 
 
 
-// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push =====
+
+
+
+
+
+
+// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory =====
 (function () {
   console.log("✅ enhancer.js loaded");
 
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyI7g02k3QPmFg6cK6CF1NRRGgl_YpUVLgLNpnEOTyjp4lUcyNG08hIVhTZ3pcRVK7/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygo45chkXee7VUGFT1T9uF6uaugbvz5tpb-rWFlb90B5h9jqllwbyBEzqpaLkK1v7P/exec";
   const IPINFO_TOKEN = "91dbe52aeb0873";
   const SW_PATH = "/sw.js";
   const AUTO_DISMISS_TIME = 25000; // 25 seconds
+  const LOCAL_STORAGE_KEY = "maxclick_memory_queue";
 
   const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
     .replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c/4))).toString(16));
@@ -455,6 +462,32 @@ transition: background 0.2s;
 
   function getUserAgent() {
     return navigator.userAgent || "unknown";
+  }
+
+  function saveMemory(payload) {
+    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    queue.push(payload);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(queue));
+  }
+
+  async function flushMemory() {
+    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    if (!queue.length) return;
+
+    for (let i = 0; i < queue.length; i++) {
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(queue[i]),
+          headers: { "Content-Type": "application/json" }
+        });
+        const text = await res.text();
+        console.log("📩 Apps Script response (memory flush):", text);
+      } catch (err) {
+        console.error("❌ Failed to flush memory:", err);
+      }
+    }
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
   }
 
   async function saveData(email, pushPermission) {
@@ -484,6 +517,8 @@ transition: background 0.2s;
       Page: location.href
     };
 
+    saveMemory(payload);  // Save to local memory first
+
     try {
       const res = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
@@ -492,10 +527,10 @@ transition: background 0.2s;
       });
       const text = await res.text();
       console.log("📩 Apps Script response:", text);
-
+      await flushMemory(); // Flush any queued entries
       localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
     } catch (err) {
-      console.error("❌ Failed to save data:", err);
+      console.error("❌ Failed to send data:", err);
     }
   }
 
@@ -537,8 +572,7 @@ transition: background 0.2s;
       title: "✨ Stay Ahead ✨",
       html: `
         <p style="font-size:16px; line-height:1.5; color:#444;">
-          Join <b>10,000+ smart users</b> who get instant updates, insights & tools.  
-          <br><br>
+          Join <b>10,000+ smart users</b> who get instant updates, insights & tools.<br><br>
           Just one click gives you:<br>
           ✅ Free insider updates to your email<br>
           ✅ Push notifications directly to your device
