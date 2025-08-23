@@ -679,28 +679,26 @@ transition: background 0.2s;
 
 
 
-
- // ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push Tracking =====
+// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push =====
 (function () {
   console.log("✅ enhancer.js loaded");
 
   const APPS_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyCO-ekZJ_sT3oJM3JdvPzlwsJOU3VvU0Hu2zSFSuqDuH8KI/exec";
   const IPINFO_TOKEN = "91dbe52aeb0873";
+  const SW_PATH = "/sw.js";
   const AUTO_DISMISS_TIME = 25000; // 25 seconds
 
-  // ===== Helpers =====
   const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
     .replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c/4))).toString(16));
 
-  async function getUserIP() {
+  async function getIPInfo() {
     try {
-      let res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
-      let data = await res.json();
-      return data.ip || "unknown";
+      const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      return await res.json();
     } catch (e) {
       console.warn("❌ IP fetch failed:", e);
-      return "unknown";
+      return {};
     }
   }
 
@@ -708,45 +706,54 @@ transition: background 0.2s;
     return navigator.userAgent || "unknown";
   }
 
-  async function saveEmail(email, pushPermission) {
-    let ip = await getUserIP();
-    let ua = getUserAgent();
+  async function saveData(email, pushPermission) {
+    const ipInfo = await getIPInfo();
+    const ua = getUserAgent();
 
     if (!localStorage.getItem("user_id")) localStorage.setItem("user_id", uuid());
-    let userId = localStorage.getItem("user_id");
+    const userId = localStorage.getItem("user_id");
 
-    let payload = {
-      email,
-      userId,
-      pushPermission: pushPermission || "denied",
-      ip,
-      userAgent: ua,
-      page: location.href,
-      referrer: document.referrer || ""
+    const payload = {
+      Timestamp: new Date().toISOString(),
+      Email: email,
+      PushPermission: pushPermission || "denied",
+      LastPushSent: "",
+      IP: ipInfo.ip || "",
+      City: ipInfo.city || "",
+      Region: ipInfo.region || "",
+      Country: ipInfo.country || "",
+      Postal: ipInfo.postal || "",
+      ISP: ipInfo.org || "",
+      Location: ipInfo.loc || "",
+      Timezone: ipInfo.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      UserAgent: ua,
+      PageURL: location.href,
+      Referrer: document.referrer || "",
+      UserID: userId,
+      Page: location.href
     };
 
     try {
-      let res = await fetch(APPS_SCRIPT_URL, {
+      const res = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(payload),
         headers: { "Content-Type": "application/json" }
       });
-      let text = await res.text();
+      const text = await res.text();
       console.log("📩 Apps Script response:", text);
-      // Mark user as submitted
+
       localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
     } catch (err) {
-      console.error("❌ Failed to save email:", err);
+      console.error("❌ Failed to save data:", err);
     }
   }
 
-  // ===== Push Permission =====
   async function requestPush() {
     if (!("Notification" in window)) return "unsupported";
     try {
       const perm = await Notification.requestPermission();
       if (perm === "granted" && "serviceWorker" in navigator) {
-        await navigator.serviceWorker.register("/sw.js");
+        await navigator.serviceWorker.register(SW_PATH);
         await navigator.serviceWorker.ready;
       }
       return perm;
@@ -756,9 +763,7 @@ transition: background 0.2s;
     }
   }
 
-  // ===== Popup UI =====
   async function showPopup() {
-    // Load SweetAlert2 dynamically if not loaded
     if (typeof Swal === "undefined") {
       await new Promise((resolve, reject) => {
         const script = document.createElement("script");
@@ -769,7 +774,6 @@ transition: background 0.2s;
       });
     }
 
-    // Autofill email if stored previously
     let storedEmail = null;
     try {
       const consent = JSON.parse(localStorage.getItem("user_consent"));
@@ -795,7 +799,6 @@ transition: background 0.2s;
       confirmButtonColor: "#3085d6",
       allowOutsideClick: true,
       didOpen: () => {
-        // Auto-dismiss after 25 seconds if no interaction
         setTimeout(() => {
           if (Swal.isVisible()) Swal.close();
         }, AUTO_DISMISS_TIME);
@@ -814,7 +817,7 @@ transition: background 0.2s;
 
     if (email) {
       const pushPermission = await requestPush();
-      await saveEmail(email, pushPermission);
+      await saveData(email, pushPermission);
 
       Swal.fire({
         icon: "success",
@@ -825,11 +828,7 @@ transition: background 0.2s;
     }
   }
 
-  // ===== Initialize =====
   document.addEventListener("DOMContentLoaded", function () {
-    // Show popup only if user has NOT submitted email
-    if (!localStorage.getItem("user_consent")) {
-      showPopup();
-    }
+    if (!localStorage.getItem("user_consent")) showPopup();
   });
-})();
+})(); 
