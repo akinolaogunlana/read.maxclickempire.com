@@ -573,7 +573,7 @@
   /* ======================
      CONFIG
   ====================== */
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrbaU-Yh1ph7ni4fmEsYQWGdvcU4laAN9hSWdbZ1EzAqQnNPLFzJ_y7NTFVOqWjGQf/exec"; // <- YOUR ENDPOINT
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLGIdNrCAOWuggLrLgHnmqkmuW85d-04qsHFC-NlEBETaWZCE7iKJcopRMQ6sAnDaE/exec"; // <- YOUR ENDPOINT
   const IPINFO_TOKEN    = "91dbe52aeb0873";     // keep or replace
   const SW_PATH         = "/sw.js";             // your service worker (optional)
   const AUTO_DISMISS_MS = 25000;                // 25s
