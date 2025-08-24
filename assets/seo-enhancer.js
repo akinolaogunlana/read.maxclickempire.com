@@ -6,8 +6,12 @@
   function waitFor(conditionFn, callback, interval = 50, timeout = 3000) {
     const start = Date.now();
     const poll = () => {
-      if (conditionFn()) return callback();
-      if (Date.now() - start >= timeout) return console.warn("⏳ postMetadata not loaded in time.");
+      try {
+        if (conditionFn()) return callback();
+      } catch (e) {
+        // guard in case conditionFn references DOM that isn't ready yet
+      }
+      if (Date.now() - start >= timeout) return console.warn("⏳ postMetadata / date meta not loaded in time.");
       setTimeout(poll, interval);
     };
     poll();
@@ -19,50 +23,134 @@
     } else callback();
   }
 
-  // Helper: get publish date from many possible meta/time tags
-  function getPublishedDateFromDom() {
-    // Try many selectors (Blogger templates vary)
-    const selectors = [
+  // ===== Helpers to read dates from DOM & JSON-LD =====
+  function tryParseDate(value) {
+    if (!value) return null;
+    const v = String(value).trim();
+    // ISO or timestamp
+    const d = new Date(v);
+    if (!isNaN(d.getTime())) return d.toISOString();
+    // fallback parse
+    const parsed = Date.parse(v);
+    if (!isNaN(parsed)) return new Date(parsed).toISOString();
+    return null;
+  }
+
+  function getDatesFromJsonLd() {
+    const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+    for (const s of scripts) {
+      try {
+        const txt = s.textContent.trim();
+        if (!txt) continue;
+        const parsed = JSON.parse(txt);
+        // JSON-LD may be an array or object
+        const nodes = Array.isArray(parsed) ? parsed : [parsed];
+        for (const node of nodes) {
+          if (!node || typeof node !== "object") continue;
+          // Direct properties
+          const pub = tryParseDate(node.datePublished || node.datepublished || node.date_published);
+          const mod = tryParseDate(node.dateModified || node.datemodified || node.date_modified);
+          if (pub || mod) return { published: pub || null, modified: mod || null };
+          // nested mainEntityOfPage -> sometimes contains datePublished
+          if (node.mainEntityOfPage && typeof node.mainEntityOfPage === "object") {
+            const mp = tryParseDate(node.mainEntityOfPage.datePublished || node.mainEntityOfPage.datepublished);
+            const mm = tryParseDate(node.mainEntityOfPage.dateModified || node.mainEntityOfPage.datemodified);
+            if (mp || mm) return { published: mp || null, modified: mm || null };
+          }
+        }
+      } catch (e) {
+        // ignore JSON parse errors and continue
+      }
+    }
+    return { published: null, modified: null };
+  }
+
+  function getDatesFromMetaAndTime() {
+    // common variations used by templates
+    const pubSelectors = [
       'meta[property="article:published_time"]',
-      'meta[property="publishdate"]',
+      'meta[property="article:published"]',
+      'meta[name="datepublished"]',
+      'meta[name="datePublished"]',
       'meta[name="publishdate"]',
       'meta[name="pubdate"]',
-      'meta[name="date"]',
       'meta[itemprop="datePublished"]',
       'meta[property="datePublished"]',
-      'meta[property="article:modified_time"]', // sometimes used for modified; we'll prefer published ones above
       'time[datetime]'
     ];
 
-    for (const sel of selectors) {
+    const modSelectors = [
+      'meta[property="article:modified_time"]',
+      'meta[property="article:modified"]',
+      'meta[name="datemodified"]',
+      'meta[name="dateModified"]',
+      'meta[name="modified"]',
+      'meta[itemprop="dateModified"]',
+      'meta[property="dateModified"]'
+    ];
+
+    let published = null;
+    let modified = null;
+
+    for (const sel of pubSelectors) {
       const el = document.querySelector(sel);
       if (!el) continue;
-      // Many meta elements use .content; time uses datetime attribute
-      const value = el.content || el.getAttribute && el.getAttribute("datetime");
-      if (!value) continue;
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) return d.toISOString();
-      // fallback: try partial parse (e.g., "August 21, 2025")
-      const parsed = Date.parse(value);
-      if (!isNaN(parsed)) return new Date(parsed).toISOString();
+      const value = el.content || (el.getAttribute && el.getAttribute("datetime")) || el.getAttribute("content");
+      const parsed = tryParseDate(value);
+      if (parsed) {
+        published = parsed;
+        break;
+      }
     }
-    return null;
+
+    for (const sel of modSelectors) {
+      const el = document.querySelector(sel);
+      if (!el) continue;
+      const value = el.content || (el.getAttribute && el.getAttribute("datetime")) || el.getAttribute("content");
+      const parsed = tryParseDate(value);
+      if (parsed) {
+        modified = parsed;
+        break;
+      }
+    }
+
+    return { published, modified };
+  }
+
+  // Master function: check meta/time first, then JSON-LD as fallback
+  function getDatesFromDom() {
+    const fromMeta = getDatesFromMetaAndTime();
+    if (fromMeta.published || fromMeta.modified) return fromMeta;
+    const fromLd = getDatesFromJsonLd();
+    if (fromLd.published || fromLd.modified) return fromLd;
+    return { published: null, modified: null };
   }
 
   // Format ISO to friendly date like "August 21, 2025"
   function formatFriendlyDate(isoString) {
     try {
       const d = new Date(isoString);
-      if (isNaN(d.getTime())) return isoString.split("T")[0] || isoString;
+      if (isNaN(d.getTime())) return isoString && String(isoString).split("T")[0] || "";
       return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     } catch (e) {
       return isoString;
     }
   }
 
-  // ===== INIT =====
-  onDomReady(() => waitFor(() => !!window.postMetadata, initSeoEnhancer));
+  // ===== START after DOM ready, but wait for either postMetadata[slug] OR date meta/JSON-LD =====
+  onDomReady(() => {
+    const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
+    waitFor(() => {
+      // proceed when either postMetadata for this slug exists OR date metadata / JSON-LD is present
+      const pmReady = !!(window.postMetadata && window.postMetadata[slug]);
+      const haveDateMeta = !!document.querySelector(
+        'meta[property="article:published_time"],meta[name="datepublished"],meta[name="datePublished"],meta[name="datemodified"],meta[type="application/ld+json"],script[type="application/ld+json"],time[datetime]'
+      );
+      return pmReady || haveDateMeta;
+    }, initSeoEnhancer);
+  });
 
+  // ===== INIT =====
   function initSeoEnhancer() {
     try {
       const slug = location.pathname.split("/").pop()?.replace(".html", "") || "";
@@ -120,16 +208,27 @@
     const firstImg = article.querySelector("img");
     const image = firstImg?.src || "/assets/og-image.jpg";
 
-    // Try to read published date from DOM first
-    const domPublished = getPublishedDateFromDom();
-    const published = window.postMetadata?.[slug]?.published || domPublished || new Date().toISOString();
+    // 1) try window.postMetadata[slug] (if present)
+    const pm = window.postMetadata?.[slug] || null;
 
-    const meta = window.postMetadata?.[slug] || {
+    // 2) try DOM/meta/JSON-LD
+    const domDates = getDatesFromDom();
+    const domPublished = domDates.published || null;
+    const domModified = domDates.modified || null;
+
+    // Decide published & modified
+    const published = pm?.published || domPublished || new Date().toISOString();
+    const modified = pm?.modified || domModified || null;
+
+    const meta = pm || {
       title: titleText,
       description: desc,
       image,
       published
     };
+
+    // attach modified if available
+    if (modified) meta.modified = modified;
 
     // Remove old meta tags (og/twitter/keywords/description)
     [
@@ -171,11 +270,10 @@
     injectMeta("twitter:description", meta.description);
     injectMeta("twitter:image", meta.image);
 
-    // JSON-LD
+    // JSON-LD (include dateModified if available)
     const ld = document.createElement("script");
     ld.type = "application/ld+json";
-    // Use ISO format for JSON-LD (search engines expect ISO 8601)
-    ld.textContent = JSON.stringify({
+    const ldObj = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       headline: meta.title,
@@ -189,7 +287,9 @@
         logo: { "@type": "ImageObject", url: "https://read.maxclickempire.com" }
       },
       mainEntityOfPage: { "@type": "WebPage", "@id": location.href }
-    });
+    };
+    if (meta.modified) ldObj.dateModified = meta.modified;
+    ld.textContent = JSON.stringify(ldObj);
     document.head.appendChild(ld);
 
     return meta;
@@ -201,12 +301,17 @@
     if (!h1 || document.querySelector(".post-hero")) return;
 
     const formattedDate = formatFriendlyDate(meta.published);
+    let updatedHtml = "";
+    if (meta.modified && meta.modified !== meta.published) {
+      updatedHtml = `<small style="display:block;color:#999;margin-top:6px;">Updated: ${formatFriendlyDate(meta.modified)}</small>`;
+    }
 
     const hero = document.createElement("section");
     hero.className = "post-hero";
     hero.innerHTML = `
       <div style="background: linear-gradient(to right, #f5f7fa, #e4ecf3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem;">
         <p style="font-size: 0.9rem; color: #666;">📅 ${formattedDate}</p>
+        ${updatedHtml}
         <p style="max-width:700px;margin:1rem auto;font-size:1rem;color:#444;">${meta.description}</p>
         <img src="${meta.image}" alt="Post image" style="max-width:100%;margin-top:1rem;border-radius:12px;" loading="lazy"/>
       </div>`;
@@ -407,86 +512,10 @@
     `;
 
     const buttons = [
-      { platform: "facebook", label: "Facebook", icon: "🔵" },
-      { platform: "twitter", label: "Twitter", icon: "🐦" },
-      { platform: "linkedin", label: "LinkedIn", icon: "💼" },
-      { platform: "whatsapp", label: "WhatsApp", icon: "🟢" },
-      { platform: "telegram", label: "Telegram", icon: "✈️" },
-      { platform: "email", label: "Email", icon: "✉️" },
-      { platform: "copy", label: "Copy Link", icon: "📋" },
-      { platform: "native", label: "Share", icon: "🔗" },
-    ];
+     
 
-    shareContainer.innerHTML = `<span style="font-weight:bold;">Share:</span> `;
 
-    buttons.forEach(btn => {
-      const button = document.createElement("button");
-      button.className = "share-btn";
-      button.dataset.platform = btn.platform;
-      button.innerHTML = `${btn.icon} ${btn.label}`;
-      button.style.cssText = `
-        padding:0.5rem 0.8rem;
-        border:none;
-        border-radius:5px;
-        cursor:pointer;
-        background:#f0f0f0;
-        transition: background 0.2s;
-        font-size:0.9rem;
-      `;
-      button.addEventListener("mouseover", () => button.style.background = "#e0e0e0");
-      button.addEventListener("mouseout", () => button.style.background = "#f0f0f0");
-      shareContainer.appendChild(button);
-    });
 
-    const hero = document.querySelector(".post-hero");
-    if (hero) hero.insertAdjacentElement("afterend", shareContainer);
-    else article.insertAdjacentElement("afterbegin", shareContainer);
-
-    const url = window.location.href;
-    const title = document.title;
-
-    shareContainer.querySelectorAll(".share-btn").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const platform = btn.dataset.platform;
-        try {
-          if (platform === "facebook") window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank", "width=600,height=400");
-          else if (platform === "twitter") window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
-          else if (platform === "linkedin") window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
-          else if (platform === "whatsapp") window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(title + " " + url)}`, "_blank");
-          else if (platform === "telegram") window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, "_blank");
-          else if (platform === "email") window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
-          else if (platform === "copy") {
-            await navigator.clipboard.writeText(url);
-            alert("✅ Link copied to clipboard!");
-          } else if (platform === "native") {
-            if (navigator.share) await navigator.share({ title, url });
-            else alert("⚠️ Native sharing not supported on this device. Use the buttons above.");
-          }
-        } catch (err) {
-          console.error("Share failed:", err);
-        }
-      });
-    });
-  }
-
-  // ===== Utilities used by functions above =====
-  function escapeRegExp(string) {
-    return String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  // kick off if postMetadata already existed before DOM ready
-  // (already handled by onDomReady -> waitFor above)
-
-})();
 
 
 
