@@ -487,4 +487,65 @@
     `;
 
     const buttons = [
-      { 
+      { platform: "facebook", label: "Facebook", icon: "🔵" },
+      { platform: "twitter", label: "Twitter", icon: "🐦" },
+      { platform: "linkedin", label: "LinkedIn", icon: "💼" },
+      { platform: "whatsapp", label: "WhatsApp", icon: "🟢" },
+      { platform: "telegram", label: "Telegram", icon: "✈️" },
+      { platform: "email", label: "Email", icon: "✉️" },
+      { platform: "copy", label: "Copy Link", icon: "📋" },
+      { platform: "native", label: "Share", icon: "🔗" },
+    ];
+
+    shareContainer.innerHTML = `<span style="font-weight:bold;">Share:</span> `;
+
+    buttons.forEach(btn => {
+      const button = document.createElement("button");
+      button.className = "share-btn";
+      button.dataset.platform = btn.platform;
+      button.innerHTML = `${btn.icon} ${btn.label}`;
+      button.style.cssText = `
+        padding:0.5rem 0.8rem;
+        border:none;
+        border-radius:5px;
+        cursor:pointer;
+        background:#f0f0f0;
+        transition: background 0.2s;
+        font-size:0.9rem;
+      `;
+      button.addEventListener("mouseover", () => button.style.background = "#e0e0e0");
+      button.addEventListener("mouseout", () => button.style.background = "#f0f0f0");
+      shareContainer.appendChild(button);
+    });
+
+    const hero = document.querySelector(".post-hero");
+    if (hero) hero.insertAdjacentElement("afterend", shareContainer);
+    else article.insertAdjacentElement("afterbegin", shareContainer);
+
+    const url = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
+    const title = document.title;
+
+    shareContainer.querySelectorAll(".share-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const platform = btn.dataset.platform;
+        try {
+          if (platform === "facebook") window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank", "width=600,height=400");
+          else if (platform === "twitter") window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
+          else if (platform === "linkedin") window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, "_blank", "width=600,height=400");
+          else if (platform === "whatsapp") window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(title + " " + url)}`, "_blank");
+          else if (platform === "telegram") window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, "_blank");
+          else if (platform === "email") window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
+          else if (platform === "copy") {
+            await navigator.clipboard.writeText(url);
+            alert("✅ Link copied to clipboard!");
+          } else if (platform === "native") {
+            if (navigator.share) await navigator.share({ title, url });
+            else alert("⚠️ Native sharing not supported on this device. Use the buttons above.");
+          }
+        } catch (err) {
+          console.error("Share failed:", err);
+        }
+      });
+    });
+  }
+})();
