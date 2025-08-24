@@ -549,3 +549,212 @@
     });
   }
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory =====
+(function () {
+  console.log("✅ enhancer.js loaded");
+
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygo45chkXee7VUGFT1T9uF6uaugbvz5tpb-rWFlb90B5h9jqllwbyBEzqpaLkK1v7P/exec";
+  const IPINFO_TOKEN = "91dbe52aeb0873";
+  const SW_PATH = "/sw.js";
+  const AUTO_DISMISS_TIME = 25000; // 25 seconds
+  const LOCAL_STORAGE_KEY = "maxclick_memory_queue";
+
+  // Generate unique user ID
+  const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
+    .replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4))).toString(16)
+    );
+
+  // Fetch IP + location info
+  async function getIPInfo() {
+    try {
+      const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      return await res.json();
+    } catch (e) {
+      console.warn("❌ IP fetch failed:", e);
+      return {};
+    }
+  }
+
+  function getUserAgent() {
+    return navigator.userAgent || "unknown";
+  }
+
+  // Save payload temporarily in localStorage
+  function saveMemory(payload) {
+    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    queue.push(payload);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(queue));
+  }
+
+  // Retry sending queued data if network failed
+  async function flushMemory() {
+    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    if (!queue.length) return;
+
+    for (let i = 0; i < queue.length; i++) {
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(queue[i]),
+          headers: { "Content-Type": "application/json" }
+        });
+        const text = await res.text();
+        console.log("📩 Apps Script response (memory flush):", text);
+      } catch (err) {
+        console.error("❌ Failed to flush memory:", err);
+      }
+    }
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  }
+
+  // Collect data + send to Google Sheet
+  async function saveData(email, pushPermission) {
+    const ipInfo = await getIPInfo();
+    const ua = getUserAgent();
+
+    if (!localStorage.getItem("user_id")) localStorage.setItem("user_id", uuid());
+    const userId = localStorage.getItem("user_id");
+
+    const payload = {
+      Timestamp: new Date().toISOString(),
+      Email: email,
+      PushPermission: pushPermission || "denied",
+      LastPushSent: "",
+      IP: ipInfo.ip || "",
+      City: ipInfo.city || "",
+      Region: ipInfo.region || "",
+      Country: ipInfo.country || "",
+      Postal: ipInfo.postal || "",
+      ISP: ipInfo.org || "",
+      Location: ipInfo.loc || "",
+      Timezone: ipInfo.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      UserAgent: ua,
+      PageURL: location.href,
+      Referrer: document.referrer || "",
+      UserID: userId,
+      Page: location.href
+    };
+
+    saveMemory(payload); // Store locally first
+
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" }
+      });
+      const text = await res.text();
+      console.log("📩 Apps Script response:", text);
+
+      await flushMemory(); // Send queued entries
+      localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
+    } catch (err) {
+      console.error("❌ Failed to send data:", err);
+    }
+  }
+
+  // Request push notification permission
+  async function requestPush() {
+    if (!("Notification" in window)) return "unsupported";
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm === "granted" && "serviceWorker" in navigator) {
+        await navigator.serviceWorker.register(SW_PATH);
+        await navigator.serviceWorker.ready;
+      }
+      return perm;
+    } catch (err) {
+      console.warn("❌ Push permission error:", err);
+      return "error";
+    }
+  }
+
+  // Show subscription popup
+  async function showPopup() {
+    if (typeof Swal === "undefined") {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    let storedEmail = null;
+    try {
+      const consent = JSON.parse(localStorage.getItem("user_consent"));
+      if (consent && consent.email) storedEmail = consent.email;
+    } catch (e) {
+      console.warn("Failed to parse stored consent:", e);
+    }
+
+    const popup = Swal.fire({
+      title: "✨ Stay Ahead ✨",
+      html: `
+        <p style="font-size:16px; line-height:1.5; color:#444;">
+          Join <b>10,000+ smart users</b> who get instant updates, insights & tools.<br><br>
+          Just one click gives you:<br>
+          ✅ Free insider updates to your email<br>
+          ✅ Push notifications directly to your device
+        </p>
+        <input type="email" id="userEmail" class="swal2-input" placeholder="Enter your email" value="${storedEmail || ''}" required>
+      `,
+      icon: "info",
+      confirmButtonText: "🚀 Subscribe & Enable Alerts",
+      confirmButtonColor: "#3085d6",
+      allowOutsideClick: true,
+      didOpen: () => {
+        setTimeout(() => {
+          if (Swal.isVisible()) Swal.close();
+        }, AUTO_DISMISS_TIME);
+      },
+      preConfirm: () => {
+        const emailInput = document.getElementById("userEmail").value.trim();
+        if (!emailInput || !/^[^@\s]+@[^\s@]+\.[^@\s]+$/.test(emailInput)) {
+          Swal.showValidationMessage("⚠️ Please enter a valid email address");
+          return false;
+        }
+        return emailInput;
+      }
+    });
+
+    const { value: email } = await popup;
+
+    if (email) {
+      const pushPermission = await requestPush();
+      await saveData(email, pushPermission);
+
+      Swal.fire({
+        icon: "success",
+        title: "🎉 You're In!",
+        html: `Thanks! You're subscribed and push alerts are <b>${pushPermission}</b>.`,
+        confirmButtonText: "Awesome!"
+      });
+    }
+  }
+
+  // Auto show popup if not yet subscribed
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!localStorage.getItem("user_consent")) showPopup();
+  });
+
+})();
