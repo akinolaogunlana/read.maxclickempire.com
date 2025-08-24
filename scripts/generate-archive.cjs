@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// Correct paths relative to the scripts folder
+// Correct paths relative to the script folder
 const metaPath = path.join(__dirname, "..", "data", "post-meta.js");
 const outputFile = path.join(__dirname, "..", "archive.html");
 
@@ -26,11 +26,11 @@ function generateHTML(posts) {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-<!-- RSS Feed -->
-<link rel="alternate" type="application/rss+xml" title="MaxClickEmpire RSS Feed" href="https://read.maxclickempire.com/rss.xml" />
+  <!-- RSS Feed -->
+  <link rel="alternate" type="application/rss+xml" title="MaxClickEmpire RSS Feed" href="https://read.maxclickempire.com/rss.xml" />
 
-<!-- XML Sitemap -->
-<link rel="sitemap" type="application/xml" title="MaxClickEmpire Sitemap" href="https://read.maxclickempire.com/sitemap.xml" />
+  <!-- XML Sitemap -->
+  <link rel="sitemap" type="application/xml" title="MaxClickEmpire Sitemap" href="https://read.maxclickempire.com/sitemap.xml" />
 
   <title>All Posts - MaxClickEmpire</title>
   <meta name="description" content="Explore all blog posts." />
@@ -50,7 +50,7 @@ function generateHTML(posts) {
     ${posts
       .map(
         (p) =>
-          `<li><a href="${p.canonical || "#"}">${p.title || "Untitled"}</a></li>`
+          `<li><a href="${p.canonical || "#"}" rel="follow" title="${p.title || "Untitled"}" aria-label="Read full post: ${p.title || "Untitled"}"><strong>${p.title || "Untitled"}</strong></a></li>`
       )
       .join("\n    ")}
   </ul>
