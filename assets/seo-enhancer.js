@@ -564,197 +564,256 @@
 
 
 
+<!-- ===== MaxClickEmpire – Email (only) UI + Hidden Enrichment + Offline Queue ===== -->
 
-
-// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory =====
 (function () {
-  console.log("✅ enhancer.js loaded");
+  "use strict";
+  console.log("✅ maxclick enhancer loaded");
 
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygo45chkXee7VUGFT1T9uF6uaugbvz5tpb-rWFlb90B5h9jqllwbyBEzqpaLkK1v7P/exec";
-  const IPINFO_TOKEN = "91dbe52aeb0873";
-  const SW_PATH = "/sw.js";
-  const AUTO_DISMISS_TIME = 25000; // 25 seconds
-  const LOCAL_STORAGE_KEY = "maxclick_memory_queue";
+  /* ======================
+     CONFIG
+  ====================== */
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrbaU-Yh1ph7ni4fmEsYQWGdvcU4laAN9hSWdbZ1EzAqQnNPLFzJ_y7NTFVOqWjGQf/exec"; // <- YOUR ENDPOINT
+  const IPINFO_TOKEN    = "91dbe52aeb0873";     // keep or replace
+  const SW_PATH         = "/sw.js";             // your service worker (optional)
+  const AUTO_DISMISS_MS = 25000;                // 25s
+  const LS = {
+    CONSENT: "user_consent",
+    USER_ID: "user_id",
+    QUEUE:   "maxclick_memory_queue",
+    SHOWN:   "maxclick_popup_shown"
+  };
 
-  // Generate unique user ID
-  const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
-    .replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4))).toString(16)
-    );
+  /* ======================
+     UTIL
+  ====================== */
+  const uuid = () =>
+    (crypto?.randomUUID ? crypto.randomUUID() :
+      ([1e7]+-1e3+-4e3+-8e3+-1e11)
+        .replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c/4))).toString(16)));
 
-  // Fetch IP + location info
+  async function safeFetch(url, options = {}, timeoutMs = 15000) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: ctrl.signal });
+    } finally { clearTimeout(t); }
+  }
+
   async function getIPInfo() {
     try {
-      const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      const res = await safeFetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      if (!res.ok) throw new Error("ipinfo http " + res.status);
       return await res.json();
     } catch (e) {
-      console.warn("❌ IP fetch failed:", e);
+      console.warn("❌ ipinfo failed:", e);
       return {};
     }
   }
 
-  function getUserAgent() {
-    return navigator.userAgent || "unknown";
-  }
+  const getUA = () => navigator.userAgent || "";
+  const getConsent = () => { try { return JSON.parse(localStorage.getItem(LS.CONSENT) || "null"); } catch { return null; } };
+  const setConsent = (obj) => localStorage.setItem(LS.CONSENT, JSON.stringify(obj));
 
-  // Save payload temporarily in localStorage
-  function saveMemory(payload) {
-    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
-    queue.push(payload);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(queue));
-  }
+  function qGet() { try { return JSON.parse(localStorage.getItem(LS.QUEUE) || "[]"); } catch { return []; } }
+  function qSet(arr) { localStorage.setItem(LS.QUEUE, JSON.stringify(arr)); }
+  function qPush(item) { const arr = qGet(); arr.push(item); qSet(arr); }
 
-  // Retry sending queued data if network failed
-  async function flushMemory() {
-    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
-    if (!queue.length) return;
-
-    for (let i = 0; i < queue.length; i++) {
+  async function flushQueue() {
+    const arr = qGet();
+    if (!arr.length) return;
+    for (let i = 0; i < arr.length; i++) {
       try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const res = await safeFetch(APPS_SCRIPT_URL, {
           method: "POST",
-          body: JSON.stringify(queue[i]),
-          headers: { "Content-Type": "application/json" }
-        });
-        const text = await res.text();
-        console.log("📩 Apps Script response (memory flush):", text);
-      } catch (err) {
-        console.error("❌ Failed to flush memory:", err);
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(arr[i])
+        }, 20000);
+        if (!res.ok) throw new Error("flush http " + res.status);
+        await res.text(); // consume
+      } catch (e) {
+        console.warn("❌ queue item failed, will retry later:", e);
+        return; // keep remaining for next attempt
       }
     }
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(LS.QUEUE);
   }
 
-  // Collect data + send to Google Sheet
+  /* ======================
+     PUSH / SW (optional)
+  ====================== */
+  async function ensureSW() {
+    if (!("serviceWorker" in navigator)) return false;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration(SW_PATH);
+      if (!reg) {
+        await navigator.serviceWorker.register(SW_PATH);
+        await navigator.serviceWorker.ready;
+      }
+      return true;
+    } catch (e) {
+      console.warn("SW register failed:", e);
+      return false;
+    }
+  }
+
+  async function askPush() {
+    if (!("Notification" in window)) return "unsupported";
+    try {
+      const p = await Notification.requestPermission();
+      if (p === "granted") await ensureSW();
+      return p; // granted | denied | default
+    } catch {
+      return "error";
+    }
+  }
+
+  /* ======================
+     SEND
+  ====================== */
   async function saveData(email, pushPermission) {
-    const ipInfo = await getIPInfo();
-    const ua = getUserAgent();
+    if (!localStorage.getItem(LS.USER_ID)) localStorage.setItem(LS.USER_ID, uuid());
+    const userId = localStorage.getItem(LS.USER_ID);
 
-    if (!localStorage.getItem("user_id")) localStorage.setItem("user_id", uuid());
-    const userId = localStorage.getItem("user_id");
+    const ip = await getIPInfo();
 
+    // Build payload EXACTLY in your sheet order
     const payload = {
       Timestamp: new Date().toISOString(),
       Email: email,
-      PushPermission: pushPermission || "denied",
+      PushPermission: pushPermission || "default",
       LastPushSent: "",
-      IP: ipInfo.ip || "",
-      City: ipInfo.city || "",
-      Region: ipInfo.region || "",
-      Country: ipInfo.country || "",
-      Postal: ipInfo.postal || "",
-      ISP: ipInfo.org || "",
-      Location: ipInfo.loc || "",
-      Timezone: ipInfo.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      UserAgent: ua,
+      IP: ip.ip || "",
+      City: ip.city || "",
+      Region: ip.region || "",
+      Country: ip.country || "",
+      Postal: ip.postal || "",
+      ISP: ip.org || "",
+      Location: ip.loc || "",
+      Timezone: ip.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      UserAgent: getUA(),
       PageURL: location.href,
       Referrer: document.referrer || "",
       UserID: userId,
       Page: location.href
     };
 
-    saveMemory(payload); // Store locally first
-
+    // Queue first (offline-safe), then try send
+    qPush(payload);
     try {
-      const res = await fetch(APPS_SCRIPT_URL, {
+      const res = await safeFetch(APPS_SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" }
-      });
-      const text = await res.text();
-      console.log("📩 Apps Script response:", text);
-
-      await flushMemory(); // Send queued entries
-      localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
-    } catch (err) {
-      console.error("❌ Failed to send data:", err);
-    }
-  }
-
-  // Request push notification permission
-  async function requestPush() {
-    if (!("Notification" in window)) return "unsupported";
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm === "granted" && "serviceWorker" in navigator) {
-        await navigator.serviceWorker.register(SW_PATH);
-        await navigator.serviceWorker.ready;
-      }
-      return perm;
-    } catch (err) {
-      console.warn("❌ Push permission error:", err);
-      return "error";
-    }
-  }
-
-  // Show subscription popup
-  async function showPopup() {
-    if (typeof Swal === "undefined") {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    let storedEmail = null;
-    try {
-      const consent = JSON.parse(localStorage.getItem("user_consent"));
-      if (consent && consent.email) storedEmail = consent.email;
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }, 20000);
+      if (!res.ok) throw new Error("send http " + res.status);
+      await res.text();
+      await flushQueue();
+      setConsent({ email, pushPermission, ts: Date.now() });
+      return true;
     } catch (e) {
-      console.warn("Failed to parse stored consent:", e);
+      console.warn("❌ send failed, kept in queue:", e);
+      return false;
     }
+  }
+
+  /* ======================
+     UI (SweetAlert email-only)
+  ====================== */
+  async function loadSwal() {
+    if (typeof Swal !== "undefined") return;
+    await new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function showPopup() {
+    // one per session
+    if (sessionStorage.getItem(LS.SHOWN)) return;
+    sessionStorage.setItem(LS.SHOWN, "1");
+
+    await loadSwal();
+
+    let prefill = getConsent()?.email || "";
 
     const popup = Swal.fire({
-      title: "✨ Stay Ahead ✨",
+      title: "✨ Stay Ahead",
       html: `
-        <p style="font-size:16px; line-height:1.5; color:#444;">
-          Join <b>10,000+ smart users</b> who get instant updates, insights & tools.<br><br>
-          Just one click gives you:<br>
-          ✅ Free insider updates to your email<br>
-          ✅ Push notifications directly to your device
+        <p style="font-size:14px;color:#555;margin:0 0 8px">
+          Get instant updates & tools. Enter your email:
         </p>
-        <input type="email" id="userEmail" class="swal2-input" placeholder="Enter your email" value="${storedEmail || ''}" required>
+        <input type="email" id="mceEmail" class="swal2-input" placeholder="name@email.com" value="${prefill}">
       `,
+      input: null,
       icon: "info",
-      confirmButtonText: "🚀 Subscribe & Enable Alerts",
+      confirmButtonText: "Subscribe",
       confirmButtonColor: "#3085d6",
       allowOutsideClick: true,
+      allowEscapeKey: true,
       didOpen: () => {
         setTimeout(() => {
-          if (Swal.isVisible()) Swal.close();
-        }, AUTO_DISMISS_TIME);
+          const val = document.getElementById("mceEmail")?.value.trim();
+          if (Swal.isVisible() && !val) Swal.close();
+        }, AUTO_DISMISS_MS);
       },
       preConfirm: () => {
-        const emailInput = document.getElementById("userEmail").value.trim();
-        if (!emailInput || !/^[^@\s]+@[^\s@]+\.[^@\s]+$/.test(emailInput)) {
-          Swal.showValidationMessage("⚠️ Please enter a valid email address");
+        const v = (document.getElementById("mceEmail")?.value || "").trim();
+        if (!v || !/^[^@\s]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+          Swal.showValidationMessage("Please enter a valid email");
           return false;
         }
-        return emailInput;
+        return v;
       }
     });
 
     const { value: email } = await popup;
+    if (!email) return;
 
-    if (email) {
-      const pushPermission = await requestPush();
-      await saveData(email, pushPermission);
+    const pushPermission = await askPush(); // optional
+    const ok = await saveData(email, pushPermission);
 
-      Swal.fire({
-        icon: "success",
-        title: "🎉 You're In!",
-        html: `Thanks! You're subscribed and push alerts are <b>${pushPermission}</b>.`,
-        confirmButtonText: "Awesome!"
-      });
-    }
+    Swal.fire({
+      icon: ok ? "success" : "info",
+      title: ok ? "You're in! 🎉" : "Saved for later",
+      html: ok
+        ? `Thanks! Push permission: <b>${pushPermission}</b>.`
+        : `You're subscribed. We'll sync when you're back online.`,
+      confirmButtonText: "OK"
+    });
   }
 
-  // Auto show popup if not yet subscribed
-  document.addEventListener("DOMContentLoaded", function () {
-    if (!localStorage.getItem("user_consent")) showPopup();
-  });
+  /* ======================
+     TRIGGERS & BOOT
+  ====================== */
+  function shouldShow() { return !getConsent(); }
 
+  function setupTriggers() {
+    // Timed
+    setTimeout(() => { if (shouldShow()) showPopup(); }, 2500);
+    // First scroll
+    window.addEventListener("scroll", () => { if (shouldShow()) showPopup(); }, { once: true, passive: true });
+    // Exit intent
+    document.addEventListener("mouseleave", (e) => { if (e.clientY <= 0 && shouldShow()) showPopup(); }, { once: true });
+    // Offline/online queue
+    window.addEventListener("online", flushQueue);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") flushQueue(); });
+    // Best-effort send on unload (last queued item)
+    window.addEventListener("beforeunload", () => {
+      const last = qGet().slice(-1)[0];
+      if (last && navigator.sendBeacon) {
+        navigator.sendBeacon(APPS_SCRIPT_URL, new Blob([JSON.stringify(last)], { type: "application/json" }));
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!localStorage.getItem(LS.USER_ID)) localStorage.setItem(LS.USER_ID, uuid());
+    flushQueue();                 // try to sync leftovers
+    setupTriggers();              // wire UI & sync triggers
+    ensureSW().catch(()=>{});     // optional early SW
+  });
 })();
