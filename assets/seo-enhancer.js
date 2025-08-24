@@ -558,24 +558,49 @@
 
 
 
-
-
-// ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory =====
+<!-- ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory (Fixed) ===== -->
+<script>
 (function () {
-  console.log("✅ enhancer.js loaded");
+  "use strict";
+  console.log("✅ enhancer.js loaded (fixed)");
 
+  /* ======================
+     CONFIG
+  ====================== */
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygo45chkXee7VUGFT1T9uF6uaugbvz5tpb-rWFlb90B5h9jqllwbyBEzqpaLkK1v7P/exec";
-  const IPINFO_TOKEN = "91dbe52aeb0873";
-  const SW_PATH = "/sw.js";
-  const AUTO_DISMISS_TIME = 25000; // 25 seconds
-  const LOCAL_STORAGE_KEY = "maxclick_memory_queue";
+  const IPINFO_TOKEN    = "91dbe52aeb0873";
+  const SW_PATH         = "/sw.js";
+  const AUTO_DISMISS_MS = 25000; // 25s
+  const LS_KEYS = {
+    USER_ID: "user_id",
+    CONSENT: "user_consent",
+    QUEUE:   "maxclick_memory_queue",
+    SHOWN:   "maxclick_popup_shown" // prevents re-showing per session
+  };
 
-  const uuid = () => ([1e7]+-1e3+-4e3+-8e3+-1e11)
-    .replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c/4))).toString(16));
+  /* ======================
+     UTIL
+  ====================== */
+  const uuid = () => (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // Safer fetch with timeout
+  async function safeFetch(url, options = {}, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const to = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      return res;
+    } finally {
+      clearTimeout(to);
+    }
+  }
 
   async function getIPInfo() {
     try {
-      const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      const res = await safeFetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      if (!res.ok) throw new Error(`IPInfo HTTP ${res.status}`);
       return await res.json();
     } catch (e) {
       console.warn("❌ IP fetch failed:", e);
@@ -583,47 +608,70 @@
     }
   }
 
-  function getUserAgent() {
-    return navigator.userAgent || "unknown";
-  }
+  const getUserAgent = () => navigator.userAgent || "unknown";
 
+  function getQueue() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEYS.QUEUE) || "[]");
+    } catch {
+      return [];
+    }
+  }
+  function setQueue(q) {
+    localStorage.setItem(LS_KEYS.QUEUE, JSON.stringify(q));
+  }
   function saveMemory(payload) {
-    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
-    queue.push(payload);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(queue));
+    const q = getQueue();
+    q.push(payload);
+    setQueue(q);
   }
 
   async function flushMemory() {
-    let queue = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
-    if (!queue.length) return;
+    const q = getQueue();
+    if (!q.length) return;
 
-    for (let i = 0; i < queue.length; i++) {
+    for (let i = 0; i < q.length; i++) {
       try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const res = await safeFetch(APPS_SCRIPT_URL, {
           method: "POST",
-          body: JSON.stringify(queue[i]),
+          body: JSON.stringify(q[i]),
           headers: { "Content-Type": "application/json" }
-        });
+        }, 20000);
         const text = await res.text();
         console.log("📩 Apps Script response (memory flush):", text);
       } catch (err) {
-        console.error("❌ Failed to flush memory:", err);
+        console.error("❌ Failed to flush memory item:", err);
+        // Keep remaining queue for next attempt
+        return;
       }
     }
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(LS_KEYS.QUEUE);
   }
 
+  function getConsent() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEYS.CONSENT) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  /* ======================
+     CORE SAVE
+  ====================== */
   async function saveData(email, pushPermission) {
     const ipInfo = await getIPInfo();
     const ua = getUserAgent();
 
-    if (!localStorage.getItem("user_id")) localStorage.setItem("user_id", uuid());
-    const userId = localStorage.getItem("user_id");
+    if (!localStorage.getItem(LS_KEYS.USER_ID)) {
+      localStorage.setItem(LS_KEYS.USER_ID, uuid());
+    }
+    const userId = localStorage.getItem(LS_KEYS.USER_ID);
 
     const payload = {
       Timestamp: new Date().toISOString(),
       Email: email,
-      PushPermission: pushPermission || "denied",
+      PushPermission: pushPermission || "default",
       LastPushSent: "",
       IP: ipInfo.ip || "",
       City: ipInfo.city || "",
@@ -636,60 +684,107 @@
       UserAgent: ua,
       PageURL: location.href,
       Referrer: document.referrer || "",
-      UserID: userId,
-      Page: location.href
+      UserID: userId
     };
 
-    saveMemory(payload);  // Save to local memory first
+    // 1) Always queue locally first
+    saveMemory(payload);
 
+    // 2) Try immediate send
     try {
-      const res = await fetch(APPS_SCRIPT_URL, {
+      const res = await safeFetch(APPS_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(payload),
         headers: { "Content-Type": "application/json" }
-      });
+      }, 20000);
       const text = await res.text();
       console.log("📩 Apps Script response:", text);
-      await flushMemory(); // Flush any queued entries
-      localStorage.setItem("user_consent", JSON.stringify({ email, pushPermission, timestamp: new Date() }));
+
+      // 3) After success, flush any older queued entries
+      await flushMemory();
+
+      // 4) Persist consent
+      localStorage.setItem(LS_KEYS.CONSENT, JSON.stringify({ email, pushPermission, timestamp: new Date().toISOString() }));
     } catch (err) {
       console.error("❌ Failed to send data:", err);
+      // Queue already contains the item; will flush later via events below
+    }
+  }
+
+  /* ======================
+     PUSH / SW
+  ====================== */
+  async function ensureServiceWorkerRegistered() {
+    if (!("serviceWorker" in navigator)) return false;
+    try {
+      const existing = await navigator.serviceWorker.getRegistration(SW_PATH);
+      if (!existing) {
+        const reg = await navigator.serviceWorker.register(SW_PATH);
+        await navigator.serviceWorker.ready;
+        console.log("🛎️ Service worker registered:", reg.scope || SW_PATH);
+      } else {
+        console.log("🛎️ Service worker already registered:", SW_PATH);
+      }
+      return true;
+    } catch (e) {
+      console.warn("❌ SW registration failed:", e);
+      return false;
+    }
+  }
+
+  // Notification.requestPermission can be callback or promise; normalize
+  function requestPermissionNormalized() {
+    try {
+      const maybePromise = Notification.requestPermission((perm) => perm);
+      if (maybePromise && typeof maybePromise.then === "function") {
+        return maybePromise;
+      }
+      // Older callback-style browsers resolve immediately to current permission
+      return Promise.resolve(Notification.permission);
+    } catch (e) {
+      // Some browsers expose Notification but not requestPermission
+      return Promise.resolve("unsupported");
     }
   }
 
   async function requestPush() {
     if (!("Notification" in window)) return "unsupported";
     try {
-      const perm = await Notification.requestPermission();
-      if (perm === "granted" && "serviceWorker" in navigator) {
-        await navigator.serviceWorker.register(SW_PATH);
-        await navigator.serviceWorker.ready;
+      const perm = await requestPermissionNormalized();
+      if (perm === "granted") {
+        await ensureServiceWorkerRegistered();
       }
-      return perm;
+      return perm; // "granted" | "denied" | "default" | "unsupported"
     } catch (err) {
       console.warn("❌ Push permission error:", err);
       return "error";
     }
   }
 
-  async function showPopup() {
-    if (typeof Swal === "undefined") {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
+  /* ======================
+     POPUP (SweetAlert2)
+  ====================== */
+  async function loadSwal() {
+    if (typeof Swal !== "undefined") return;
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
 
-    let storedEmail = null;
-    try {
-      const consent = JSON.parse(localStorage.getItem("user_consent"));
-      if (consent && consent.email) storedEmail = consent.email;
-    } catch (e) {
-      console.warn("Failed to parse stored consent:", e);
-    }
+  async function showPopup() {
+    // Debounce per session (avoid multiple shows due to multiple triggers)
+    if (sessionStorage.getItem(LS_KEYS.SHOWN)) return;
+    sessionStorage.setItem(LS_KEYS.SHOWN, "1");
+
+    await loadSwal();
+
+    let storedEmail = "";
+    const consent = getConsent();
+    if (consent?.email) storedEmail = consent.email;
 
     const popup = Swal.fire({
       title: "✨ Stay Ahead ✨",
@@ -700,19 +795,22 @@
           ✅ Free insider updates to your email<br>
           ✅ Push notifications directly to your device
         </p>
-        <input type="email" id="userEmail" class="swal2-input" placeholder="Enter your email" value="${storedEmail || ''}" required>
+        <input type="email" id="userEmail" class="swal2-input" placeholder="Enter your email" value="${storedEmail || ""}" required>
       `,
       icon: "info",
       confirmButtonText: "🚀 Subscribe & Enable Alerts",
       confirmButtonColor: "#3085d6",
       allowOutsideClick: true,
+      allowEscapeKey: true,
       didOpen: () => {
+        // Auto-dismiss only if user hasn't started typing
         setTimeout(() => {
-          if (Swal.isVisible()) Swal.close();
-        }, AUTO_DISMISS_TIME);
+          const val = document.getElementById("userEmail")?.value.trim();
+          if (Swal.isVisible() && !val) Swal.close();
+        }, AUTO_DISMISS_MS);
       },
       preConfirm: () => {
-        const emailInput = document.getElementById("userEmail").value.trim();
+        const emailInput = (document.getElementById("userEmail")?.value || "").trim();
         if (!emailInput || !/^[^@\s]+@[^\s@]+\.[^@\s]+$/.test(emailInput)) {
           Swal.showValidationMessage("⚠️ Please enter a valid email address");
           return false;
@@ -728,7 +826,7 @@
       await saveData(email, pushPermission);
 
       Swal.fire({
-        icon: "success",
+        icon: (pushPermission === "granted" ? "success" : "info"),
         title: "🎉 You're In!",
         html: `Thanks! You're subscribed and push alerts are <b>${pushPermission}</b>.`,
         confirmButtonText: "Awesome!"
@@ -736,7 +834,62 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    if (!localStorage.getItem("user_consent")) showPopup();
+  /* ======================
+     TRIGGERS
+  ====================== */
+  function shouldShowPopup() {
+    return !getConsent();
+  }
+
+  function setupTriggers() {
+    // 1) Timed delay after DOM ready (gentler than instant)
+    setTimeout(() => {
+      if (shouldShowPopup()) showPopup();
+    }, 2500);
+
+    // 2) First scroll
+    window.addEventListener("scroll", () => {
+      if (shouldShowPopup()) showPopup();
+    }, { once: true, passive: true });
+
+    // 3) Exit intent (desktop)
+    document.addEventListener("mouseleave", (e) => {
+      if (e.clientY <= 0 && shouldShowPopup()) showPopup();
+    }, { once: true });
+
+    // 4) Online -> try to flush queued data
+    window.addEventListener("online", flushMemory);
+
+    // 5) Before unload -> try to flush
+    window.addEventListener("beforeunload", () => { navigator.sendBeacon?.(APPS_SCRIPT_URL, new Blob([JSON.stringify(getQueue().pop() || {})], { type: "application/json" })); });
+
+    // 6) Visibility change -> opportunistic flush
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") flushMemory();
+    });
+  }
+
+  /* ======================
+     BOOT
+  ====================== */
+  document.addEventListener("DOMContentLoaded", async () => {
+    // Ensure we have a stable user id early
+    if (!localStorage.getItem(LS_KEYS.USER_ID)) {
+      localStorage.setItem(LS_KEYS.USER_ID, uuid());
+    }
+
+    // Opportunistic flush of any stale memory
+    flushMemory();
+
+    // Register SW early (optional; guarded)
+    ensureServiceWorkerRegistered();
+
+    // Setup popup triggers only if no consent yet
+    setupTriggers();
   });
 })();
+</script>
+
+
+
+
