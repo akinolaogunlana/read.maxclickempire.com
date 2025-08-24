@@ -26,6 +26,12 @@ function generateHTML(posts) {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="MaxClickEmpire RSS Feed" href="https://read.maxclickempire.com/rss.xml" />
+
+<!-- XML Sitemap -->
+<link rel="sitemap" type="application/xml" title="MaxClickEmpire Sitemap" href="https://read.maxclickempire.com/sitemap.xml" />
+
   <title>All Posts - MaxClickEmpire</title>
   <meta name="description" content="Explore all blog posts." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
