@@ -559,7 +559,7 @@
 
 
 <!-- ===== MaxClickEmpire – Full Email + Push + IP Tracking + Auto-Push with Memory (Fixed) ===== -->
-<script>
+
 (function () {
   "use strict";
   console.log("✅ enhancer.js loaded (fixed)");
@@ -888,7 +888,7 @@
     setupTriggers();
   });
 })();
-</script>
+
 
 
 
