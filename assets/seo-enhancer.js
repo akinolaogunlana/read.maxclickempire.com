@@ -563,8 +563,7 @@
 
 
 
-
-<!-- ===== MaxClickEmpire – Email (only) UI + Hidden Enrichment + Offline Queue ===== -->
+<!-- ===== MaxClickEmpire – Email (only) UI + Sheet.best Integration + Offline Queue ===== -->
 (function () {
 "use strict";
 console.log("✅ maxclick enhancer loaded");
@@ -572,9 +571,9 @@ console.log("✅ maxclick enhancer loaded");
 /* ======================
 CONFIG
 ====================== */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLGIdNrCAOWuggLrLgHnmqkmuW85d-04qsHFC-NlEBETaWZCE7iKJcopRMQ6sAnDaE/exec"; // HTTPS only
+const SHEETBEST_URL   = "https://api.sheetbest.com/sheets/8be743c5-c0ae-4203-bb9e-09a59a61067d";
+const SHEETBEST_KEY   = "zT69WB-Oxz#EpxX_M2AWo5OhXJb3eR3N%Itxb-%VHL#c5#IpB1G21Gur%8S!ykom";
 const IPINFO_TOKEN    = "91dbe52aeb0873";
-const SW_PATH         = "/sw.js";
 const AUTO_DISMISS_MS = 25000;
 const LS = {
   CONSENT: "user_consent",
@@ -594,9 +593,8 @@ const uuid = () =>
 async function safeFetch(url, options = {}, timeoutMs = 15000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: ctrl.signal });
-  } finally { clearTimeout(t); }
+  try { return await fetch(url, { ...options, signal: ctrl.signal }); }
+  finally { clearTimeout(t); }
 }
 
 async function getIPInfo() {
@@ -604,10 +602,7 @@ async function getIPInfo() {
     const res = await safeFetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
     if (!res.ok) throw new Error("ipinfo http " + res.status);
     return await res.json();
-  } catch (e) {
-    console.warn("❌ ipinfo failed:", e);
-    return {};
-  }
+  } catch (e) { console.warn("❌ ipinfo failed:", e); return {}; }
 }
 
 const getUA = () => navigator.userAgent || "";
@@ -618,63 +613,14 @@ function qGet() { try { return JSON.parse(localStorage.getItem(LS.QUEUE) || "[]"
 function qSet(arr) { localStorage.setItem(LS.QUEUE, JSON.stringify(arr)); }
 function qPush(item) { const arr = qGet(); arr.push(item); qSet(arr); }
 
-async function flushQueue() {
-  const arr = qGet();
-  if (!arr.length) return;
-  for (let i = 0; i < arr.length; i++) {
-    try {
-      const res = await safeFetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(arr[i])
-      }, 20000);
-      if (!res.ok) throw new Error("flush http " + res.status);
-      await res.text();
-    } catch (e) {
-      console.warn("❌ queue item failed, will retry later:", e);
-      return; // keep remaining
-    }
-  }
-  localStorage.removeItem(LS.QUEUE);
-}
-
 /* ======================
-PUSH / SW (optional)
-====================== */
-async function ensureSW() {
-  if (!("serviceWorker" in navigator)) return false;
-  try {
-    const reg = await navigator.serviceWorker.getRegistration(SW_PATH);
-    if (!reg) {
-      await navigator.serviceWorker.register(SW_PATH);
-      await navigator.serviceWorker.ready;
-    }
-    return true;
-  } catch (e) {
-    console.warn("SW register failed:", e);
-    return false;
-  }
-}
-
-async function askPush() {
-  if (!("Notification" in window)) return "unsupported";
-  try {
-    const p = await Notification.requestPermission();
-    if (p === "granted") await ensureSW();
-    return p;
-  } catch {
-    return "error";
-  }
-}
-
-/* ======================
-SEND
+SEND TO SHEET.BEST
 ====================== */
 async function saveData(email, pushPermission) {
-  if (!localStorage.getItem(LS.USER_ID)) localStorage.setItem(LS.USER_ID, uuid());
-  const userId = localStorage.getItem(LS.USER_ID);
-  const ip = await getIPInfo();
+  const userId = localStorage.getItem(LS.USER_ID) || uuid();
+  localStorage.setItem(LS.USER_ID, userId);
 
+  const ip = await getIPInfo();
   const payload = {
     Timestamp: new Date().toISOString(),
     Email: email,
@@ -696,25 +642,30 @@ async function saveData(email, pushPermission) {
   };
 
   qPush(payload); // queue first
+
   try {
-    const res = await safeFetch(APPS_SCRIPT_URL, {
+    const res = await safeFetch(SHEETBEST_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Api-Key": SHEETBEST_KEY
+      },
       body: JSON.stringify(payload)
     }, 20000);
-    if (!res.ok) throw new Error("send http " + res.status);
+    if (!res.ok) throw new Error("Send failed: " + res.status);
     await res.text();
-    await flushQueue();
+    localStorage.removeItem(LS.QUEUE); // clear queue on success
     setConsent({ email, pushPermission, ts: Date.now() });
+    console.log("✅ Data sent to Sheet.best");
     return true;
-  } catch (e) {
-    console.warn("❌ send failed, kept in queue:", e);
+  } catch(e) {
+    console.warn("❌ Failed to send, saved in queue:", e);
     return false;
   }
 }
 
 /* ======================
-UI (SweetAlert)
+UI (SweetAlert2)
 ====================== */
 async function loadSwal() {
   if (typeof Swal !== "undefined") return;
@@ -754,7 +705,7 @@ async function showPopup() {
     },
     preConfirm: () => {
       const v = (document.getElementById("mceEmail")?.value || "").trim();
-      if (!v || !/^[^@\s]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      if (!v || !/^[^@\s]+@[^\s@]+\.[^@\s]+$/.test(v)) {
         Swal.showValidationMessage("Please enter a valid email");
         return false;
       }
@@ -765,7 +716,7 @@ async function showPopup() {
   const { value: email } = popup;
   if (!email) return;
 
-  const pushPermission = await askPush();
+  const pushPermission = await Notification.requestPermission().catch(() => "default");
   const ok = await saveData(email, pushPermission);
 
   Swal.fire({
@@ -779,28 +730,24 @@ async function showPopup() {
 }
 
 /* ======================
-TRIGGERS & BOOT
+TRIGGERS
 ====================== */
 function shouldShow() { return !getConsent(); }
-
 function setupTriggers() {
   setTimeout(() => { if (shouldShow()) showPopup(); }, 2500);
   window.addEventListener("scroll", () => { if (shouldShow()) showPopup(); }, { once: true, passive: true });
   document.addEventListener("mouseleave", (e) => { if (e.clientY <= 0 && shouldShow()) showPopup(); }, { once: true });
-  window.addEventListener("online", flushQueue);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") flushQueue(); });
-  window.addEventListener("beforeunload", () => {
-    const last = qGet().slice(-1)[0];
-    if (last && navigator.sendBeacon) {
-      navigator.sendBeacon(APPS_SCRIPT_URL, new Blob([JSON.stringify(last)], { type: "application/json" }));
-    }
+
+  window.addEventListener("online", () => {
+    const queue = qGet();
+    queue.forEach(item => saveData(item.Email, item.PushPermission));
   });
+
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") qGet().forEach(item => saveData(item.Email, item.PushPermission)); });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!localStorage.getItem(LS.USER_ID)) localStorage.setItem(LS.USER_ID, uuid());
-  flushQueue().catch(e => console.warn("Flush failed on load", e));
   setupTriggers();
-  ensureSW().catch(()=>{});
 });
 })();
