@@ -30,6 +30,24 @@
 </item>
 
 <item>
+  <title><![CDATA[Guide to Google Sheets: Sign In, Start Your First Sheet (Web & Mobile), Use Template Power, and Build a Master Dashboard]]></title>
+  <description><![CDATA[Step-by-step guide to sign in, create your first Google Sheet, master templates, collaborate, and build dashboards on web & mobile.]]></description>
+  <link>https://read.maxclickempire.com/posts/google-sheets-guide.html</link>
+  <guid isPermaLink="true">https://read.maxclickempire.com/posts/google-sheets-guide.html</guid>
+  <pubDate>Thu, 28 Aug 2025 00:00:00 GMT</pubDate>
+  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
+  <category><![CDATA[Google Sheets tutorial]]></category>
+    <category><![CDATA[sign in Google Sheets]]></category>
+    <category><![CDATA[create Google Sheet]]></category>
+    <category><![CDATA[Google Sheets templates]]></category>
+    <category><![CDATA[Google Sheets mobile]]></category>
+    <category><![CDATA[sheets.new shortcut]]></category>
+    <category><![CDATA[Google Sheets dashboard]]></category>
+  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
+  <content:encoded><![CDATA[Step-by-step guide to sign in, create your first Google Sheet, master templates, collaborate, and build dashboards on web & mobile.]]></content:encoded>
+</item>
+
+<item>
   <title><![CDATA[Daily Attendance Sheet for Teachers | Free Google Docs]]></title>
   <description><![CDATA[Step-by-step guide and ready approach for teachers to build,use,and automate a daily attendance sheet using Google Docs|Sheets & Forms options.]]></description>
   <link>https://read.maxclickempire.com/posts/daily-attendance-sheet-teachers-google-docs.html</link>
@@ -322,21 +340,6 @@ timesheet-template-google-docs.html</guid>
     <category><![CDATA[payment terms]]></category>
   <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
   <content:encoded><![CDATA[Create polished, brandable invoices in Google Docs—step-by-step guide to add taxes, totals, export PDFs, send with payment links, and streamline your workflow.]]></content:encoded>
-</item>
-
-<item>
-  <title><![CDATA[Proposal Template for Small Business in Google Docs (Free)]]></title>
-  <description><![CDATA[Build polished, ready-to-use Google Docs proposals for your small business—step-by-step setup, copywriting tips, file naming, and automation hacks to save time.]]></description>
-  <link>https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html</link>
-  <guid isPermaLink="true">https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html</guid>
-  <pubDate>Wed, 13 Aug 2025 00:00:00 GMT</pubDate>
-  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
-  <category><![CDATA[Google Docs proposal template]]></category>
-    <category><![CDATA[proposal template for small business]]></category>
-    <category><![CDATA[business proposal Google Docs]]></category>
-    <category><![CDATA[proposal template Google Docs free]]></category>
-  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
-  <content:encoded><![CDATA[Build polished, ready-to-use Google Docs proposals for your small business—step-by-step setup, copywriting tips, file naming, and automation hacks to save time.]]></content:encoded>
 </item>
   </channel>
 </rss>

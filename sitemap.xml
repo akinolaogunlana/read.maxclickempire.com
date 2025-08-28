@@ -307,4 +307,14 @@ timesheet-template-google-docs.html</loc>
       <image:title>Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/google-sheets-guide.html</loc>
+    <lastmod>2025-08-28T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Guide to Google Sheets: Sign In, Start Your First Sheet (Web &amp; Mobile), Use Template Power, and Build a Master Dashboard</image:title>
+    </image:image>
+  </url>
 </urlset>
