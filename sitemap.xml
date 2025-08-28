@@ -297,4 +297,14 @@ timesheet-template-google-docs.html</loc>
       <image:title>Daily Attendance Sheet for Teachers | Free Google Docs</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/google-docs-guide.html</loc>
+    <lastmod>2025-08-28T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro</image:title>
+    </image:image>
+  </url>
 </urlset>
