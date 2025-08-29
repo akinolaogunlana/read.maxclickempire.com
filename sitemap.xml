@@ -317,4 +317,14 @@ timesheet-template-google-docs.html</loc>
       <image:title>Google Sheets Guide | Sign In, Use Templates &amp; Build Dashboards</image:title>
     </image:image>
   </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/google-drive-guide.html</loc>
+    <lastmod>2025-08-29T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Google Drive 2025: The Ultimate Guide |Tips, Tricks &amp; Hidden Uses</image:title>
+    </image:image>
+  </url>
 </urlset>
