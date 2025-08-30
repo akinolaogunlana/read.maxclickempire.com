@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-08-30T15:56:14.544Z</lastmod>
+    <lastmod>2025-08-30T19:37:57.880Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
@@ -395,6 +395,16 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>How to Sign In to Gmail: Complete Login Guide for Desktop &amp; Mobile</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/recover-gmail-password-without-phone-or-email.html</loc>
+    <lastmod>2025-08-30T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Recover Gmail Password Without Phone or Email | 2025 Guide</image:title>
     </image:image>
   </url>
 </urlset>
