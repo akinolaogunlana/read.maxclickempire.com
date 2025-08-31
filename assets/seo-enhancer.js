@@ -560,6 +560,70 @@
 
 
 
+// BreadcrumbList JSON-LD script
+
+(function() {
+  function injectAdvancedBreadcrumb() {
+    const pathSegments = window.location.pathname
+      .split("/")
+      .filter(seg => seg.length > 0); // Remove empty segments
+
+    const itemList = [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": window.location.origin + "/"
+      }
+    ];
+
+    pathSegments.forEach((seg, index) => {
+      // Capitalize and replace dashes with spaces for display
+      const name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+
+      itemList.push({
+        "@type": "ListItem",
+        "position": index + 2,
+        "name": name,
+        "item": window.location.origin + "/" + pathSegments.slice(0, index + 1).join("/") + "/"
+      });
+    });
+
+    const breadcrumb = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": itemList
+    };
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(breadcrumb, null, 2);
+    document.head.appendChild(script);
+
+    console.log("✅ Advanced dynamic Breadcrumb JSON-LD injected");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectAdvancedBreadcrumb);
+  } else {
+    injectAdvancedBreadcrumb();
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 
 
@@ -571,7 +635,7 @@
 
 
     
-
+//FAQ json formatter 
 
 (function() {
   function generateCompleteFAQSchema() {
