@@ -559,6 +559,63 @@
 
 
 
+(function () {
+  // Look for FAQ blocks in the article
+  const faqElements = document.querySelectorAll("article p, article strong");
+
+  let faqPairs = [];
+
+  faqElements.forEach((el, i) => {
+    // Detect "Q:" or <strong>Question style
+    if (el.textContent.trim().match(/^Q:/i) || el.tagName === "STRONG") {
+      const question = el.textContent.replace(/^Q:\s*/i, "").trim();
+      const next = faqElements[i + 1];
+      if (next && next.textContent.trim()) {
+        const answer = next.textContent.replace(/^A:\s*/i, "").trim();
+        faqPairs.push({ question, answer });
+      }
+    }
+  });
+
+  if (faqPairs.length > 0) {
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqPairs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    };
+
+    // Inject into head as JSON-LD
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(faqSchema, null, 2);
+    document.head.appendChild(script);
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
