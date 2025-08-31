@@ -800,7 +800,7 @@
 
 
 
-// Ultimate SEO-Optimized Dynamic HowTo JSON-LD with Nested Steps
+// Ultimate Robust HowTo JSON-LD with Tips & Warnings
 (function() {
   const steps = [];
   let totalMinutes = 0;
@@ -808,7 +808,7 @@
 
   const toISO8601 = (minutes) => {
     const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    const mins = Math.round(minutes % 60);
     return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
   };
 
@@ -817,10 +817,10 @@
     "a","an","of","in","on","to","is","as","by","or","be","at","it","its","you"
   ]);
 
-  const extractKeywords = (text, limit = 7) => {
-    const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+  const extractKeywords = (text, limit = 10) => {
+    const words = text.match(/\b[\w\-]{2,}\b/g) || [];
     const freq = {};
-    words.forEach(w => { if (!stopwords.has(w)) freq[w] = (freq[w] || 0) + 1; });
+    words.forEach(w => { if (!stopwords.has(w.toLowerCase())) freq[w.toLowerCase()] = (freq[w.toLowerCase()] || 0) + 1; });
     return Object.entries(freq)
       .sort((a,b) => b[1]-a[1])
       .slice(0, limit)
@@ -828,62 +828,57 @@
   };
 
   const contentEl = document.body;
+  const paragraphs = Array.from(contentEl.querySelectorAll('p, li, div, span'));
 
-  // --- Detect main steps (1), 2), 3)...) ---
+  // Detect main steps
   const mainSteps = [];
-  const paragraphs = Array.from(contentEl.querySelectorAll('p, li'));
-  paragraphs.forEach(p => {
-    const match = p.textContent.trim().match(/^(\d+)\)\s*(.+)/);
-    if (match) mainSteps.push({el: p, text: match[2], index: parseInt(match[1],10)});
+  paragraphs.forEach((p) => {
+    const text = p.textContent.trim();
+    const match = text.match(/^(?:Step\s*\d+[:.)]|\d+[.)]\s*)(.+)/i);
+    if (match) mainSteps.push({el: p, text: match[1]});
   });
 
   mainSteps.forEach((step, idx) => {
-    const stepText = step.text;
-
-    let stepObj = {
+    const stepObj = {
       "@type": "HowToStep",
       "position": idx + 1,
       "name": `Step ${idx + 1}`,
-      "text": stepText,
+      "text": step.text,
       "url": window.location.href + `#step-${idx + 1}`,
-      "keywords": extractKeywords(stepText)
+      "keywords": extractKeywords(step.text)
     };
 
-    // --- Detect sub-steps (a), b), i., ii., etc.) under this main step ---
+    // Nested sub-steps
     const subSteps = [];
-    let nextMainIndex = idx + 1 < mainSteps.length ? paragraphs.indexOf(mainSteps[idx + 1].el) : paragraphs.length;
-    for (let i = paragraphs.indexOf(step.el) + 1; i < nextMainIndex; i++) {
-      const subTextMatch = paragraphs[i].textContent.trim().match(/^([a-z]|\d+|i+)\)|[ivxlcdm]+\.\s*(.+)/i);
-      if (subTextMatch) {
-        const subStepText = subTextMatch[2] || paragraphs[i].textContent.trim();
+    const nextIndex = idx + 1 < mainSteps.length ? paragraphs.indexOf(mainSteps[idx + 1].el) : paragraphs.length;
+    for (let j = paragraphs.indexOf(step.el) + 1; j < nextIndex; j++) {
+      const subText = paragraphs[j].textContent.trim();
+      const subMatch = subText.match(/^([a-z]|\d+|i+)[.)]\s*(.+)/i);
+      if (subMatch) {
         subSteps.push({
           "@type": "HowToStep",
           "position": subSteps.length + 1,
           "name": `Sub-step ${subSteps.length + 1}`,
-          "text": subStepText,
-          "keywords": extractKeywords(subStepText)
+          "text": subMatch[2] || subText,
+          "keywords": extractKeywords(subMatch[2] || subText)
         });
       }
     }
     if (subSteps.length) stepObj.step = subSteps;
 
-    // --- Time ---
-    let stepTime = 0;
-    const timeMatch = stepText.match(/(\d+)\s*(minutes|minute|hours|hour)/i);
+    // Time detection
+    const timeMatch = step.text.match(/(\d+(\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)/i);
     if (timeMatch) {
-      stepTime = parseInt(timeMatch[1], 10);
-      if (timeMatch[2].toLowerCase().includes("hour")) stepTime *= 60;
-    }
-    if (stepTime > 0) {
-      stepObj.totalTime = toISO8601(stepTime);
-      totalMinutes += stepTime;
+      let minutes = parseFloat(timeMatch[1]);
+      if (/h|hr|hrs|hour|hours/i.test(timeMatch[3])) minutes *= 60;
+      stepObj.totalTime = toISO8601(minutes);
+      totalMinutes += minutes;
     }
 
-    // --- Cost ---
-    let cost = 0;
-    const costMatch = stepText.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
-    if (costMatch) cost = parseFloat(costMatch[1]);
-    if (cost > 0) {
+    // Cost detection
+    const costMatch = step.text.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
+    if (costMatch) {
+      const cost = parseFloat(costMatch[1]);
       stepObj.estimatedCost = {
         "@type": "MonetaryAmount",
         "currency": "USD",
@@ -892,14 +887,25 @@
       totalCost += cost;
     }
 
-    // --- Difficulty ---
-    const txt = stepText.toLowerCase();
-    if (txt.includes("easy") || txt.includes("beginner")) stepObj.difficulty = "Easy";
-    else if (txt.includes("medium") || txt.includes("intermediate")) stepObj.difficulty = "Medium";
-    else if (txt.includes("hard") || txt.includes("advanced") || txt.includes("expert")) stepObj.difficulty = "Hard";
+    // Difficulty
+    const txt = step.text.toLowerCase();
+    if (txt.match(/easy|beginner/)) stepObj.difficulty = "Easy";
+    else if (txt.match(/medium|intermediate/)) stepObj.difficulty = "Medium";
+    else if (txt.match(/hard|advanced|expert/)) stepObj.difficulty = "Hard";
 
-    // --- Related links ---
-    const links = Array.from(step.el.querySelectorAll('a')).filter(a => a.href.includes(window.location.origin));
+    // Tips & Warnings
+    const tips = [];
+    const warnings = [];
+    for (let j = paragraphs.indexOf(step.el) + 1; j < nextIndex; j++) {
+      const line = paragraphs[j].textContent.trim();
+      if (/tip[:\-]/i.test(line)) tips.push({ "@type": "HowToTip", "text": line.replace(/tip[:\-]/i,'').trim() });
+      if (/warn(?:ing)?[:\-]/i.test(line)) warnings.push({ "@type": "HowToWarning", "text": line.replace(/warn(?:ing)?[:\-]/i,'').trim() });
+    }
+    if (tips.length) stepObj.tip = tips;
+    if (warnings.length) stepObj.warning = warnings;
+
+    // Related links
+    const links = Array.from(step.el.querySelectorAll('a'));
     if (links.length) {
       stepObj.relatedLink = links.map(a => ({
         "@type": "WebPage",
@@ -913,7 +919,7 @@
     steps.push(stepObj);
   });
 
-  // --- Build JSON-LD ---
+  // Build HowTo JSON-LD
   const howtoJsonLd = {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -938,21 +944,18 @@
         "url": "https://read.maxclickempire.com/assets/favicon.png"
       }
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": document.querySelector('.rating')?.dataset.value || "5",
-      "reviewCount": document.querySelector('.rating')?.dataset.count || "1"
-    },
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": window.location.href
     }
   };
 
-  const script = document.createElement('script');
-  script.type = 'application/ld+json';
-  script.text = JSON.stringify(howtoJsonLd, null, 2);
-  document.head.appendChild(script);
+  const scriptHowTo = document.createElement('script');
+  scriptHowTo.type = 'application/ld+json';
+  scriptHowTo.text = JSON.stringify(howtoJsonLd, null, 2);
+  document.head.appendChild(scriptHowTo);
+
+  console.log("✅ HowTo JSON-LD injected successfully!");
 })();
 
 
