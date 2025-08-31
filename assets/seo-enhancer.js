@@ -564,6 +564,8 @@
 
   
 // Advanced Breadcrumb JSON-LD with nested headings detection
+
+// Simplified Breadcrumb JSON-LD with main path + <h2> only
 (function() {
   function injectAdvancedBreadcrumb() {
     const pathSegments = window.location.pathname
@@ -579,14 +581,13 @@
       }
     ];
 
-    // Track position dynamically
     let positionCounter = 2;
 
     pathSegments.forEach((seg, index) => {
       // Default clean name from URL
       let name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
-      // Last segment: detect <h1> for main title
+      // Last segment: use <h1> or <title>
       if (index === pathSegments.length - 1) {
         name = name.replace(/\.[^/.]+$/, "");
         const h1 = document.querySelector("h1");
@@ -609,9 +610,9 @@
         "item": itemUrl
       });
 
-      // If this is the last segment, add sub-breadcrumbs for <h2> and <h3>
+      // For last segment only, add <h2> headings as sub-breadcrumbs
       if (index === pathSegments.length - 1) {
-        const headings = document.querySelectorAll("h2, h3");
+        const headings = document.querySelectorAll("h2");
         headings.forEach((heading, idx) => {
           if (!heading.id) heading.id = "breadcrumb-sub-" + idx; // ensure anchor
           itemList.push({
@@ -635,7 +636,7 @@
     script.text = JSON.stringify(breadcrumb, null, 2);
     document.head.appendChild(script);
 
-    console.log("✅ Advanced Breadcrumb JSON-LD injected with nested headings");
+    console.log("✅ Simplified Breadcrumb JSON-LD injected (main path + <h2>)");
   }
 
   if (document.readyState === "loading") {
@@ -644,8 +645,6 @@
     injectAdvancedBreadcrumb();
   }
 })();
-
-
 
 
 
