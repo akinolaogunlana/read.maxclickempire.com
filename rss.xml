@@ -9,6 +9,23 @@
     <atom:link href="https://read.maxclickempire.com/rss.xml" rel="self" type="application/rss+xml" />
     
 <item>
+  <title><![CDATA[Learn Gmail Shortcuts Fast: Cut Your Inbox Time by 50% Today]]></title>
+  <description><![CDATA[Stop clicking around. This expert guide reveals the Gmail keyboard shortcuts that save hours each week—plus setup, pro workflows, and printable cheat sheets. Start now.]]></description>
+  <link>https://read.maxclickempire.com/posts/gmail-learn-shortcuts.html</link>
+  <guid isPermaLink="true">https://read.maxclickempire.com/posts/gmail-learn-shortcuts.html</guid>
+  <pubDate>Sun, 31 Aug 2025 00:00:00 GMT</pubDate>
+  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
+  <category><![CDATA[gmail shortcuts]]></category>
+    <category><![CDATA[gmail keyboard shortcuts]]></category>
+    <category><![CDATA[enable gmail shortcuts]]></category>
+    <category><![CDATA[gmail cheat sheet]]></category>
+    <category><![CDATA[gmail navigation keys]]></category>
+    <category><![CDATA[gmail custom shortcuts]]></category>
+  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
+  <content:encoded><![CDATA[Stop clicking around. This expert guide reveals the Gmail keyboard shortcuts that save hours each week—plus setup, pro workflows, and printable cheat sheets. Start now.]]></content:encoded>
+</item>
+
+<item>
   <title><![CDATA[Google Docs Productivity Guide | 50+ Hacks, AI Templates & Shortcuts]]></title>
   <description><![CDATA[Master Google Docs in 2025 with 50+ practical hacks, AI templates, and keyboard shortcuts that save hours. Actionable tips for writers, teams, and power users.]]></description>
   <link>https://read.maxclickempire.com/posts/ultimate-google-docs-productivity-guide.html</link>
@@ -315,22 +332,6 @@
     <category><![CDATA[A4 letter]]></category>
   <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
   <content:encoded><![CDATA[Make an editable class schedule in Google Docs or Sheets with free templates, step-by-step table setup, color-coding, printing, and Calendar tips.]]></content:encoded>
-</item>
-
-<item>
-  <title><![CDATA[Homework Planner for Students | Free Google Docs to Stay Organized]]></title>
-  <description><![CDATA[Create a homework planner in Google Docs or Sheets with free templates, step-by-step setup, dropdowns, print settings, sharing, and Calendar reminders.]]></description>
-  <link>https://read.maxclickempire.com/posts/homework-planner-google-docs.html</link>
-  <guid isPermaLink="true">https://read.maxclickempire.com/posts/homework-planner-google-docs.html</guid>
-  <pubDate>Wed, 20 Aug 2025 00:00:00 GMT</pubDate>
-  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
-  <category><![CDATA[homework planner Google Docs]]></category>
-    <category><![CDATA[student planner template]]></category>
-    <category><![CDATA[assignment tracker Google Sheets]]></category>
-    <category><![CDATA[printable homework schedule]]></category>
-    <category><![CDATA[study planner]]></category>
-  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
-  <content:encoded><![CDATA[Create a homework planner in Google Docs or Sheets with free templates, step-by-step setup, dropdowns, print settings, sharing, and Calendar reminders.]]></content:encoded>
 </item>
   </channel>
 </rss>
