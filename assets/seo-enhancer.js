@@ -795,6 +795,123 @@
 
 
 
+// Ultimate Dynamic HowTo JSON-LD with FAQs, Videos, Ratings, Cost, Difficulty
+(function() {
+  const steps = [];
+  let totalMinutes = 0;
+
+  // Helper: Convert minutes to ISO 8601 duration
+  const toISO8601 = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
+  };
+
+  document.querySelectorAll('.howto-step').forEach((step, index) => {
+    const stepObj = {
+      "@type": "HowToStep",
+      "position": index + 1,
+      "name": step.querySelector('h3')?.textContent?.trim() || `Step ${index + 1}`,
+      "text": step.querySelector('p')?.textContent?.trim() || "",
+      "url": window.location.href + `#step-${index + 1}`
+    };
+
+    // Images
+    const img = step.querySelector('img');
+    if (img) stepObj.image = img.src;
+
+    // Video: <video> or <iframe>
+    const video = step.querySelector('video, iframe');
+    if (video) {
+      stepObj.video = {
+        "@type": "VideoObject",
+        "name": stepObj.name,
+        "contentUrl": video.src || video.currentSrc || video.getAttribute('data-src'),
+        "thumbnailUrl": img ? img.src : undefined
+      };
+    }
+
+    // Tools & Supplies
+    const tools = step.querySelectorAll('.tool');
+    if (tools.length) stepObj.tool = Array.from(tools).map(t => t.textContent.trim());
+    const supplies = step.querySelectorAll('.supply');
+    if (supplies.length) stepObj.supply = Array.from(supplies).map(s => s.textContent.trim());
+
+    // Time
+    const stepTime = parseInt(step.dataset.time || "0", 10);
+    if (stepTime > 0) {
+      stepObj.totalTime = toISO8601(stepTime);
+      totalMinutes += stepTime;
+    }
+
+    // Cost
+    const cost = step.dataset.cost;
+    if (cost) stepObj.estimatedCost = {
+      "@type": "MonetaryAmount",
+      "currency": step.dataset.currency || "USD",
+      "value": parseFloat(cost)
+    };
+
+    // Difficulty
+    if (step.dataset.difficulty) stepObj.difficulty = step.dataset.difficulty;
+
+    // FAQs inside this step
+    const faqs = step.querySelectorAll('.faq, .FAQ, .question, .Question, .answer, .Answer');
+    if (faqs.length) {
+      stepObj.suggestedAnswer = Array.from(faqs).map(f => ({
+        "@type": "Answer",
+        "text": f.textContent.trim()
+      }));
+    }
+
+    steps.push(stepObj);
+  });
+
+  // Main HowTo JSON-LD
+  const howtoJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": document.querySelector('h1')?.textContent?.trim() || document.title,
+    "description": document.querySelector('meta[name="description"]')?.content || "",
+    "totalTime": toISO8601(totalMinutes),
+    "step": steps,
+    "author": {
+      "@type": "Person",
+      "name": document.querySelector('meta[name="author"]')?.content || "Author Name"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": document.querySelector('meta[name="publisher"]')?.content || "Site Name",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://example.com/logo.png"
+      }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": document.querySelector('.rating')?.dataset.value || "5",
+      "reviewCount": document.querySelector('.rating')?.dataset.count || "1"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": window.location.href
+    }
+  };
+
+  // Inject JSON-LD into <head>
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.text = JSON.stringify(howtoJsonLd, null, 2);
+  document.head.appendChild(script);
+})();
+
+
+
+
+
+
+
+
 
 
 
