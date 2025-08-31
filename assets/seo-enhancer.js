@@ -795,40 +795,68 @@
 
 
 
-// Ultimate Dynamic HowTo JSON-LD with FAQs, Videos, Ratings, Cost, Difficulty
+// Ultimate Dynamic HowTo JSON-LD with Related Links & Step Keywords
 (function() {
   const steps = [];
   let totalMinutes = 0;
+  let totalCost = 0;
 
-  // Helper: Convert minutes to ISO 8601 duration
   const toISO8601 = (minutes) => {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
   };
 
+  const extractNumber = (text) => {
+    const match = text.match(/\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : 0;
+  };
+
+  // Basic stopwords for keyword filtering
+  const stopwords = new Set([
+    "the","and","for","with","that","this","from","your","are","use","step","steps",
+    "a","an","of","in","on","to","is","as","by","or","be","at","it","its","you"
+  ]);
+
+  // Extract top keywords from text
+  const extractKeywords = (text, limit = 7) => {
+    const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+    const freq = {};
+    words.forEach(w => {
+      if (!stopwords.has(w)) freq[w] = (freq[w] || 0) + 1;
+    });
+    return Object.entries(freq)
+      .sort((a,b) => b[1]-a[1])
+      .slice(0, limit)
+      .map(kv => kv[0]);
+  };
+
   document.querySelectorAll('.howto-step').forEach((step, index) => {
-    const stepObj = {
+    const headingText = step.querySelector('h2,h3,h4')?.textContent?.trim() || `Step ${index + 1}`;
+    const stepText = Array.from(step.querySelectorAll('p, li')).map(el => el.textContent.trim()).join(" ");
+
+    let stepObj = {
       "@type": "HowToStep",
       "position": index + 1,
-      "name": step.querySelector('h3')?.textContent?.trim() || `Step ${index + 1}`,
-      "text": step.querySelector('p')?.textContent?.trim() || "",
-      "url": window.location.href + `#step-${index + 1}`
+      "name": headingText,
+      "text": stepText,
+      "url": window.location.href + `#step-${index + 1}`,
+      "keywords": extractKeywords(headingText + " " + stepText)
     };
 
     // Images
-    const img = step.querySelector('img');
-    if (img) stepObj.image = img.src;
+    const images = step.querySelectorAll('img');
+    if (images.length) stepObj.image = Array.from(images).map(img => img.src);
 
-    // Video: <video> or <iframe>
-    const video = step.querySelector('video, iframe');
-    if (video) {
-      stepObj.video = {
+    // Video
+    const videos = step.querySelectorAll('video, iframe');
+    if (videos.length) {
+      stepObj.video = Array.from(videos).map(v => ({
         "@type": "VideoObject",
-        "name": stepObj.name,
-        "contentUrl": video.src || video.currentSrc || video.getAttribute('data-src'),
-        "thumbnailUrl": img ? img.src : undefined
-      };
+        "name": headingText,
+        "contentUrl": v.src || v.currentSrc || v.getAttribute('data-src'),
+        "thumbnailUrl": images[0]?.src
+      }));
     }
 
     // Tools & Supplies
@@ -837,37 +865,62 @@
     const supplies = step.querySelectorAll('.supply');
     if (supplies.length) stepObj.supply = Array.from(supplies).map(s => s.textContent.trim());
 
-    // Time
-    const stepTime = parseInt(step.dataset.time || "0", 10);
+    // Step duration
+    let stepTime = parseInt(step.dataset.time || "0", 10);
+    if (stepTime === 0) {
+      const timeMatch = stepText.match(/(\d+)\s*(minutes|minute|hours|hour)/i);
+      if (timeMatch) {
+        stepTime = parseInt(timeMatch[1], 10);
+        if (timeMatch[2].toLowerCase().includes("hour")) stepTime *= 60;
+      }
+    }
     if (stepTime > 0) {
       stepObj.totalTime = toISO8601(stepTime);
       totalMinutes += stepTime;
     }
 
     // Cost
-    const cost = step.dataset.cost;
-    if (cost) stepObj.estimatedCost = {
-      "@type": "MonetaryAmount",
-      "currency": step.dataset.currency || "USD",
-      "value": parseFloat(cost)
-    };
+    let cost = parseFloat(step.dataset.cost || "0");
+    if (cost === 0) {
+      const costMatch = stepText.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
+      if (costMatch) cost = parseFloat(costMatch[1]);
+    }
+    if (cost > 0) {
+      stepObj.estimatedCost = {
+        "@type": "MonetaryAmount",
+        "currency": step.dataset.currency || "USD",
+        "value": cost
+      };
+      totalCost += cost;
+    }
 
     // Difficulty
-    if (step.dataset.difficulty) stepObj.difficulty = step.dataset.difficulty;
+    let difficulty = step.dataset.difficulty;
+    if (!difficulty) {
+      const txt = stepText.toLowerCase();
+      if (txt.includes("easy") || txt.includes("beginner")) difficulty = "Easy";
+      else if (txt.includes("medium") || txt.includes("intermediate")) difficulty = "Medium";
+      else if (txt.includes("hard") || txt.includes("advanced") || txt.includes("expert")) difficulty = "Hard";
+    }
+    if (difficulty) stepObj.difficulty = difficulty;
 
-    // FAQs inside this step
-    const faqs = step.querySelectorAll('.faq, .FAQ, .question, .Question, .answer, .Answer');
-    if (faqs.length) {
-      stepObj.suggestedAnswer = Array.from(faqs).map(f => ({
-        "@type": "Answer",
-        "text": f.textContent.trim()
+    // Related Internal Links
+    const links = Array.from(step.querySelectorAll('a')).filter(a => a.href.includes(window.location.origin));
+    if (links.length) {
+      stepObj.relatedLink = Array.from(links).map(a => ({
+        "@type": "WebPage",
+        "name": a.textContent.trim() || a.href,
+        "url": a.href
       }));
+      // Add anchor text to keywords
+      stepObj.keywords.push(...extractKeywords(links.map(l=>l.textContent.trim()).join(" ")));
+      // Remove duplicates
+      stepObj.keywords = [...new Set(stepObj.keywords)];
     }
 
     steps.push(stepObj);
   });
 
-  // Main HowTo JSON-LD
   const howtoJsonLd = {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -875,16 +928,21 @@
     "description": document.querySelector('meta[name="description"]')?.content || "",
     "totalTime": toISO8601(totalMinutes),
     "step": steps,
+    "estimatedCost": totalCost > 0 ? {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": totalCost
+    } : undefined,
     "author": {
       "@type": "Person",
-      "name": document.querySelector('meta[name="author"]')?.content || "Author Name"
+      "name": document.querySelector('meta[name="author"]')?.content || "Ogunlana Akinola Okikiola"
     },
     "publisher": {
       "@type": "Organization",
-      "name": document.querySelector('meta[name="publisher"]')?.content || "Site Name",
+      "name": document.querySelector('meta[name="publisher"]')?.content || "MaxClickEmpire",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://example.com/logo.png"
+        "url": "https://read.maxclickempire.com/assets/favicon.png"
       }
     },
     "aggregateRating": {
@@ -898,13 +956,11 @@
     }
   };
 
-  // Inject JSON-LD into <head>
   const script = document.createElement('script');
   script.type = 'application/ld+json';
   script.text = JSON.stringify(howtoJsonLd, null, 2);
   document.head.appendChild(script);
 })();
-
 
 
 
