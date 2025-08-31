@@ -565,14 +565,15 @@
 
 
   
-// Dynamic Breadcrumb JSON-LD excluding FAQ/Conclusion/References
+// Advanced Nested Breadcrumb JSON-LD (h1 + h2 + h3 hierarchy)
 (function() {
-  function injectDynamicBreadcrumb() {
+  function injectNestedBreadcrumb() {
+    const skipKeywords = ["FAQ","Frequent Ask Questios","Frequent Ask Questios","Conclusion", "References"];
+    const maxSubHeadings = 20; // limit depth for JSON-LD
     const pathSegments = window.location.pathname
       .split("/")
       .filter(seg => seg.length > 0);
 
-    const skipKeywords = ["FAQ", "Conclusion", "References"]; // keywords to skip
     const itemList = [
       {
         "@type": "ListItem",
@@ -585,10 +586,8 @@
     let positionCounter = 2;
 
     pathSegments.forEach((seg, index) => {
-      // Clean name from URL
       let name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
-      // Last segment: use <h1> or <title>
       if (index === pathSegments.length - 1) {
         name = name.replace(/\.[^/.]+$/, "");
         const h1 = document.querySelector("h1");
@@ -599,11 +598,9 @@
         }
       }
 
-      // Build URL
       let itemUrl = window.location.origin + "/" + pathSegments.slice(0, index + 1).join("/");
       if (index < pathSegments.length - 1) itemUrl += "/";
 
-      // Add main breadcrumb
       itemList.push({
         "@type": "ListItem",
         "position": positionCounter++,
@@ -611,19 +608,37 @@
         "item": itemUrl
       });
 
-      // Last segment only: add <h2> headings excluding skipKeywords
+      // Last segment: process h2 and h3 as nested
       if (index === pathSegments.length - 1) {
-        const headings = Array.from(document.querySelectorAll("h2"))
-          .filter(h => !skipKeywords.some(kw => new RegExp(kw, "i").test(h.textContent)));
+        const headings = Array.from(document.querySelectorAll("h2, h3"))
+          .filter(h => !skipKeywords.some(kw => new RegExp(kw, "i").test(h.textContent)))
+          .filter(h => !h.closest("aside") && h.offsetParent !== null)
+          .slice(0, maxSubHeadings);
+
+        let lastH2Id = null;
 
         headings.forEach((heading, idx) => {
           if (!heading.id) heading.id = "breadcrumb-sub-" + idx;
-          itemList.push({
-            "@type": "ListItem",
-            "position": positionCounter++,
-            "name": heading.textContent.trim(),
-            "item": window.location.href.split("#")[0] + "#" + heading.id
-          });
+          const url = window.location.href.split("#")[0] + "#" + heading.id;
+
+          if (heading.tagName.toLowerCase() === "h2") {
+            // h2 = new top-level under page
+            itemList.push({
+              "@type": "ListItem",
+              "position": positionCounter++,
+              "name": heading.textContent.trim(),
+              "item": url
+            });
+            lastH2Id = heading.id;
+          } else if (heading.tagName.toLowerCase() === "h3" && lastH2Id) {
+            // h3 = nested under last h2
+            itemList.push({
+              "@type": "ListItem",
+              "position": positionCounter++,
+              "name": heading.textContent.trim(),
+              "item": url
+            });
+          }
         });
       }
     });
@@ -639,19 +654,15 @@
     script.text = JSON.stringify(breadcrumb, null, 2);
     document.head.appendChild(script);
 
-    console.log("✅ Dynamic Breadcrumb JSON-LD injected (excludes FAQ/Conclusion/References)");
+    console.log("✅ Nested Dynamic Breadcrumb JSON-LD injected (h2 + h3 hierarchy)");
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", injectDynamicBreadcrumb);
+    document.addEventListener("DOMContentLoaded", injectNestedBreadcrumb);
   } else {
-    injectDynamicBreadcrumb();
+    injectNestedBreadcrumb();
   }
 })();
-
-
-
-
 
 
 
