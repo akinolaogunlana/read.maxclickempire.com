@@ -562,16 +562,17 @@
 
 
 
-  
-// Advanced Breadcrumb JSON-LD with nested headings detection
 
-// Simplified Breadcrumb JSON-LD with main path + <h2> only
+
+  
+// Dynamic Breadcrumb JSON-LD excluding FAQ/Conclusion/References
 (function() {
-  function injectAdvancedBreadcrumb() {
+  function injectDynamicBreadcrumb() {
     const pathSegments = window.location.pathname
       .split("/")
       .filter(seg => seg.length > 0);
 
+    const skipKeywords = ["FAQ", "Conclusion", "References"]; // keywords to skip
     const itemList = [
       {
         "@type": "ListItem",
@@ -584,7 +585,7 @@
     let positionCounter = 2;
 
     pathSegments.forEach((seg, index) => {
-      // Default clean name from URL
+      // Clean name from URL
       let name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
       // Last segment: use <h1> or <title>
@@ -610,11 +611,13 @@
         "item": itemUrl
       });
 
-      // For last segment only, add <h2> headings as sub-breadcrumbs
+      // Last segment only: add <h2> headings excluding skipKeywords
       if (index === pathSegments.length - 1) {
-        const headings = document.querySelectorAll("h2");
+        const headings = Array.from(document.querySelectorAll("h2"))
+          .filter(h => !skipKeywords.some(kw => new RegExp(kw, "i").test(h.textContent)));
+
         headings.forEach((heading, idx) => {
-          if (!heading.id) heading.id = "breadcrumb-sub-" + idx; // ensure anchor
+          if (!heading.id) heading.id = "breadcrumb-sub-" + idx;
           itemList.push({
             "@type": "ListItem",
             "position": positionCounter++,
@@ -636,16 +639,15 @@
     script.text = JSON.stringify(breadcrumb, null, 2);
     document.head.appendChild(script);
 
-    console.log("✅ Simplified Breadcrumb JSON-LD injected (main path + <h2>)");
+    console.log("✅ Dynamic Breadcrumb JSON-LD injected (excludes FAQ/Conclusion/References)");
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", injectAdvancedBreadcrumb);
+    document.addEventListener("DOMContentLoaded", injectDynamicBreadcrumb);
   } else {
-    injectAdvancedBreadcrumb();
+    injectDynamicBreadcrumb();
   }
 })();
-
 
 
 
