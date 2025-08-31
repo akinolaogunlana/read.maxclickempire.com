@@ -795,7 +795,12 @@
 
 
 
-// Ultimate Dynamic HowTo JSON-LD with Related Links & Step Keywords
+
+
+
+
+
+// Ultimate SEO-Optimized Dynamic HowTo JSON-LD with Nested Steps
 (function() {
   const steps = [];
   let totalMinutes = 0;
@@ -807,120 +812,108 @@
     return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
   };
 
-  const extractNumber = (text) => {
-    const match = text.match(/\d+(\.\d+)?/);
-    return match ? parseFloat(match[0]) : 0;
-  };
-
-  // Basic stopwords for keyword filtering
   const stopwords = new Set([
     "the","and","for","with","that","this","from","your","are","use","step","steps",
     "a","an","of","in","on","to","is","as","by","or","be","at","it","its","you"
   ]);
 
-  // Extract top keywords from text
   const extractKeywords = (text, limit = 7) => {
     const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
     const freq = {};
-    words.forEach(w => {
-      if (!stopwords.has(w)) freq[w] = (freq[w] || 0) + 1;
-    });
+    words.forEach(w => { if (!stopwords.has(w)) freq[w] = (freq[w] || 0) + 1; });
     return Object.entries(freq)
       .sort((a,b) => b[1]-a[1])
       .slice(0, limit)
       .map(kv => kv[0]);
   };
 
-  document.querySelectorAll('.howto-step').forEach((step, index) => {
-    const headingText = step.querySelector('h2,h3,h4')?.textContent?.trim() || `Step ${index + 1}`;
-    const stepText = Array.from(step.querySelectorAll('p, li')).map(el => el.textContent.trim()).join(" ");
+  const contentEl = document.body;
+
+  // --- Detect main steps (1), 2), 3)...) ---
+  const mainSteps = [];
+  const paragraphs = Array.from(contentEl.querySelectorAll('p, li'));
+  paragraphs.forEach(p => {
+    const match = p.textContent.trim().match(/^(\d+)\)\s*(.+)/);
+    if (match) mainSteps.push({el: p, text: match[2], index: parseInt(match[1],10)});
+  });
+
+  mainSteps.forEach((step, idx) => {
+    const stepText = step.text;
 
     let stepObj = {
       "@type": "HowToStep",
-      "position": index + 1,
-      "name": headingText,
+      "position": idx + 1,
+      "name": `Step ${idx + 1}`,
       "text": stepText,
-      "url": window.location.href + `#step-${index + 1}`,
-      "keywords": extractKeywords(headingText + " " + stepText)
+      "url": window.location.href + `#step-${idx + 1}`,
+      "keywords": extractKeywords(stepText)
     };
 
-    // Images
-    const images = step.querySelectorAll('img');
-    if (images.length) stepObj.image = Array.from(images).map(img => img.src);
-
-    // Video
-    const videos = step.querySelectorAll('video, iframe');
-    if (videos.length) {
-      stepObj.video = Array.from(videos).map(v => ({
-        "@type": "VideoObject",
-        "name": headingText,
-        "contentUrl": v.src || v.currentSrc || v.getAttribute('data-src'),
-        "thumbnailUrl": images[0]?.src
-      }));
-    }
-
-    // Tools & Supplies
-    const tools = step.querySelectorAll('.tool');
-    if (tools.length) stepObj.tool = Array.from(tools).map(t => t.textContent.trim());
-    const supplies = step.querySelectorAll('.supply');
-    if (supplies.length) stepObj.supply = Array.from(supplies).map(s => s.textContent.trim());
-
-    // Step duration
-    let stepTime = parseInt(step.dataset.time || "0", 10);
-    if (stepTime === 0) {
-      const timeMatch = stepText.match(/(\d+)\s*(minutes|minute|hours|hour)/i);
-      if (timeMatch) {
-        stepTime = parseInt(timeMatch[1], 10);
-        if (timeMatch[2].toLowerCase().includes("hour")) stepTime *= 60;
+    // --- Detect sub-steps (a), b), i., ii., etc.) under this main step ---
+    const subSteps = [];
+    let nextMainIndex = idx + 1 < mainSteps.length ? paragraphs.indexOf(mainSteps[idx + 1].el) : paragraphs.length;
+    for (let i = paragraphs.indexOf(step.el) + 1; i < nextMainIndex; i++) {
+      const subTextMatch = paragraphs[i].textContent.trim().match(/^([a-z]|\d+|i+)\)|[ivxlcdm]+\.\s*(.+)/i);
+      if (subTextMatch) {
+        const subStepText = subTextMatch[2] || paragraphs[i].textContent.trim();
+        subSteps.push({
+          "@type": "HowToStep",
+          "position": subSteps.length + 1,
+          "name": `Sub-step ${subSteps.length + 1}`,
+          "text": subStepText,
+          "keywords": extractKeywords(subStepText)
+        });
       }
+    }
+    if (subSteps.length) stepObj.step = subSteps;
+
+    // --- Time ---
+    let stepTime = 0;
+    const timeMatch = stepText.match(/(\d+)\s*(minutes|minute|hours|hour)/i);
+    if (timeMatch) {
+      stepTime = parseInt(timeMatch[1], 10);
+      if (timeMatch[2].toLowerCase().includes("hour")) stepTime *= 60;
     }
     if (stepTime > 0) {
       stepObj.totalTime = toISO8601(stepTime);
       totalMinutes += stepTime;
     }
 
-    // Cost
-    let cost = parseFloat(step.dataset.cost || "0");
-    if (cost === 0) {
-      const costMatch = stepText.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
-      if (costMatch) cost = parseFloat(costMatch[1]);
-    }
+    // --- Cost ---
+    let cost = 0;
+    const costMatch = stepText.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
+    if (costMatch) cost = parseFloat(costMatch[1]);
     if (cost > 0) {
       stepObj.estimatedCost = {
         "@type": "MonetaryAmount",
-        "currency": step.dataset.currency || "USD",
+        "currency": "USD",
         "value": cost
       };
       totalCost += cost;
     }
 
-    // Difficulty
-    let difficulty = step.dataset.difficulty;
-    if (!difficulty) {
-      const txt = stepText.toLowerCase();
-      if (txt.includes("easy") || txt.includes("beginner")) difficulty = "Easy";
-      else if (txt.includes("medium") || txt.includes("intermediate")) difficulty = "Medium";
-      else if (txt.includes("hard") || txt.includes("advanced") || txt.includes("expert")) difficulty = "Hard";
-    }
-    if (difficulty) stepObj.difficulty = difficulty;
+    // --- Difficulty ---
+    const txt = stepText.toLowerCase();
+    if (txt.includes("easy") || txt.includes("beginner")) stepObj.difficulty = "Easy";
+    else if (txt.includes("medium") || txt.includes("intermediate")) stepObj.difficulty = "Medium";
+    else if (txt.includes("hard") || txt.includes("advanced") || txt.includes("expert")) stepObj.difficulty = "Hard";
 
-    // Related Internal Links
-    const links = Array.from(step.querySelectorAll('a')).filter(a => a.href.includes(window.location.origin));
+    // --- Related links ---
+    const links = Array.from(step.el.querySelectorAll('a')).filter(a => a.href.includes(window.location.origin));
     if (links.length) {
-      stepObj.relatedLink = Array.from(links).map(a => ({
+      stepObj.relatedLink = links.map(a => ({
         "@type": "WebPage",
         "name": a.textContent.trim() || a.href,
         "url": a.href
       }));
-      // Add anchor text to keywords
       stepObj.keywords.push(...extractKeywords(links.map(l=>l.textContent.trim()).join(" ")));
-      // Remove duplicates
       stepObj.keywords = [...new Set(stepObj.keywords)];
     }
 
     steps.push(stepObj);
   });
 
+  // --- Build JSON-LD ---
   const howtoJsonLd = {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -961,7 +954,6 @@
   script.text = JSON.stringify(howtoJsonLd, null, 2);
   document.head.appendChild(script);
 })();
-
 
 
 
