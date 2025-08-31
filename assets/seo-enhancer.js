@@ -559,43 +559,107 @@
 
 
 
-(function () {
-  // Look for FAQ blocks in the article
-  const faqElements = document.querySelectorAll("article p, article strong");
 
-  let faqPairs = [];
+  
 
-  faqElements.forEach((el, i) => {
-    // Detect "Q:" or <strong>Question style
-    if (el.textContent.trim().match(/^Q:/i) || el.tagName === "STRONG") {
-      const question = el.textContent.replace(/^Q:\s*/i, "").trim();
-      const next = faqElements[i + 1];
-      if (next && next.textContent.trim()) {
-        const answer = next.textContent.replace(/^A:\s*/i, "").trim();
-        faqPairs.push({ question, answer });
+
+
+
+
+
+
+
+(function() {
+  function generateFAQSchema() {
+    // Keywords that identify FAQ sections
+    const faqSectionKeywords = [
+      "faq", "faqs", "faqpage", 
+      "frequently asked questions", "frequently asked question"
+    ];
+
+    // Keywords that identify Q and A
+    const qKeywords = ["q", "question"];
+    const aKeywords = ["a", "answer"];
+
+    // Find possible FAQ containers
+    const sections = Array.from(document.querySelectorAll("h1, h2, h3, h4, h5, h6, div, section, article"))
+      .filter(el => {
+        const text = el.textContent.trim().toLowerCase();
+        return faqSectionKeywords.some(keyword => text.includes(keyword));
+      });
+
+    if (sections.length === 0) return; // No FAQ section found
+
+    let faqs = [];
+
+    sections.forEach(section => {
+      // Find all elements inside the FAQ section
+      let allElements = section.parentElement ? section.parentElement.querySelectorAll("*") : [];
+
+      let currentQuestion = null;
+
+      allElements.forEach(el => {
+        const text = el.textContent.trim();
+
+        if (!text) return;
+
+        const lower = text.toLowerCase();
+
+        // Detect Question
+        if (qKeywords.some(k => lower.startsWith(k + ":") || lower === k || lower.startsWith(k + " "))) {
+          if (currentQuestion) {
+            // If a new question starts but old one had no answer, push it
+            faqs.push({ question: currentQuestion, answer: "" });
+          }
+          currentQuestion = text.replace(/^q(uestion)?[:\s]*/i, "").trim();
+        }
+
+        // Detect Answer
+        else if (aKeywords.some(k => lower.startsWith(k + ":") || lower === k || lower.startsWith(k + " "))) {
+          if (currentQuestion) {
+            let answer = text.replace(/^a(nswer)?[:\s]*/i, "").trim();
+            faqs.push({ question: currentQuestion, answer });
+            currentQuestion = null;
+          }
+        }
+      });
+
+      // Edge case: last question without explicit answer
+      if (currentQuestion) {
+        faqs.push({ question: currentQuestion, answer: "" });
       }
-    }
-  });
+    });
 
-  if (faqPairs.length > 0) {
+    if (faqs.length === 0) return;
+
+    // Build JSON-LD Schema
     const faqSchema = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": faqPairs.map(faq => ({
+      "mainEntity": faqs.map(f => ({
         "@type": "Question",
-        "name": faq.question,
+        "name": f.question,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": faq.answer
+          "text": f.answer || "Answer not available."
         }
       }))
     };
 
-    // Inject into head as JSON-LD
+    // Inject Schema into page
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.text = JSON.stringify(faqSchema, null, 2);
     document.head.appendChild(script);
+
+    console.log("✅ Dynamic FAQ Schema injected:", faqSchema);
+  }
+
+  // Run after DOM loads
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", generateFAQSchema);
+  } else {
+    generateFAQSchema();
   }
 })();
 
