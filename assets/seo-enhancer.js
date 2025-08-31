@@ -560,13 +560,15 @@
 
 
 
-// BreadcrumbList JSON-LD script
 
+
+  
+// Advanced Breadcrumb JSON-LD with nested headings detection
 (function() {
   function injectAdvancedBreadcrumb() {
     const pathSegments = window.location.pathname
       .split("/")
-      .filter(seg => seg.length > 0); // Remove empty segments
+      .filter(seg => seg.length > 0);
 
     const itemList = [
       {
@@ -577,16 +579,49 @@
       }
     ];
 
-    pathSegments.forEach((seg, index) => {
-      // Capitalize and replace dashes with spaces for display
-      const name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    // Track position dynamically
+    let positionCounter = 2;
 
+    pathSegments.forEach((seg, index) => {
+      // Default clean name from URL
+      let name = seg.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+
+      // Last segment: detect <h1> for main title
+      if (index === pathSegments.length - 1) {
+        name = name.replace(/\.[^/.]+$/, "");
+        const h1 = document.querySelector("h1");
+        if (h1 && h1.textContent.trim()) name = h1.textContent.trim();
+        else {
+          const title = document.querySelector("title");
+          if (title && title.textContent.trim()) name = title.textContent.trim();
+        }
+      }
+
+      // Build URL
+      let itemUrl = window.location.origin + "/" + pathSegments.slice(0, index + 1).join("/");
+      if (index < pathSegments.length - 1) itemUrl += "/";
+
+      // Add main breadcrumb
       itemList.push({
         "@type": "ListItem",
-        "position": index + 2,
+        "position": positionCounter++,
         "name": name,
-        "item": window.location.origin + "/" + pathSegments.slice(0, index + 1).join("/") + "/"
+        "item": itemUrl
       });
+
+      // If this is the last segment, add sub-breadcrumbs for <h2> and <h3>
+      if (index === pathSegments.length - 1) {
+        const headings = document.querySelectorAll("h2, h3");
+        headings.forEach((heading, idx) => {
+          if (!heading.id) heading.id = "breadcrumb-sub-" + idx; // ensure anchor
+          itemList.push({
+            "@type": "ListItem",
+            "position": positionCounter++,
+            "name": heading.textContent.trim(),
+            "item": window.location.href.split("#")[0] + "#" + heading.id
+          });
+        });
+      }
     });
 
     const breadcrumb = {
@@ -600,7 +635,7 @@
     script.text = JSON.stringify(breadcrumb, null, 2);
     document.head.appendChild(script);
 
-    console.log("✅ Advanced dynamic Breadcrumb JSON-LD injected");
+    console.log("✅ Advanced Breadcrumb JSON-LD injected with nested headings");
   }
 
   if (document.readyState === "loading") {
@@ -609,6 +644,8 @@
     injectAdvancedBreadcrumb();
   }
 })();
+
+
 
 
 
