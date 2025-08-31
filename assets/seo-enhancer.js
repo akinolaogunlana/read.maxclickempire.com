@@ -800,162 +800,273 @@
 
 
 
-// Ultimate Robust HowTo JSON-LD with Tips & Warnings
+
+
+
+// Robust HowTo JSON-LD (improved detection + DOM-ready)
 (function() {
-  const steps = [];
-  let totalMinutes = 0;
-  let totalCost = 0;
+  function run() {
+    const steps = [];
+    let totalMinutes = 0;
+    let totalCost = 0;
 
-  const toISO8601 = (minutes) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = Math.round(minutes % 60);
-    return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
-  };
-
-  const stopwords = new Set([
-    "the","and","for","with","that","this","from","your","are","use","step","steps",
-    "a","an","of","in","on","to","is","as","by","or","be","at","it","its","you"
-  ]);
-
-  const extractKeywords = (text, limit = 10) => {
-    const words = text.match(/\b[\w\-]{2,}\b/g) || [];
-    const freq = {};
-    words.forEach(w => { if (!stopwords.has(w.toLowerCase())) freq[w.toLowerCase()] = (freq[w.toLowerCase()] || 0) + 1; });
-    return Object.entries(freq)
-      .sort((a,b) => b[1]-a[1])
-      .slice(0, limit)
-      .map(kv => kv[0]);
-  };
-
-  const contentEl = document.body;
-  const paragraphs = Array.from(contentEl.querySelectorAll('p, li, div, span'));
-
-  // Detect main steps
-  const mainSteps = [];
-  paragraphs.forEach((p) => {
-    const text = p.textContent.trim();
-    const match = text.match(/^(?:Step\s*\d+[:.)]|\d+[.)]\s*)(.+)/i);
-    if (match) mainSteps.push({el: p, text: match[1]});
-  });
-
-  mainSteps.forEach((step, idx) => {
-    const stepObj = {
-      "@type": "HowToStep",
-      "position": idx + 1,
-      "name": `Step ${idx + 1}`,
-      "text": step.text,
-      "url": window.location.href + `#step-${idx + 1}`,
-      "keywords": extractKeywords(step.text)
+    const toISO8601 = (minutes) => {
+      minutes = Math.round(minutes);
+      const hrs = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `PT${hrs > 0 ? hrs + 'H' : ''}${mins}M`;
     };
 
-    // Nested sub-steps
-    const subSteps = [];
-    const nextIndex = idx + 1 < mainSteps.length ? paragraphs.indexOf(mainSteps[idx + 1].el) : paragraphs.length;
-    for (let j = paragraphs.indexOf(step.el) + 1; j < nextIndex; j++) {
-      const subText = paragraphs[j].textContent.trim();
-      const subMatch = subText.match(/^([a-z]|\d+|i+)[.)]\s*(.+)/i);
-      if (subMatch) {
-        subSteps.push({
-          "@type": "HowToStep",
-          "position": subSteps.length + 1,
-          "name": `Sub-step ${subSteps.length + 1}`,
-          "text": subMatch[2] || subText,
-          "keywords": extractKeywords(subMatch[2] || subText)
+    const stopwords = new Set([
+      "the","and","for","with","that","this","from","your","are","use","step","steps",
+      "a","an","of","in","on","to","is","as","by","or","be","at","it","its","you"
+    ]);
+    const extractKeywords = (text, limit = 10) => {
+      const words = (text || "").match(/\b[\w\-]{2,}\b/g) || [];
+      const freq = {};
+      words.forEach(w => {
+        const lw = w.toLowerCase();
+        if (!stopwords.has(lw)) freq[lw] = (freq[lw] || 0) + 1;
+      });
+      return Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, limit).map(kv => kv[0]);
+    };
+
+    // Prefer main/article container if present
+    const contentEl = document.querySelector('main, article, #post-content') || document.body;
+
+    // collect candidate nodes in document order that have textual content
+    const nodeList = Array.from(contentEl.querySelectorAll('h1,h2,h3,h4,ol,ul,li,p,div,span'));
+    const nodes = nodeList.filter(n => (n.textContent || "").trim().length > 0);
+
+    // Helper: test if a text looks like a numbered step marker
+    const isNumberedStep = (text) => {
+      return /^(?:Step\s*\d+[:.)]|\d+[.)]\s*|\d+\.\s+)/i.test(text.trim());
+    };
+
+    // Build list of main step indices (prefer numeric markers). If none, fallback to h2/h3 headings (excluding TOC)
+    const mainStepEntries = [];
+    nodes.forEach((node, idx) => {
+      const txt = (node.textContent || "").trim();
+      if (isNumberedStep(txt)) {
+        // extract title after numeric marker
+        const title = txt.replace(/^(?:Step\s*\d+[:.)]|\d+[.)]\s*|\d+\.\s+)/i, '').trim();
+        mainStepEntries.push({ node, index: idx, title });
+      }
+    });
+
+    // fallback: use headings if no numbered steps found
+    if (!mainStepEntries.length) {
+      nodes.forEach((node, idx) => {
+        if (/^H[2-3]$/.test(node.tagName) && !/table of contents|toc/i.test(node.textContent || "")) {
+          mainStepEntries.push({ node, index: idx, title: (node.textContent || "").trim() });
+        }
+      });
+    }
+
+    if (!mainStepEntries.length) {
+      console.warn("No steps detected by numeric markers or headings — nothing to build for HowTo.");
+    }
+
+    // For each main step, collect content nodes from its index up to next main step (exclusive)
+    for (let s = 0; s < mainStepEntries.length; s++) {
+      const entry = mainStepEntries[s];
+      const startIdx = entry.index;
+      const endIdx = (s + 1 < mainStepEntries.length) ? mainStepEntries[s+1].index : nodes.length;
+      // collect nodes belonging to this step
+      const stepNodes = nodes.slice(startIdx, endIdx);
+      // Compose a readable text for the step (include title + subsequent paragraphs)
+      const title = entry.title || (entry.node.textContent || "").trim();
+      let collectedText = title;
+      // gather other node texts (skip the title node itself but include others)
+      for (let k = 1; k < stepNodes.length; k++) {
+        // if the node is a list (ol/ul) we gather each li text lines
+        const cur = stepNodes[k];
+        if (cur.tagName === 'OL' || cur.tagName === 'UL') {
+          Array.from(cur.querySelectorAll('li')).forEach(li => {
+            const liText = (li.textContent || "").trim();
+            if (liText) collectedText += '\n' + liText;
+          });
+        } else {
+          const txt = (cur.textContent || "").trim();
+          if (txt) collectedText += '\n' + txt;
+        }
+      }
+
+      // detect images inside the range
+      const images = [];
+      for (const n of stepNodes) {
+        Array.from(n.querySelectorAll('img')).forEach(img => {
+          if (img.src) images.push(img.src);
         });
       }
-    }
-    if (subSteps.length) stepObj.step = subSteps;
 
-    // Time detection
-    const timeMatch = step.text.match(/(\d+(\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)/i);
-    if (timeMatch) {
-      let minutes = parseFloat(timeMatch[1]);
-      if (/h|hr|hrs|hour|hours/i.test(timeMatch[3])) minutes *= 60;
-      stepObj.totalTime = toISO8601(minutes);
-      totalMinutes += minutes;
-    }
-
-    // Cost detection
-    const costMatch = step.text.match(/\$?(\d+(\.\d+)?)\s*(usd|dollars)?/i);
-    if (costMatch) {
-      const cost = parseFloat(costMatch[1]);
-      stepObj.estimatedCost = {
-        "@type": "MonetaryAmount",
-        "currency": "USD",
-        "value": cost
-      };
-      totalCost += cost;
-    }
-
-    // Difficulty
-    const txt = step.text.toLowerCase();
-    if (txt.match(/easy|beginner/)) stepObj.difficulty = "Easy";
-    else if (txt.match(/medium|intermediate/)) stepObj.difficulty = "Medium";
-    else if (txt.match(/hard|advanced|expert/)) stepObj.difficulty = "Hard";
-
-    // Tips & Warnings
-    const tips = [];
-    const warnings = [];
-    for (let j = paragraphs.indexOf(step.el) + 1; j < nextIndex; j++) {
-      const line = paragraphs[j].textContent.trim();
-      if (/tip[:\-]/i.test(line)) tips.push({ "@type": "HowToTip", "text": line.replace(/tip[:\-]/i,'').trim() });
-      if (/warn(?:ing)?[:\-]/i.test(line)) warnings.push({ "@type": "HowToWarning", "text": line.replace(/warn(?:ing)?[:\-]/i,'').trim() });
-    }
-    if (tips.length) stepObj.tip = tips;
-    if (warnings.length) stepObj.warning = warnings;
-
-    // Related links
-    const links = Array.from(step.el.querySelectorAll('a'));
-    if (links.length) {
-      stepObj.relatedLink = links.map(a => ({
-        "@type": "WebPage",
-        "name": a.textContent.trim() || a.href,
-        "url": a.href
-      }));
-      stepObj.keywords.push(...extractKeywords(links.map(l=>l.textContent.trim()).join(" ")));
-      stepObj.keywords = [...new Set(stepObj.keywords)];
-    }
-
-    steps.push(stepObj);
-  });
-
-  // Build HowTo JSON-LD
-  const howtoJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": document.querySelector('h1')?.textContent?.trim() || document.title,
-    "description": document.querySelector('meta[name="description"]')?.content || "",
-    "totalTime": toISO8601(totalMinutes),
-    "step": steps,
-    "estimatedCost": totalCost > 0 ? {
-      "@type": "MonetaryAmount",
-      "currency": "USD",
-      "value": totalCost
-    } : undefined,
-    "author": {
-      "@type": "Person",
-      "name": document.querySelector('meta[name="author"]')?.content || "Ogunlana Akinola Okikiola"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": document.querySelector('meta[name="publisher"]')?.content || "MaxClickEmpire",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://read.maxclickempire.com/assets/favicon.png"
+      // detect links inside the range (all links)
+      const links = [];
+      for (const n of stepNodes) {
+        Array.from(n.querySelectorAll('a[href]')).forEach(a => {
+          const href = a.href;
+          const name = (a.textContent || "").trim() || href;
+          links.push({ href, name });
+        });
       }
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": window.location.href
+
+      // detect downloadable media (pdf/docx/xlsx/zip/gsheet)
+      const downloads = links.filter(l => /\.(pdf|docx?|xlsx?|zip|rar|7z|gsheet|gdoc)$/i.test(l.href));
+
+      // detect sub-steps from any li inside stepNodes whose text looks like a sub-marker (a), i., 1.)
+      const subSteps = [];
+      stepNodes.forEach(n => {
+        if (n.tagName === 'LI') {
+          const liText = (n.textContent || "").trim();
+          const subMatch = liText.match(/^([a-z]|\d+|[ivxlcdm]+)[\)\.\:]\s*(.+)/i);
+          if (subMatch) {
+            subSteps.push({ text: subMatch[2].trim() });
+          } else {
+            // also treat plain li as sub-step if there are multiple lis
+            // (only if we don't already have subSteps from marker pattern)
+            if (!subSteps.length) subSteps.push({ text: liText });
+          }
+        } else {
+          // also check for inline lines that look like "a) ...", e.g. in p nodes
+          const txt = (n.textContent || "").trim();
+          const lines = txt.split(/\r?\n/);
+          lines.forEach(line => {
+            const subMatch = line.match(/^([a-z]|\d+|[ivxlcdm]+)[\)\.\:]\s*(.+)/i);
+            if (subMatch) subSteps.push({ text: subMatch[2].trim() });
+          });
+        }
+      });
+
+      // time detection (supports ranges / decimals / hr/min)
+      let minutes = 0;
+      const timeRegex = /(\d+(?:\.\d+)?)(?:\s*(?:–|-|to)\s*(\d+(?:\.\d+)?))?\s*(hours?|hrs?|h|minutes?|mins?|m)\b/i;
+      const timeMatch = collectedText.match(timeRegex);
+      if (timeMatch) {
+        let v1 = parseFloat(timeMatch[1]);
+        const v2 = timeMatch[2] ? parseFloat(timeMatch[2]) : null;
+        let unit = timeMatch[3].toLowerCase();
+        let value = v2 ? (v1 + v2) / 2 : v1; // average if range
+        if (/h|hour|hrs?/.test(unit)) value *= 60;
+        minutes = value;
+        totalMinutes += minutes;
+      }
+
+      // cost detection (allow commas like $24,750.00)
+      let costValue = 0;
+      const costRegex = /(?:\$|USD\s*)?(\d{1,3}(?:[,\d{3}])*(?:\.\d+)?)/i;
+      const costMatch = collectedText.match(costRegex);
+      if (costMatch) {
+        const raw = costMatch[1].replace(/,/g, '');
+        costValue = parseFloat(raw);
+        if (!isNaN(costValue)) {
+          totalCost += costValue;
+        } else {
+          costValue = 0;
+        }
+      }
+
+      // difficulty detection
+      const lower = collectedText.toLowerCase();
+      let difficulty;
+      if (/\beasy\b|\bbeginner\b/.test(lower)) difficulty = "Easy";
+      else if (/\bmedium\b|\bintermediate\b/.test(lower)) difficulty = "Medium";
+      else if (/\bhard\b|\badvanced\b|\bexpert\b/.test(lower)) difficulty = "Hard";
+
+      // tips & warnings detection (lines starting with Tip: / Warning: / Note:)
+      const tips = [];
+      const warnings = [];
+      stepNodes.forEach(n => {
+        const txt = (n.textContent || "").trim();
+        const lines = txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        lines.forEach(line => {
+          const t = line.replace(/^Tip[:\-\s]*/i,'').trim();
+          const w = line.replace(/^Warning[:\-\s]*/i,'').trim();
+          const note = line.replace(/^Note[:\-\s]*/i,'').trim();
+          if (/^Tip[:\-\s]/i.test(line) || /^Note[:\-\s]/i.test(line)) tips.push(t || note);
+          if (/^Warning[:\-\s]/i.test(line)) warnings.push(w);
+        });
+      });
+
+      // keywords
+      const keywords = extractKeywords(collectedText + ' ' + links.map(l => l.name).join(' '));
+
+      // Build step JSON-LD object
+      const stepObj = {
+        "@type": "HowToStep",
+        position: s + 1,
+        name: title || `Step ${s+1}`,
+        text: collectedText,
+        url: window.location.href + `#step-${s+1}`,
+        keywords: keywords
+      };
+
+      if (images.length) stepObj.image = [...new Set(images)];
+      if (subSteps.length) {
+        stepObj.step = subSteps.map((ss, i) => ({
+          "@type": "HowToStep",
+          position: i+1,
+          name: `Sub-step ${i+1}`,
+          text: ss.text,
+          keywords: extractKeywords(ss.text)
+        }));
+      }
+      if (minutes > 0) stepObj.totalTime = toISO8601(minutes);
+      if (costValue > 0) stepObj.estimatedCost = { "@type": "MonetaryAmount", "currency": "USD", "value": costValue };
+      if (difficulty) stepObj.difficulty = difficulty;
+      if (tips.length) stepObj.tip = tips.map(t => ({ "@type": "HowToTip", text: t }));
+      if (warnings.length) stepObj.warning = warnings.map(w => ({ "@type": "HowToWarning", text: w }));
+      if (links.length) stepObj.relatedLink = links.map(l => ({ "@type": "WebPage", name: l.name, url: l.href }));
+      if (downloads.length) stepObj.associatedMedia = downloads.map(d => ({ "@type": "MediaObject", contentUrl: d.href, name: d.name }));
+
+      steps.push(stepObj);
+    } // end for each step entry
+
+    // Build final HowTo JSON-LD if we have steps
+    if (!steps.length) {
+      console.warn("No how-to steps assembled; JSON-LD will not be created.");
+      return;
     }
-  };
 
-  const scriptHowTo = document.createElement('script');
-  scriptHowTo.type = 'application/ld+json';
-  scriptHowTo.text = JSON.stringify(howtoJsonLd, null, 2);
-  document.head.appendChild(scriptHowTo);
+    const howtoJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: (document.querySelector('h1')?.textContent || document.title).trim(),
+      description: (document.querySelector('meta[name="description"]')?.content || "").trim(),
+      totalTime: totalMinutes > 0 ? toISO8601(totalMinutes) : undefined,
+      step: steps,
+      estimatedCost: totalCost > 0 ? { "@type": "MonetaryAmount", "currency": "USD", "value": Math.round(totalCost*100)/100 } : undefined,
+      author: { "@type": "Person", name: (document.querySelector('meta[name="author"]')?.content || "Author").trim() },
+      publisher: {
+        "@type": "Organization",
+        name: (document.querySelector('meta[name="publisher"]')?.content || document.location.hostname),
+        logo: { "@type": "ImageObject", url: (document.querySelector('link[rel="icon"]')?.href || '') }
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": window.location.href }
+    };
 
-  console.log("✅ HowTo JSON-LD injected successfully!");
+    // inject JSON-LD (remove existing HowTo scripts first to avoid duplicates)
+    Array.from(document.querySelectorAll('script[type="application/ld+json"]')).forEach(s => {
+      try {
+        const j = JSON.parse(s.textContent || '{}');
+        if (j && (j["@type"] === "HowTo" || (Array.isArray(j) && j.some(x => x["@type"] === "HowTo")))) {
+          s.remove();
+        }
+      } catch (e) { /* ignore parse errors */ }
+    });
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(howtoJsonLd, null, 2);
+    document.head.appendChild(script);
+
+    console.log("✅ HowTo JSON-LD generated and injected:", howtoJsonLd);
+  } // end run()
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
 })();
 
 
