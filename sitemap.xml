@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-01T20:45:20.032Z</lastmod>
+    <lastmod>2025-09-01T21:00:35.722Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -545,6 +545,16 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Integrate Gmail with Google Workspace Apps — Get Started Now</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-labels-vs-folders.html</loc>
+    <lastmod>2025-09-01T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Gmail Labels vs Folders: Organize Faster and Cut Inbox Chaos Now</image:title>
     </image:image>
   </url>
 </urlset>
