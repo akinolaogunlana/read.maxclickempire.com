@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-01T03:45:17.925Z</lastmod>
+    <lastmod>2025-09-01T06:56:11.825Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
@@ -435,6 +435,16 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Learn Gmail Shortcuts Fast: Cut Your Inbox Time by 50% Today</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/schedule-emails-gmail.html</loc>
+    <lastmod>2025-01-09T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>How to Schedule Emails in Gmail Today: Learn, Set, and Automate Send Later</image:title>
     </image:image>
   </url>
 </urlset>
