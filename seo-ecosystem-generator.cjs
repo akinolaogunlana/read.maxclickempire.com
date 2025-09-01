@@ -249,7 +249,7 @@ usable.forEach((post) => {
   urlEle.ele("loc").txt(post.url).up();
   urlEle.ele("lastmod").txt(new Date(lastmod).toISOString()).up();
   urlEle.ele("changefreq").txt("weekly").up();
-  urlEle.ele("priority").txt("0.7").up();
+  urlEle.ele("priority").txt("0.9").up();
 
   if (post.ogImage) {
     const imgUrl = post.ogImage.startsWith("http") ? post.ogImage : siteUrl + post.ogImage;
