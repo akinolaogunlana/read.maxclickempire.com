@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-01T07:57:29.982Z</lastmod>
+    <lastmod>2025-09-01T08:42:11.365Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
@@ -455,6 +455,16 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Undo or Recall Sent Email in Gmail — Stop Mistakes Fast Today</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-delete-account.html</loc>
+    <lastmod>2025-09-01T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Delete Your Gmail Account Safely: Backup, Remove, and Recover Today</image:title>
     </image:image>
   </url>
 </urlset>
