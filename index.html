@@ -47,6 +47,9 @@
 
 
   <!-- FAQ Schema -->
+
+<div id="faq-howto-container"></div>
+
 <script>
 (async function() {
   const files = [
@@ -56,140 +59,157 @@
     { path: '/assets/json/faq-templates.json', category: 'Templates' }
   ];
 
-  let allFAQs = [];
+  let allItems = [];
   const seenQuestions = new Set();
 
+  // ---------------- Load FAQ JSON ----------------
   for (const file of files) {
     try {
       const res = await fetch(file.path);
       if (!res.ok) continue;
       const data = await res.json();
-
       if (data.mainEntity && Array.isArray(data.mainEntity)) {
         data.mainEntity.forEach(faq => {
-          const questionText = faq.name.trim();
-          if (!seenQuestions.has(questionText)) {
+          const questionText = faq.name?.trim();
+          const answerText = faq.acceptedAnswer?.text?.trim();
+          if (questionText && answerText && !seenQuestions.has(questionText)) {
             seenQuestions.add(questionText);
-            allFAQs.push({
-              question: questionText,
-              answer: faq.acceptedAnswer.text,
-              url: faq.url || '',
+            allItems.push({
+              type: 'FAQ',
+              title: questionText,
+              content: answerText,
+              url: faq.url ? faq.url.replace('/dist/', '/posts/') : '',
               category: file.category
             });
           }
         });
       }
-    } catch (e) {
+    } catch(e) {
       console.error('Error loading FAQ file:', file.path, e);
     }
   }
 
-  if (!allFAQs.length) return;
+  // ---------------- Detect How-to HTML ----------------
+  const howtoEls = document.querySelectorAll('.howto');
+  howtoEls.forEach((ht, idx) => {
+    const steps = Array.from(ht.querySelectorAll('.howto-step')).map((s, i) => ({
+      "@type": "HowToStep",
+      "name": s.dataset.name || `Step ${i+1}`,
+      "text": s.textContent.trim(),
+      "url": window.location.href.replace('/dist/', '/posts/') + `#howto-${idx}-step-${i}`
+    }));
 
-  allFAQs.sort((a, b) => a.category.localeCompare(b.category));
+    allItems.push({
+      type: 'HowTo',
+      title: ht.dataset.name || `How-to ${idx+1}`,
+      content: ht.dataset.description || '',
+      steps: steps,
+      category: ht.dataset.category || 'How-to'
+    });
+  });
 
-  // JSON-LD for Google
-  const faqSchema = {
+  if (!allItems.length) return;
+
+  allItems.sort((a, b) => a.category.localeCompare(b.category));
+
+  // ---------------- JSON-LD for Google ----------------
+  const faqLD = allItems.filter(i => i.type === 'FAQ').map(f => ({
+    "@type": "Question",
+    "name": f.title,
+    "acceptedAnswer": { "@type": "Answer", "text": f.content }
+  }));
+
+  const howtoLD = allItems.filter(i => i.type === 'HowTo').map(h => ({
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": allFAQs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
-    }))
-  };
+    "@type": "HowTo",
+    "name": h.title,
+    "description": h.content,
+    "step": h.steps
+  }));
 
-  const script = document.createElement('script');
-  script.type = 'application/ld+json';
-  script.textContent = JSON.stringify(faqSchema, null, 2);
-  document.head.appendChild(script);
+  const jsonLdScript = document.createElement('script');
+  jsonLdScript.type = 'application/ld+json';
+  jsonLdScript.textContent = JSON.stringify([
+    { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faqLD },
+    ...howtoLD
+  ], null, 2);
+  document.head.appendChild(jsonLdScript);
 
-  const container = document.querySelector('#faq-container');
-  if (container) {
-    let currentCategory = '';
-    let openContent = null;
-    let openIcon = null;
+  // ---------------- Render collapsibles ----------------
+  const container = document.querySelector('#faq-howto-container');
+  if (!container) return;
 
-    allFAQs.forEach((faq, index) => {
-      if (faq.category !== currentCategory) {
-        currentCategory = faq.category;
-        const catHeader = document.createElement('h2');
-        catHeader.textContent = currentCategory;
-        catHeader.style.marginTop = '2em';
-        container.appendChild(catHeader);
-      }
+  let currentCategory = '';
+  let openContent = null;
+  let openIcon = null;
 
-      const faqItem = document.createElement('div');
-      faqItem.id = `faq-${index}`;
-      faqItem.style.marginBottom = '1em';
+  allItems.forEach((item, index) => {
+    if (item.category !== currentCategory) {
+      currentCategory = item.category;
+      const catHeader = document.createElement('h2');
+      catHeader.textContent = currentCategory;
+      catHeader.style.marginTop = '2em';
+      container.appendChild(catHeader);
+    }
 
-      faqItem.innerHTML = `
-        <button style="
-          width: 100%;
-          text-align: left;
-          padding: 0.5em 1em;
-          font-size: 1em;
-          border: none;
-          background: #f1f1f1;
-          cursor: pointer;
-          outline: none;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.2em;
-        ">
-          <span>${faq.question}</span>
+    const itemDiv = document.createElement('div');
+    itemDiv.id = `${item.type.toLowerCase()}-${index}`;
+    itemDiv.style.marginBottom = '1em';
+
+    if (item.type === 'FAQ') {
+      itemDiv.innerHTML = `
+        <button style="width:100%; text-align:left; padding:0.5em 1em; font-size:1em; border:none; background:#f1f1f1; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2em;">
+          <span>${item.title}</span>
           <span style="transition: transform 0.3s ease;">+</span>
         </button>
-        <div style="
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.4s ease;
-          padding: 0 1em;
-          background: #fafafa;
-          border-left: 3px solid #0073e6;
-        ">
-          <p style="margin: 0.5em 0;">
-            ${faq.answer} 
-            ${faq.url ? `<a href="${faq.url}" target="_blank">Read more</a>` : ''}
-          </p>
+        <div style="max-height:0; overflow:hidden; transition:max-height 0.4s ease; padding:0 1em; background:#fafafa; border-left:3px solid #0073e6;">
+          <p style="margin:0.5em 0;">${item.content} ${item.url ? `<a href="${item.url}" target="_blank">Read more</a>` : ''}</p>
         </div>
       `;
+    } else if (item.type === 'HowTo') {
+      itemDiv.innerHTML = `
+        <button style="width:100%; text-align:left; padding:0.5em 1em; font-size:1em; border:none; background:#e6f7ff; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2em;">
+          <span>${item.title}</span>
+          <span style="transition: transform 0.3s ease;">+</span>
+        </button>
+        <div style="max-height:0; overflow:hidden; transition:max-height 0.4s ease; padding:0 1em; background:#f0faff; border-left:3px solid #0073e6;">
+          ${item.steps.map(st => `<p style="margin:0.5em 0;">${st.text}</p>`).join('')}
+        </div>
+      `;
+    }
 
-      container.appendChild(faqItem);
+    container.appendChild(itemDiv);
 
-      const btn = faqItem.querySelector('button');
-      const content = faqItem.querySelector('div');
-      const icon = btn.querySelector('span:last-child');
+    const btn = itemDiv.querySelector('button');
+    const content = itemDiv.querySelector('div');
+    const icon = btn.querySelector('span:last-child');
 
-      btn.addEventListener('click', () => {
-        // Close currently open FAQ if it exists
-        if (openContent && openContent !== content) {
-          openContent.style.maxHeight = '0';
-          openIcon.style.transform = 'rotate(0deg)';
-          openIcon.textContent = '+';
-        }
-
-        // Toggle current FAQ
-        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
-        content.style.maxHeight = isOpen ? '0' : content.scrollHeight + 'px';
-        icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(45deg)';
-        icon.textContent = isOpen ? '+' : '−';
-
-        // Smooth scroll to content
-        if (!isOpen) {
-          setTimeout(() => {
-            content.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 200); // Delay slightly to allow expansion animation
-        }
-
-        openContent = isOpen ? null : content;
-        openIcon = isOpen ? null : icon;
-      });
+    btn.addEventListener('click', () => {
+      if (openContent && openContent !== content) {
+        openContent.style.maxHeight = '0';
+        openIcon.style.transform = 'rotate(0deg)';
+        openIcon.textContent = '+';
+      }
+      const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+      content.style.maxHeight = isOpen ? '0' : content.scrollHeight + 'px';
+      icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(45deg)';
+      icon.textContent = isOpen ? '+' : '−';
+      if (!isOpen) setTimeout(()=>content.scrollIntoView({behavior:'smooth', block:'start'}),200);
+      openContent = isOpen ? null : content;
+      openIcon = isOpen ? null : icon;
     });
-  }
+  });
 })();
 </script>
+
+
+
+
+
+
+
+
+
 
 
 
