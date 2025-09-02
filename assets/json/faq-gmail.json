@@ -184,3 +184,26 @@
     }
   ]
 }
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Question",
+      "name": "Gmail Search Operators Guide",
+      "url": "https://read.maxclickempire.com/posts/gmail-search-operators-guide.html",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Comprehensive guide on Gmail search operators to help you find emails quickly and efficiently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Forward Emails in Gmail Groups",
+      "url": "https://read.maxclickempire.com/posts/forward-emails-gmail-groups.html",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Step-by-step guide on how to forward emails to Gmail groups effectively."
+      }
+    }
+  ]
+}
