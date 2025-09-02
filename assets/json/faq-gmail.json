@@ -130,24 +130,6 @@
     },
     {
       "@type": "Question",
-      "name": "Create Gmail Account Step-by-Step",
-      "url": "https://read.maxclickempire.com/posts/create-gmail-account-step-by-step-guide.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Learn how to create a Gmail account quickly and securely."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Sign In to Gmail - Complete Guide",
-      "url": "https://read.maxclickempire.com/posts/sign-in-to-gmail-complete-login-guide-desktop-mobile.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Guide to signing into Gmail on desktop and mobile devices."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Recover Gmail Password Without Phone or Email",
       "url": "https://read.maxclickempire.com/posts/recover-gmail-password-without-phone-or-email.html",
       "acceptedAnswer": {
@@ -199,24 +181,6 @@
         "@type": "Answer",
         "text": "Useful Gmail tips and tricks to save time and improve productivity."
       }
-    },
-    {
-      "@type": "Question",
-      "name": "Gmail Guide",
-      "url": "https://read.maxclickempire.com/posts/gmail-guide.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Comprehensive Gmail guide covering all essential features and tips."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Google Drive Guide",
-      "url": "https://read.maxclickempire.com/posts/google-drive-guide.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Complete guide to organizing, sharing, and managing files in Google Drive."
-      }
     }
   ]
-      }
+}
