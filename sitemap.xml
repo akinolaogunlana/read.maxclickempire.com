@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-02T21:15:21.630Z</lastmod>
+    <lastmod>2025-09-02T21:24:22.792Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -575,6 +575,16 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Find Any Email Fast: Master Gmail Search Operators Now — 2025 Guide</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/forward-emails-gmail-groups.html</loc>
+    <lastmod>2025-09-02T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Forward Emails Automatically and Create Gmail Groups — Start Now</image:title>
     </image:image>
   </url>
 </urlset>
