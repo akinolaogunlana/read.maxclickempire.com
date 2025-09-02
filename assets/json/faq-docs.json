@@ -58,15 +58,6 @@
     },
     {
       "@type": "Question",
-      "name": "Student Planner Template",
-      "url": "https://read.maxclickempire.com/posts/Google-Docs-Student-Planner-Template.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Google Docs student planner template to manage assignments and schedules."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Editable Class Schedule",
       "url": "https://read.maxclickempire.com/posts/editable-class-schedule-google-docs.html",
       "acceptedAnswer": {
@@ -157,15 +148,6 @@
     },
     {
       "@type": "Question",
-      "name": "Timesheet Template",
-      "url": "https://read.maxclickempire.com/posts/timesheet-template-google-docs.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Track working hours with this editable Google Docs timesheet template."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Invoice Templates for Freelancers",
       "url": "https://read.maxclickempire.com/posts/invoice-docs-templates-for-freelancers.html",
       "acceptedAnswer": {
@@ -188,7 +170,7 @@
       "url": "https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Google Docs template for business proposals, perfect for small businesses."
+        "text": "Create professional business proposals using Google Docs templates."
       }
     },
     {
@@ -197,98 +179,8 @@
       "url": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Free one-page Google Docs resume template suitable for job applications."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Minimalist Docs Resume Template",
-      "url": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "ATS-friendly minimalist Google Docs resume template."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Remote Job Resume Template",
-      "url": "https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Resume template tailored for remote job seekers in Google Docs."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Free Google Docs Resume for Career Changers",
-      "url": "https://read.maxclickempire.com/posts/free-google-docs-resume-career-changers.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Resume template designed for career changers using Google Docs."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Google Docs Resume Template for Fresh Graduates",
-      "url": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Free resume template in Google Docs tailored for fresh graduates."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Creative Graphic Designer Resume",
-      "url": "https://read.maxclickempire.com/posts/creative-graphic-designer-resume-google-docs.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Design a creative graphic designer resume using Google Docs templates."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Cover Letter Template Matching Resume",
-      "url": "https://read.maxclickempire.com/posts/cover-letter-template-matching-resume.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Google Docs cover letter template that matches your resume style."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Affiliate Disclosure Statement Template",
-      "url": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Google Docs template for legal affiliate disclosure statements."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Best Docs Resume Templates That Get You Hired",
-      "url": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Curated list of Google Docs resume templates proven to increase hiring chances."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Create an ATS-Friendly Resume on Google Docs",
-      "url": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Step-by-step guide to create ATS-compliant resumes in Google Docs."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Modern Resume Templates Google Docs",
-      "url": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Download modern, professional Google Docs resume templates designed to get jobs."
+        "text": "Free one-page resume template in Google Docs for quick applications."
       }
     }
   ]
-    }
+}
