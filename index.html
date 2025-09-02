@@ -51,76 +51,143 @@
 
 <script>
 (async function() {
-  // List of your JSON-LD FAQ files
   const files = [
-    '/assets/json/faq-docs.json',
-    '/assets/json/faq-gmail.json',
-    '/assets/json/faq-sheets.json',
-    '/assets/json/faq-templates.json'
+    { path: '/assets/json/faq-howto.json', category: 'How-to / Google Docs' },
+    { path: '/assets/json/faq-gmail.json', category: 'Gmail' },
+    { path: '/assets/json/faq-sheets.json', category: 'Google Sheets' },
+    { path: '/assets/json/faq-templates.json', category: 'Templates' }
   ];
 
   let allFAQs = [];
+  const seenQuestions = new Set();
 
   for (const file of files) {
     try {
-      const res = await fetch(file);
+      const res = await fetch(file.path);
       if (!res.ok) continue;
       const data = await res.json();
 
-      // Extract mainEntity from JSON-LD
       if (data.mainEntity && Array.isArray(data.mainEntity)) {
-        allFAQs = allFAQs.concat(
-          data.mainEntity.map(faq => ({
-            question: faq.name,
-            answer: faq.acceptedAnswer.text,
-            url: faq.url || ''
-          }))
-        );
+        data.mainEntity.forEach(faq => {
+          const questionText = faq.name.trim();
+          if (!seenQuestions.has(questionText)) {
+            seenQuestions.add(questionText);
+            allFAQs.push({
+              question: questionText,
+              answer: faq.acceptedAnswer.text,
+              url: faq.url || '',
+              category: file.category
+            });
+          }
+        });
       }
     } catch (e) {
-      console.error('Error loading FAQ file:', file, e);
+      console.error('Error loading FAQ file:', file.path, e);
     }
   }
 
   if (!allFAQs.length) return;
 
-  // Generate JSON-LD for Google rich results
+  allFAQs.sort((a, b) => a.category.localeCompare(b.category));
+
+  // JSON-LD for Google
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": allFAQs.map((faq, index) => ({
+    "mainEntity": allFAQs.map(faq => ({
       "@type": "Question",
       "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer,
-        "url": faq.url || window.location.href + "#faq-" + index
-      }
+      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
     }))
   };
 
-  // Inject JSON-LD into <head>
   const script = document.createElement('script');
   script.type = 'application/ld+json';
   script.textContent = JSON.stringify(faqSchema, null, 2);
   document.head.appendChild(script);
 
-  console.log('✅ Merged FAQPage JSON-LD injected with', allFAQs.length, 'items');
-
-  // Render FAQ content visibly on homepage
-  const container = document.querySelector('#faq-container'); 
+  const container = document.querySelector('#faq-container');
   if (container) {
+    let currentCategory = '';
+    let openContent = null;
+    let openIcon = null;
+
     allFAQs.forEach((faq, index) => {
+      if (faq.category !== currentCategory) {
+        currentCategory = faq.category;
+        const catHeader = document.createElement('h2');
+        catHeader.textContent = currentCategory;
+        catHeader.style.marginTop = '2em';
+        container.appendChild(catHeader);
+      }
+
       const faqItem = document.createElement('div');
       faqItem.id = `faq-${index}`;
-      faqItem.style.marginBottom = '1.5em';
+      faqItem.style.marginBottom = '1em';
+
       faqItem.innerHTML = `
-        <h3 style="margin-bottom: 0.3em;">
-          <a href="${faq.url || '#faq-' + index}" target="_blank">${faq.question}</a>
-        </h3>
-        <p style="margin:0;">${faq.answer}</p>
+        <button style="
+          width: 100%;
+          text-align: left;
+          padding: 0.5em 1em;
+          font-size: 1em;
+          border: none;
+          background: #f1f1f1;
+          cursor: pointer;
+          outline: none;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.2em;
+        ">
+          <span>${faq.question}</span>
+          <span style="transition: transform 0.3s ease;">+</span>
+        </button>
+        <div style="
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.4s ease;
+          padding: 0 1em;
+          background: #fafafa;
+          border-left: 3px solid #0073e6;
+        ">
+          <p style="margin: 0.5em 0;">
+            ${faq.answer} 
+            ${faq.url ? `<a href="${faq.url}" target="_blank">Read more</a>` : ''}
+          </p>
+        </div>
       `;
+
       container.appendChild(faqItem);
+
+      const btn = faqItem.querySelector('button');
+      const content = faqItem.querySelector('div');
+      const icon = btn.querySelector('span:last-child');
+
+      btn.addEventListener('click', () => {
+        // Close currently open FAQ if it exists
+        if (openContent && openContent !== content) {
+          openContent.style.maxHeight = '0';
+          openIcon.style.transform = 'rotate(0deg)';
+          openIcon.textContent = '+';
+        }
+
+        // Toggle current FAQ
+        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+        content.style.maxHeight = isOpen ? '0' : content.scrollHeight + 'px';
+        icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(45deg)';
+        icon.textContent = isOpen ? '+' : '−';
+
+        // Smooth scroll to content
+        if (!isOpen) {
+          setTimeout(() => {
+            content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 200); // Delay slightly to allow expansion animation
+        }
+
+        openContent = isOpen ? null : content;
+        openIcon = isOpen ? null : icon;
+      });
     });
   }
 })();
