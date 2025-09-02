@@ -1,0 +1,15 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Google Sheets Guide",
+      "url": "https://read.maxclickempire.com/posts/google-sheets-guide.html",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Comprehensive guide to Google Sheets formulas, charts, and functions."
+      }
+    }
+  ]
+}
