@@ -45,12 +45,13 @@
   <meta name="twitter:image" content="https://read.maxclickempire.com/assets/og-image.jpg" />
 
 
+
   <!-- FAQ Schema -->
-<!-- Place this in your homepage HTML -->
-<section id="faq-container"></section>
+<div id="faq-container"></div>
 
 <script>
 (async function() {
+  // List of your JSON-LD FAQ files
   const files = [
     '/assets/json/faq-docs.json',
     '/assets/json/faq-gmail.json',
@@ -60,16 +61,22 @@
 
   let allFAQs = [];
 
-  // Load all FAQ JSON files
   for (const file of files) {
     try {
       const res = await fetch(file);
-      if (!res.ok) {
-        console.warn('Failed to load FAQ file:', file);
-        continue;
-      }
+      if (!res.ok) continue;
       const data = await res.json();
-      if (Array.isArray(data)) allFAQs = allFAQs.concat(data);
+
+      // Extract mainEntity from JSON-LD
+      if (data.mainEntity && Array.isArray(data.mainEntity)) {
+        allFAQs = allFAQs.concat(
+          data.mainEntity.map(faq => ({
+            question: faq.name,
+            answer: faq.acceptedAnswer.text,
+            url: faq.url || ''
+          }))
+        );
+      }
     } catch (e) {
       console.error('Error loading FAQ file:', file, e);
     }
@@ -77,7 +84,7 @@
 
   if (!allFAQs.length) return;
 
-  // Generate JSON-LD for Google
+  // Generate JSON-LD for Google rich results
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -86,7 +93,8 @@
       "name": faq.question,
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": faq.answer
+        "text": faq.answer,
+        "url": faq.url || window.location.href + "#faq-" + index
       }
     }))
   };
@@ -94,10 +102,10 @@
   // Inject JSON-LD into <head>
   const script = document.createElement('script');
   script.type = 'application/ld+json';
-  script.textContent = JSON.stringify(faqSchema);
+  script.textContent = JSON.stringify(faqSchema, null, 2);
   document.head.appendChild(script);
 
-  console.log('✅ FAQ JSON-LD injected with', allFAQs.length, 'items');
+  console.log('✅ Merged FAQPage JSON-LD injected with', allFAQs.length, 'items');
 
   // Render FAQ content visibly on homepage
   const container = document.querySelector('#faq-container'); 
@@ -107,7 +115,9 @@
       faqItem.id = `faq-${index}`;
       faqItem.style.marginBottom = '1.5em';
       faqItem.innerHTML = `
-        <h3 style="margin-bottom: 0.3em;">${faq.question}</h3>
+        <h3 style="margin-bottom: 0.3em;">
+          <a href="${faq.url || '#faq-' + index}" target="_blank">${faq.question}</a>
+        </h3>
         <p style="margin:0;">${faq.answer}</p>
       `;
       container.appendChild(faqItem);
@@ -115,6 +125,8 @@
   }
 })();
 </script>
+
+
 
   <!-- Website Schema -->
   <script type="application/ld+json">
