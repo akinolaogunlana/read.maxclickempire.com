@@ -46,8 +46,52 @@
 
 
   <!-- FAQ Schema -->
- <script type="application/ld+json" src="/assets/json/faq-gmail.json"></script>
+ <script>
+(async function() {
+  const files = [
+    '/assets/json/faq-docs.json',
+    '/assets/json/faq-gmail.json',
+    '/assets/json/faq-sheets.json',
+    '/assets/json/faq-templates.json'
+  ];
 
+  let allFAQs = [];
+
+  for (const file of files) {
+    try {
+      const res = await fetch(file);
+      if (!res.ok) continue;
+      const data = await res.json();
+      allFAQs = allFAQs.concat(data);
+    } catch (e) {
+      console.error('Error loading FAQ file:', file, e);
+    }
+  }
+
+  if (!allFAQs.length) return;
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": allFAQs.map((faq, index) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+        "url": window.location.href + "#faq-" + index
+      }
+    }))
+  };
+
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(faqSchema, null, 2);
+  document.head.appendChild(script);
+
+  console.log('✅ Merged FAQPage JSON-LD injected with', allFAQs.length, 'items');
+})();
+</script>
 
 
   <!-- Website Schema -->
