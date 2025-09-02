@@ -46,7 +46,51 @@
 
 
   <!-- FAQ Schema -->
- <script type="application/ld+json" src="/assets/json/faq.json"></script>
+ <script>
+(function() {
+    const loadFAQ = async () => {
+        const faqFiles = [
+            '/assets/Json/faq-gmail.json',
+            '/assets/Json/faq-docs.json',
+            '/assets/Json/faq-sheets.json',
+            '/assets/Json/faq-templates.json'
+        ];
+
+        const masterFAQ = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": []
+        };
+
+        for (const file of faqFiles) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const data = await res.json();
+                if (data.mainEntity && Array.isArray(data.mainEntity)) {
+                    masterFAQ.mainEntity.push(...data.mainEntity);
+                }
+            } catch (err) {
+                console.error('FAQ JSON load error:', err);
+            }
+        }
+
+        const scriptTag = document.createElement('script');
+        scriptTag.type = 'application/ld+json';
+        scriptTag.text = JSON.stringify(masterFAQ);
+        document.head.appendChild(scriptTag);
+    };
+
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadFAQ);
+    } else {
+        // fallback for older browsers
+        window.addEventListener('load', loadFAQ);
+    }
+})();
+</script>
+
+
 
 
   <!-- Website Schema -->
