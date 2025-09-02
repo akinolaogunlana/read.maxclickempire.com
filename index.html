@@ -46,7 +46,10 @@
 
 
   <!-- FAQ Schema -->
- <script>
+<!-- Place this in your homepage HTML -->
+<section id="faq-container"></section>
+
+<script>
 (async function() {
   const files = [
     '/assets/json/faq-docs.json',
@@ -57,6 +60,7 @@
 
   let allFAQs = [];
 
+  // Load all FAQ JSON files
   for (const file of files) {
     try {
       const res = await fetch(file);
@@ -73,10 +77,11 @@
 
   if (!allFAQs.length) return;
 
+  // Generate JSON-LD for Google
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": allFAQs.map(faq => ({
+    "mainEntity": allFAQs.map((faq, index) => ({
       "@type": "Question",
       "name": faq.question,
       "acceptedAnswer": {
@@ -86,12 +91,28 @@
     }))
   };
 
+  // Inject JSON-LD into <head>
   const script = document.createElement('script');
   script.type = 'application/ld+json';
   script.textContent = JSON.stringify(faqSchema);
   document.head.appendChild(script);
 
-  console.log('✅ Merged FAQPage JSON-LD injected with', allFAQs.length, 'items');
+  console.log('✅ FAQ JSON-LD injected with', allFAQs.length, 'items');
+
+  // Render FAQ content visibly on homepage
+  const container = document.querySelector('#faq-container'); 
+  if (container) {
+    allFAQs.forEach((faq, index) => {
+      const faqItem = document.createElement('div');
+      faqItem.id = `faq-${index}`;
+      faqItem.style.marginBottom = '1.5em';
+      faqItem.innerHTML = `
+        <h3 style="margin-bottom: 0.3em;">${faq.question}</h3>
+        <p style="margin:0;">${faq.answer}</p>
+      `;
+      container.appendChild(faqItem);
+    });
+  }
 })();
 </script>
 
