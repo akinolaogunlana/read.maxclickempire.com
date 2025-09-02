@@ -213,7 +213,7 @@
 
 
   <!-- Website Schema -->
-  <!-- Homepage Schema for MaxClickEmpire -->
+ <!-- Homepage Schema for MaxClickEmpire -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -225,11 +225,18 @@
       "url": "https://read.maxclickempire.com",
       "description": "Strategic SEO guides, AI tools, and monetization templates to build your digital empire.",
       "publisher": { "@id": "https://read.maxclickempire.com#organization" },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://read.maxclickempire.com/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": "https://read.maxclickempire.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        {
+          "@type": "SearchAction",
+          "target": "https://read.maxclickempire.com/posts/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      ],
       "inLanguage": "en"
     },
     {
@@ -250,8 +257,19 @@
         { "@type": "Thing", "name": "Google Drive", "sameAs": "https://www.google.com/drive/" },
         { "@type": "Thing", "name": "Google Calendar", "sameAs": "https://calendar.google.com/" }
       ],
+      "keywords": [
+        "SEO",
+        "AI tools",
+        "Google Workspace",
+        "Gmail",
+        "Google Docs",
+        "Google Sheets",
+        "Google Drive",
+        "Digital Marketing"
+      ],
       "mainEntityOfPage": { "@id": "https://read.maxclickempire.com#website" },
       "breadcrumb": { "@id": "https://read.maxclickempire.com#breadcrumb" },
+      "image": "https://read.maxclickempire.com/assets/og-image.png",
       "inLanguage": "en"
     },
     {
@@ -275,17 +293,38 @@
         "@type": "ImageObject",
         "url": "https://read.maxclickempire.com/assets/favicon.png"
       },
+      "image": "https://read.maxclickempire.com/assets/og-image.png",
       "founder": { "@id": "https://read.maxclickempire.com#founder" },
       "sameAs": [
         "https://www.facebook.com/MaxClickEmpire",
-        "https://www.instagram.com/MaxClickEmpire"
+        "https://www.instagram.com/MaxClickEmpire",
+        "https://www.google.com/drive/"
       ],
       "contactPoint": [
         {
           "@type": "ContactPoint",
           "contactType": "customer support",
           "email": "Maxclickempire@gmail.com",
-          "url": "https://read.maxclickempire.com/contact"
+          "url": "https://read.maxclickempire.com/contact",
+          "areaServed": [
+            { "@type": "Place", "name": "Worldwide" },
+            { "@type": "Country", "name": "United States" },
+            { "@type": "Country", "name": "United Kingdom" },
+            { "@type": "Country", "name": "Canada" },
+            { "@type": "Country", "name": "Australia" },
+            { "@type": "Country", "name": "India" },
+            { "@type": "Country", "name": "Germany" },
+            { "@type": "Country", "name": "Nigeria" },
+            { "@type": "Country", "name": "South Africa" },
+            { "@type": "Country", "name": "Brazil" },
+            { "@type": "Country", "name": "Singapore" },
+            { "@type": "Country", "name": "United Arab Emirates" },
+            { "@type": "Country", "name": "Philippines" },
+            { "@type": "Country", "name": "France" }
+          ],
+          "availableLanguage": [
+            { "@type": "Language", "name": "English", "alternateName": "en" }
+          ]
         }
       ]
     },
@@ -309,12 +348,16 @@
         "Google Workspace",
         "Gmail",
         "Google Docs",
-        "Google Sheets"
-      ]
+        "Google Sheets",
+        "Google Drive"
+      ],
+      "image": "https://read.maxclickempire.com/assets/founder.png"
     }
   ]
 }
 </script>
+
+
 
   <!-- Analytics -->
   <script src="https://analytics.ahrefs.com/analytics.js" data-key="vMQRjo3ubxpeGl8kFlux/g" async></script>
