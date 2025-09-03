@@ -4,11 +4,11 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Google Sheets Guide",
+      "name": "Complete Google Sheets Guide for Formulas, Charts, and Functions",
       "url": "https://read.maxclickempire.com/posts/google-sheets-guide.html",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Comprehensive guide to Google Sheets formulas, charts, and functions."
+        "text": "Master Google Sheets with this comprehensive guide covering essential formulas, powerful functions, and data visualization with charts. Perfect for beginners and advanced users looking to improve productivity and data management."
       }
     }
   ]
