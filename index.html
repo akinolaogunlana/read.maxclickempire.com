@@ -244,8 +244,8 @@
       "@type": "WebPage",
       "@id": "https://read.maxclickempire.com/#webpage",
       "url": "https://read.maxclickempire.com",
-      "name": "MaxClickEmpire — Dominate Online, Build Legacy",
-      "description": "MaxClickEmpire delivers expert SEO guides, AI-powered tools, and monetization templates to help you grow your digital empire.",
+      "name": "MaxClickEmpire — Gmail AI, Google Docs, Sheets, Drive & Affiliate Marketing Guides",
+      "description": "Actionable tutorials and monetization playbooks for Gmail, Google Docs, Sheets, Drive, Calendar, Gmail AI, and affiliate marketing.",
       "isPartOf": { "@id": "https://read.maxclickempire.com#website" },
       "about": [
         { "@type": "Thing", "name": "SEO", "sameAs": "https://en.wikipedia.org/wiki/Search_engine_optimization" },
@@ -256,8 +256,29 @@
         { "@type": "Thing", "name": "Google Docs", "sameAs": "https://www.google.com/docs/about/" },
         { "@type": "Thing", "name": "Google Sheets", "sameAs": "https://www.google.com/sheets/about/" },
         { "@type": "Thing", "name": "Google Drive", "sameAs": "https://www.google.com/drive/" },
-        { "@type": "Thing", "name": "Google Calendar", "sameAs": "https://calendar.google.com/" }
+        { "@type": "Thing", "name": "Google Calendar", "sameAs": "https://calendar.google.com/" },
+        { "@type": "Thing", "name": "Gmail AI", "sameAs": "https://workspace.google.com/products/gmail/" },
+        { "@type": "Thing", "name": "Affiliate Marketing", "sameAs": "https://en.wikipedia.org/wiki/Affiliate_marketing" }
       ],
+      "author": { "@id": "https://read.maxclickempire.com#founder" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://read.maxclickempire.com/assets/og-image.png",
+        "width": 1200,
+        "height": 630
+      },
+      "breadcrumb": { "@id": "https://read.maxclickempire.com#breadcrumb" },
+      "hasPart": {
+        "@type": "ItemList",
+        "name": "Featured Guides",
+        "itemListOrder": "http://schema.org/ItemListOrderDescending",
+        "numberOfItems": 3,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "item": { "@type": "Article", "url": "https://read.maxclickempire.com/posts/{{slug-1}}", "name": "{{Featured Post 1 Title}}" } },
+          { "@type": "ListItem", "position": 2, "item": { "@type": "Article", "url": "https://read.maxclickempire.com/posts/{{slug-2}}", "name": "{{Featured Post 2 Title}}" } },
+          { "@type": "ListItem", "position": 3, "item": { "@type": "Article", "url": "https://read.maxclickempire.com/posts/{{slug-3}}", "name": "{{Featured Post 3 Title}}" } }
+        ]
+      },
       "keywords": [
         "SEO",
         "AI tools",
@@ -268,33 +289,27 @@
         "Google Drive",
         "Digital Marketing",
         "Automation",
-        "Productivity Tools"
+        "Productivity Tools",
+        "Gmail AI prompts",
+        "Google Docs SEO template",
+        "Google Sheets automation",
+        "Google Drive organization",
+        "Google Calendar time blocking",
+        "Affiliate marketing programs",
+        "Google Workspace productivity"
+        "Google Mail"
+        "Troubleshooting"
+        "security"
+        "Gmail login"
+        
       ],
-      "mainEntityOfPage": { "@id": "https://read.maxclickempire.com#website" },
-      "breadcrumb": { "@id": "https://read.maxclickempire.com#breadcrumb" },
-      "image": {
-        "@type": "ImageObject",
-        "url": "https://read.maxclickempire.com/assets/og-image.png",
-        "width": 1200,
-        "height": 630
-      },
-      "primaryImageOfPage": {
-        "@type": "ImageObject",
-        "url": "https://read.maxclickempire.com/assets/og-image.png"
-      },
-      "author": { "@id": "https://read.maxclickempire.com#founder" },
       "inLanguage": "en"
     },
     {
       "@id": "https://read.maxclickempire.com#breadcrumb",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://read.maxclickempire.com"
-        }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://read.maxclickempire.com" }
       ]
     },
     {
@@ -302,17 +317,23 @@
       "@type": "Organization",
       "name": "MaxClickEmpire",
       "url": "https://read.maxclickempire.com",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://read.maxclickempire.com/assets/favicon.png"
-      },
+      "logo": { "@type": "ImageObject", "url": "https://read.maxclickempire.com/assets/favicon.png" },
       "image": "https://read.maxclickempire.com/assets/og-image.png",
       "founder": { "@id": "https://read.maxclickempire.com#founder" },
       "sameAs": [
         "https://www.facebook.com/MaxClickEmpire",
         "https://www.instagram.com/MaxClickEmpire",
         "https://twitter.com/MaxClickEmpire",
-        "https://www.linkedin.com/company/maxclickempire"
+        "https://www.linkedin.com/company/maxclickempire",
+        "https://en.wikipedia.org/wiki/Search_engine_optimization",
+        "https://en.wikipedia.org/wiki/Artificial_intelligence",
+        "https://en.wikipedia.org/wiki/Digital_marketing",
+        "https://workspace.google.com/",
+        "https://www.google.com/gmail/about/",
+        "https://www.google.com/docs/about/",
+        "https://www.google.com/sheets/about/",
+        "https://www.google.com/drive/",
+        "https://calendar.google.com/"
       ],
       "contactPoint": [
         {
@@ -336,9 +357,7 @@
             "Philippines",
             "France"
           ],
-          "availableLanguage": [
-            { "@type": "Language", "name": "English", "alternateName": "en" }
-          ]
+          "availableLanguage": [{ "@type": "Language", "name": "English", "alternateName": "en" }]
         }
       ]
     },
@@ -362,6 +381,7 @@
         "Automation",
         "Google Workspace",
         "Gmail",
+        "Gmail AI",
         "Google Docs",
         "Google Sheets",
         "Google Drive",
@@ -374,7 +394,6 @@
   ]
 }
 </script>
-
   <!-- Analytics -->
   <script src="https://analytics.ahrefs.com/analytics.js" data-key="vMQRjo3ubxpeGl8kFlux/g" async></script>
   <script defer data-domain="read.maxclickempire.com" src="https://plausible.io/js/plausible.js"></script>
