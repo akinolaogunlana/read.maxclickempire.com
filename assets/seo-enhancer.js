@@ -563,13 +563,18 @@
 
 
 
-
+// ---------------------------
+    // 1. Breadcrumb JSON-LD
+    // ---------------------------
   
-// Advanced Nested Breadcrumb JSON-LD (h1 + h2 + h3 hierarchy)
 (function() {
-  function injectNestedBreadcrumb() {
-    const skipKeywords = ["FAQ","Frequent Ask Questios","Frequent Ask Questios","Conclusion", "References"];
-    const maxSubHeadings = 20; // limit depth for JSON-LD
+  function injectSchemas() {
+    const skipKeywords = ["FAQ","Frequent Ask Questions","Conclusion","References"];
+    const maxSubHeadings = 20; // safety limit
+
+    // ---------------------------
+    // 1. Breadcrumb JSON-LD
+    // ---------------------------
     const pathSegments = window.location.pathname
       .split("/")
       .filter(seg => seg.length > 0);
@@ -608,11 +613,11 @@
         "item": itemUrl
       });
 
-      // Last segment: process h2 and h3 as nested
+      // Last segment: add H2 + H3 as breadcrumb extensions
       if (index === pathSegments.length - 1) {
         const headings = Array.from(document.querySelectorAll("h2, h3"))
           .filter(h => !skipKeywords.some(kw => new RegExp(kw, "i").test(h.textContent)))
-          .filter(h => !h.closest("aside") && h.offsetParent !== null)
+          .filter(h => h.offsetParent !== null)
           .slice(0, maxSubHeadings);
 
         let lastH2Id = null;
@@ -622,7 +627,6 @@
           const url = window.location.href.split("#")[0] + "#" + heading.id;
 
           if (heading.tagName.toLowerCase() === "h2") {
-            // h2 = new top-level under page
             itemList.push({
               "@type": "ListItem",
               "position": positionCounter++,
@@ -631,7 +635,6 @@
             });
             lastH2Id = heading.id;
           } else if (heading.tagName.toLowerCase() === "h3" && lastH2Id) {
-            // h3 = nested under last h2
             itemList.push({
               "@type": "ListItem",
               "position": positionCounter++,
@@ -643,26 +646,59 @@
       }
     });
 
-    const breadcrumb = {
+    const breadcrumbSchema = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": itemList
     };
 
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(breadcrumb, null, 2);
-    document.head.appendChild(script);
+    // ---------------------------
+    // 2. TOC FAQ JSON-LD
+    // ---------------------------
+    const tocHeadings = Array.from(document.querySelectorAll("h2, h3"))
+      .filter(h => !skipKeywords.some(kw => new RegExp(kw, "i").test(h.textContent)))
+      .filter(h => h.offsetParent !== null);
 
-    console.log("✅ Nested Dynamic Breadcrumb JSON-LD injected (h2 + h3 hierarchy)");
+    const faqItems = tocHeadings.map((heading, idx) => {
+      if (!heading.id) heading.id = "toc-" + idx;
+      const url = window.location.href.split("#")[0] + "#" + heading.id;
+
+      return {
+        "@type": "Question",
+        "name": heading.textContent.trim(),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Learn more in this section: <a href="${url}">${heading.textContent.trim()}</a>`
+        }
+      };
+    });
+
+    const tocFAQSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqItems
+    };
+
+    // ---------------------------
+    // Append both schemas
+    // ---------------------------
+    [breadcrumbSchema, tocFAQSchema].forEach(schema => {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.text = JSON.stringify(schema, null, 2);
+      document.head.appendChild(script);
+    });
+
+    console.log("✅ Breadcrumb + TOC FAQ JSON-LD injected");
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", injectNestedBreadcrumb);
+    document.addEventListener("DOMContentLoaded", injectSchemas);
   } else {
-    injectNestedBreadcrumb();
+    injectSchemas();
   }
 })();
+
 
 
 
