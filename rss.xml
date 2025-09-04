@@ -9,6 +9,21 @@
     <atom:link href="https://read.maxclickempire.com/rss.xml" rel="self" type="application/rss+xml" />
     
 <item>
+  <title><![CDATA[Remote Resume Template in Google Docs | Free & Editable]]></title>
+  <description><![CDATA[Grab a free, ATS-friendly Google Docs resume template optimized for remote jobs plus exact wording, formatting, and a freezer-worker onsite variant.]]></description>
+  <link>https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html</link>
+  <guid isPermaLink="true">https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html</guid>
+  <pubDate>Thu, 04 Sep 2025 00:00:00 GMT</pubDate>
+  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
+  <category><![CDATA[resume for remote jobs Google Docs template]]></category>
+    <category><![CDATA[remote job resume example]]></category>
+    <category><![CDATA[freezer worker resume Google Docs]]></category>
+    <category><![CDATA[ATS-friendly remote resume]]></category>
+  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
+  <content:encoded><![CDATA[Grab a free, ATS-friendly Google Docs resume template optimized for remote jobs plus exact wording, formatting, and a freezer-worker onsite variant.]]></content:encoded>
+</item>
+
+<item>
   <title><![CDATA[Proposal Template for Small Business in Google Docs|Free]]></title>
   <description><![CDATA[Build polished, ready-to-use Google Docs proposals for your small business—step-by-step setup, copywriting tips, file naming, and automation hacks to save time.]]></description>
   <link>https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html</link>
@@ -308,23 +323,6 @@
     <category><![CDATA[connect Gmail to Calendar]]></category>
   <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
   <content:encoded><![CDATA[Connect Gmail to Calendar, Drive, Meet and third-party apps with add-ons, Apps Script and Workspace Marketplace. Actionable steps, start integrating today.]]></content:encoded>
-</item>
-
-<item>
-  <title><![CDATA[Gmail Labels vs Folders: Organize Faster and Cut Inbox Chaos Now]]></title>
-  <description><![CDATA[Learn the real difference between Gmail labels and folders, when to use each, and build a clean, searchable inbox with filters and tips. Start organizing now.]]></description>
-  <link>https://read.maxclickempire.com/posts/gmail-labels-vs-folders.html</link>
-  <guid isPermaLink="true">https://read.maxclickempire.com/posts/gmail-labels-vs-folders.html</guid>
-  <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
-  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
-  <category><![CDATA[gmail labels vs folders]]></category>
-    <category><![CDATA[how to use labels in gmail]]></category>
-    <category><![CDATA[gmail filters auto label]]></category>
-    <category><![CDATA[multiple inboxes labels gmail]]></category>
-    <category><![CDATA[gmail archive vs delete]]></category>
-    <category><![CDATA[gmail sublabels]]></category>
-  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
-  <content:encoded><![CDATA[Learn the real difference between Gmail labels and folders, when to use each, and build a clean, searchable inbox with filters and tips. Start organizing now.]]></content:encoded>
 </item>
   </channel>
 </rss>
