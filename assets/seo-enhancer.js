@@ -684,107 +684,95 @@
 
 
     
-//FAQ json formatter 
+<!-- ✅ FAQ JSON-LD Generator -->
 
-(function() {
-  function generateCompleteFAQSchema() {
+(function () {
+  function generateFAQSchema() {
     const qPatterns = [/^q\d*[:.\s-]*/i, /^question\d*[:.\s-]*/i];
     const aPatterns = [/^a\d*[:.\s-]*/i, /^answer\d*[:.\s-]*/i];
+    const faqMap = new Map(); // { question: { answers: [], id } }
 
-    const faqMap = new Map(); // Key: question text, Value: { answers: [], id }
+    const isQuestion = txt => qPatterns.some(p => p.test(txt)) || txt.trim().endsWith("?");
+    const isAnswer = txt => aPatterns.some(p => p.test(txt)) || txt.trim().length > 0;
 
-    function isQuestion(text) {
-      return qPatterns.some(p => p.test(text)) || text.trim().endsWith("?");
-    }
+    const stripPattern = (txt, patterns) =>
+      patterns.reduce((out, p) => out.replace(p, "").trim(), txt);
 
-    function isAnswer(text) {
-      return aPatterns.some(p => p.test(text)) || text.trim().length > 0;
-    }
+    const extractText = node =>
+      !node ? "" :
+      node.nodeType === Node.TEXT_NODE
+        ? node.textContent.trim()
+        : [...node.childNodes].map(extractText).join(" ").trim();
 
-    function stripPattern(text, patterns) {
-      let result = text;
-      patterns.forEach(p => { result = result.replace(p, "").trim(); });
-      return result;
-    }
-
-    function extractText(node) {
-      if (!node) return "";
-      if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim();
-      return Array.from(node.childNodes).map(extractText).join("\n\n").trim();
-    }
-
-    function getNextAnswer(el) {
-      let texts = [];
-      let next = el.nextElementSibling;
+    function collectAnswers(startEl) {
+      const answers = [];
+      let next = startEl;
       while (next && !isQuestion(extractText(next))) {
-        texts.push(extractText(next));
+        const txt = extractText(next).trim();
+        if (txt) answers.push(stripPattern(txt, aPatterns));
         next = next.nextElementSibling;
       }
-      return texts.join("\n\n") || "Answer not available.";
+      return answers.join("\n\n");
     }
 
-    // Consider main content containers
-    const articleEl = document.querySelector("main, article, #post-content");
-    if (!articleEl) return;
+    // Main content container
+    const article = document.querySelector("main, article, #post-content");
+    if (!article) return;
 
-    const allElements = Array.from(articleEl.querySelectorAll("*"))
-      .filter(el => el.children.length === 0 || el.tagName === "TD" || el.tagName === "SUMMARY");
+    const elements = [...article.querySelectorAll("h2, h3, p, li, div")];
+    let currentQ = null, currentEl = null;
 
-    let currentQuestion = null;
-    let currentEl = null;
-
-    allElements.forEach(el => {
+    elements.forEach(el => {
       const text = extractText(el);
       if (!text) return;
 
       if (isQuestion(text)) {
-        currentQuestion = stripPattern(text, qPatterns);
+        currentQ = stripPattern(text, qPatterns);
         currentEl = el;
-        if (!currentEl.id) currentEl.id = "faq-" + faqMap.size;
-      } else if (currentQuestion && isAnswer(text)) {
-        const answerText = stripPattern(text, aPatterns) + "\n\n" + getNextAnswer(el);
-        if (faqMap.has(currentQuestion)) {
-          const entry = faqMap.get(currentQuestion);
-          entry.answers.push(answerText);
-        } else {
-          faqMap.set(currentQuestion, { answers: [answerText], id: currentEl.id });
+        if (!currentEl.id) currentEl.id = "faq-" + (faqMap.size + 1);
+      } else if (currentQ && isAnswer(text)) {
+        const answerBlock = collectAnswers(el);
+        if (answerBlock) {
+          faqMap.set(currentQ, { answers: [answerBlock], id: currentEl.id });
         }
-        currentQuestion = null;
+        currentQ = null;
         currentEl = null;
       }
     });
 
     if (!faqMap.size) return;
 
-    // Build JSON-LD Schema
+    // Build schema
     const faqSchema = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": Array.from(faqMap.entries()).map(([question, data]) => ({
+      "mainEntity": [...faqMap.entries()].map(([q, data]) => ({
         "@type": "Question",
-        "name": question,
+        "name": q,
         "acceptedAnswer": {
           "@type": "Answer",
           "text": data.answers.join("\n\n"),
-          "url": window.location.href + "#" + data.id
+          "url": `${window.location.href}#${data.id}`
         }
       }))
     };
 
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(faqSchema, null, 2);
-    document.head.appendChild(script);
-
-    console.log("✅ Complete FAQ Schema injected:", faqSchema);
+    // Avoid duplicate schema
+    if (!document.querySelector('script[type="application/ld+json"].faq-schema')) {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.className = "faq-schema";
+      script.text = JSON.stringify(faqSchema, null, 2);
+      document.head.appendChild(script);
+      console.log("✅ FAQ Schema injected:", faqSchema);
+    }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", generateCompleteFAQSchema);
-  } else {
-    generateCompleteFAQSchema();
-  }
+  document.readyState === "loading"
+    ? document.addEventListener("DOMContentLoaded", generateFAQSchema)
+    : generateFAQSchema();
 })();
+
 
 
 
