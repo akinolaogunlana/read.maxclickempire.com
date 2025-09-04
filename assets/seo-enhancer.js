@@ -686,93 +686,235 @@
     
 <!-- ✅ FAQ JSON-LD Generator -->
 
+
+/* ✅ Thorough FAQ JSON-LD generator
+   - Targets the FAQ section (H2 "Frequently Asked Questions") if present
+   - Supports multi-element answers and lists
+   - Creates unique slug IDs for deep links
+   - Replaces any previously injected schema inserted by this script
+*/
 (function () {
   function generateFAQSchema() {
-    const qPatterns = [/^q\d*[:.\s-]*/i, /^question\d*[:.\s-]*/i];
-    const aPatterns = [/^a\d*[:.\s-]*/i, /^answer\d*[:.\s-]*/i];
-    const faqMap = new Map(); // { question: { answers: [], id } }
+    try {
+      // ----------------- Config -----------------
+      const cfg = {
+        containerSelectors: ['.post-body', 'main', 'article', '#post-content'],
+        faqHeadingText: 'Frequently Asked Questions', // case-insensitive match
+        questionTag: 'H3', // tag used for question headings in your posts
+        stopOnNextHeadingOfSameLevel: true, // stop parsing FAQs after next H2
+        allowedAnswerTags: ['P', 'DIV', 'UL', 'OL', 'BLOCKQUOTE', 'TABLE', 'LI'],
+        schemaClass: 'faq-schema', // marker class for injected <script>
+        injectIntoHead: true,
+        maxAnswerLength: 3000 // truncate very long answers (safety)
+      };
 
-    const isQuestion = txt => qPatterns.some(p => p.test(txt)) || txt.trim().endsWith("?");
-    const isAnswer = txt => aPatterns.some(p => p.test(txt)) || txt.trim().length > 0;
+      // --- helper regexes
+      const qPatterns = [/^q\d*[:.\s-]*/i, /^question\d*[:.\s-]*/i];
+      const aPatterns = [/^a\d*[:.\s-]*/i, /^answer\d*[:.\s-]*/i];
 
-    const stripPattern = (txt, patterns) =>
-      patterns.reduce((out, p) => out.replace(p, "").trim(), txt);
+      // ----------------- helpers -----------------
+      const isQuestionText = txt =>
+        qPatterns.some(p => p.test(txt)) || txt.trim().endsWith('?') || txt.trim().toLowerCase().startsWith('q:');
 
-    const extractText = node =>
-      !node ? "" :
-      node.nodeType === Node.TEXT_NODE
-        ? node.textContent.trim()
-        : [...node.childNodes].map(extractText).join(" ").trim();
+      const stripPattern = (txt, patterns) =>
+        patterns.reduce((out, p) => out.replace(p, '').trim(), txt || '');
 
-    function collectAnswers(startEl) {
-      const answers = [];
-      let next = startEl;
-      while (next && !isQuestion(extractText(next))) {
-        const txt = extractText(next).trim();
-        if (txt) answers.push(stripPattern(txt, aPatterns));
-        next = next.nextElementSibling;
+      function extractText(node) {
+        if (!node) return '';
+        if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim();
+        if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return '';
+        return Array.from(node.childNodes).map(extractText).filter(Boolean).join(' ').trim();
       }
-      return answers.join("\n\n");
-    }
 
-    // Main content container
-    const article = document.querySelector("main, article, #post-content");
-    if (!article) return;
-
-    const elements = [...article.querySelectorAll("h2, h3, p, li, div")];
-    let currentQ = null, currentEl = null;
-
-    elements.forEach(el => {
-      const text = extractText(el);
-      if (!text) return;
-
-      if (isQuestion(text)) {
-        currentQ = stripPattern(text, qPatterns);
-        currentEl = el;
-        if (!currentEl.id) currentEl.id = "faq-" + (faqMap.size + 1);
-      } else if (currentQ && isAnswer(text)) {
-        const answerBlock = collectAnswers(el);
-        if (answerBlock) {
-          faqMap.set(currentQ, { answers: [answerBlock], id: currentEl.id });
-        }
-        currentQ = null;
-        currentEl = null;
+      function slugify(s) {
+        return (s || '')
+          .toString()
+          .trim()
+          .toLowerCase()
+          .normalize('NFKD')                 // remove accents
+          .replace(/[\u0300-\u036F]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || 'faq';
       }
-    });
 
-    if (!faqMap.size) return;
-
-    // Build schema
-    const faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [...faqMap.entries()].map(([q, data]) => ({
-        "@type": "Question",
-        "name": q,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": data.answers.join("\n\n"),
-          "url": `${window.location.href}#${data.id}`
+      function uniqueId(base) {
+        let id = base;
+        let i = 1;
+        while (document.getElementById(id)) {
+          id = `${base}-${i++}`;
         }
-      }))
-    };
+        return id;
+      }
 
-    // Avoid duplicate schema
-    if (!document.querySelector('script[type="application/ld+json"].faq-schema')) {
-      const script = document.createElement("script");
-      script.type = "application/ld+json";
-      script.className = "faq-schema";
+      // ----------------- locate container -----------------
+      let container = null;
+      for (const sel of cfg.containerSelectors) {
+        const el = document.querySelector(sel);
+        if (el) {
+          container = el;
+          break;
+        }
+      }
+      if (!container) {
+        console.warn('FAQ schema: no container found (tried selectors)', cfg.containerSelectors);
+        return;
+      }
+
+      // ----------------- find FAQ section -----------------
+      // Prefer explicit "Frequently Asked Questions" H2; fallback to using entire container.
+      const headingCandidates = Array.from(container.querySelectorAll('h1,h2,h3,h4,h5,h6'));
+      let faqHeading = headingCandidates.find(h =>
+        (h.textContent || '').trim().toLowerCase().includes(cfg.faqHeadingText.toLowerCase())
+      );
+
+      // If not found, try "Frequently Asked Questions" variants (short)
+      if (!faqHeading) {
+        faqHeading = headingCandidates.find(h =>
+          /faq|frequently asked questions/i.test((h.textContent || '').trim())
+        );
+      }
+
+      // Build list of nodes to scan:
+      const nodesToScan = [];
+      if (faqHeading) {
+        // iterate siblings after the heading until next H2 (or next heading of same tag)
+        let node = faqHeading.nextElementSibling;
+        const stopTag = faqHeading.tagName; // typically H2
+        while (node) {
+          // stop if we hit another heading of same level (configurable)
+          if (cfg.stopOnNextHeadingOfSameLevel && node.tagName === stopTag) break;
+
+          nodesToScan.push(node);
+          node = node.nextElementSibling;
+        }
+      } else {
+        // fallback: scan the whole container direct children in order
+        nodesToScan.push(...Array.from(container.children));
+      }
+
+      // ----------------- parse Q&A pairs -----------------
+      const faqItems = []; // { question, answers[], id }
+      let currentQuestion = null;
+      let currentQuestionEl = null;
+      let answerBuffer = [];
+
+      // Traverse nodes sequentially (keeps original ordering)
+      nodesToScan.forEach(node => {
+        if (!node || node.nodeType !== 1) return;
+        // skip hidden elements
+        if (node.offsetParent === null && !(node.tagName === 'BODY')) return;
+
+        const tag = node.tagName;
+        const text = extractText(node);
+        if (!text) return;
+
+        // If this node is an H3 (question tag) and looks like a question, start a new Q
+        if (tag === cfg.questionTag && isQuestionText(text)) {
+          // finalize previous question (if any)
+          if (currentQuestion) {
+            const answerText = answerBuffer.join('\n\n').trim();
+            if (answerText) {
+              // store item
+              faqItems.push({
+                question: currentQuestion,
+                answer: answerText,
+                id: currentQuestionEl.id || currentQuestionEl.getAttribute('id')
+              });
+            }
+            // reset buffer
+            answerBuffer = [];
+          }
+
+          // new question
+          currentQuestion = stripPattern(text, qPatterns);
+          currentQuestionEl = node;
+
+          // ensure ID on the element (slug + unique)
+          if (!currentQuestionEl.id) {
+            const base = 'faq-' + slugify(currentQuestion).slice(0, 60);
+            currentQuestionEl.id = uniqueId(base);
+          }
+          return;
+        }
+
+        // Otherwise, if a question was started, treat eligible tags as part of the answer
+        if (currentQuestion) {
+          // include content for allowed tags only (this avoids pulling unrelated H2/H1 etc)
+          if (cfg.allowedAnswerTags.includes(tag) || tag === 'LI' || tag === 'P' || tag === 'DIV') {
+            // strip any leading "A:" or "Answer:" on the first paragraph(s)
+            const cleaned = stripPattern(text, aPatterns);
+            if (cleaned) answerBuffer.push(cleaned);
+          }
+        }
+      });
+
+      // finalize last Q if present
+      if (currentQuestion) {
+        const answerText = answerBuffer.join('\n\n').trim();
+        if (answerText) {
+          faqItems.push({
+            question: currentQuestion,
+            answer: answerText,
+            id: currentQuestionEl.id
+          });
+        }
+      }
+
+      if (!faqItems.length) {
+        console.info('FAQ schema: no Q/A pairs found in the FAQ section.');
+        return;
+      }
+
+      // ----------------- build JSON-LD -----------------
+      const mainEntity = faqItems.map(item => {
+        let answerText = item.answer;
+        if (cfg.maxAnswerLength && answerText.length > cfg.maxAnswerLength) {
+          answerText = answerText.slice(0, cfg.maxAnswerLength - 1) + '…';
+        }
+        return {
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": answerText,
+            "url": `${window.location.href.split('#')[0]}#${item.id}`
+          }
+        };
+      });
+
+      const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": mainEntity
+      };
+
+      // ----------------- inject (replace previous) -----------------
+      const existing = document.querySelector(`script[type="application/ld+json"].${cfg.schemaClass}`);
+      if (existing) existing.remove(); // replace old injection from this script
+
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.className = cfg.schemaClass;
       script.text = JSON.stringify(faqSchema, null, 2);
-      document.head.appendChild(script);
-      console.log("✅ FAQ Schema injected:", faqSchema);
+
+      if (cfg.injectIntoHead && document.head) {
+        document.head.appendChild(script);
+      } else {
+        document.body.appendChild(script);
+      }
+
+      console.log('✅ FAQ Schema injected (items):', faqItems.map(i => i.question));
+    } catch (err) {
+      console.error('FAQ schema generation failed:', err);
     }
   }
 
-  document.readyState === "loading"
-    ? document.addEventListener("DOMContentLoaded", generateFAQSchema)
-    : generateFAQSchema();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', generateFAQSchema);
+  } else {
+    generateFAQSchema();
+  }
 })();
-
 
 
 
