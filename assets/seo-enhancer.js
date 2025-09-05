@@ -558,10 +558,74 @@
 
 
 
+// ---------------------------
+  // Simple BreadcrumbList JSON-LD
+// ---------------------------
 
+(function () {
+  "use strict";
 
+  // ---------------------------
+  // Simple BreadcrumbList JSON-LD
+  // ---------------------------
+  function injectBreadcrumb() {
+    const pathSegments = window.location.pathname
+      .split("/")
+      .filter(segment => segment.length > 0);
 
+    const itemList = [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: window.location.origin + "/"
+      }
+    ];
 
+    pathSegments.forEach((segment, index) => {
+      // Convert slug to readable title
+      let name = segment.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+
+      // Use H1 text for last segment if available
+      if (index === pathSegments.length - 1) {
+        const h1 = document.querySelector("h1");
+        if (h1 && h1.textContent.trim()) {
+          name = h1.textContent.trim();
+        }
+      }
+
+      const itemUrl = window.location.origin + "/" + pathSegments.slice(0, index + 1).join("/") + (index < pathSegments.length - 1 ? "/" : "");
+      
+      itemList.push({
+        "@type": "ListItem",
+        position: index + 2,
+        name: name,
+        item: itemUrl
+      });
+    });
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: itemList
+    };
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(breadcrumbSchema, null, 2);
+    document.head.appendChild(script);
+
+    console.log("✅ Simple Breadcrumb JSON-LD injected");
+  }
+
+  // Run when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectBreadcrumb);
+  } else {
+    injectBreadcrumb();
+  }
+
+})();
 
 
 
@@ -575,6 +639,10 @@
 
 
   
+
+
+
+
 
 
 
