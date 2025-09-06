@@ -125,7 +125,7 @@ timesheet-template-google-docs.html"
 <p><strong>Here’s a hard truth:</strong> the easiest timesheets to print and sign aren’t always the easiest to total. That’s why thousands of teams start with a clean, printable <strong>Google Docs</strong> timesheet and graduate to a <strong>Google Sheets</strong> version once they need auto-calculations, approvals, and audit trails. This guide gives you both—ready to copy—plus the exact structure payroll loves.</p>
 
 <h2>Why a Google Docs Timesheet Still Matters (and When Sheets Is Better)</h2>
-<p>Google Docs shines when you need a simple, professional time card that looks great on paper or PDF, captures a signature, and doesn’t require formulas. It’s ideal for volunteer shifts, small crews, field teams that print and post schedules, or clients who still expect a signed timesheet attached to an invoice.</p>
+<p><a href="/posts/modern-resume-templates-google-docs-get-jobs.html" title="Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews">Google</a> Docs shines when you need a simple, professional time card that looks great on paper or PDF, captures a signature, and doesn’t require formulas. It’s ideal for volunteer shifts, small crews, field teams that print and post schedules, or clients who still expect a signed timesheet attached to an invoice.</p>
 <p>Google Sheets becomes essential the moment you need running totals, daily/weekly rollups, guardrails to stop edits, or any overtime logic. Sheets also gives you version history and protected ranges—perfect for month-end payroll and audits.</p>
 
 <h3>Docs vs Sheets: Printability, signatures, and calculations</h3>
@@ -175,7 +175,7 @@ timesheet-template-google-docs.html"
   <li><strong>Hours (decimal)</strong> (filled manually in Docs)</li>
   <li><strong>Notes</strong></li>
 </ul>
-<p>At<a href="/posts/gmail-recover-deleted-emails.html" title="Recover Deleted Gmail Emails Fast - Complete Step-by-Step Guide"> </a>the bottom, add a totals row, a <strong>Supervisor Approval</strong> line, <strong>Employee Signature</strong>, and the pay period dates.</p>
+<p>At the bottom, <a href="/posts/manage-multiple-gmail-accounts.html" title="Add &amp; Manage Multiple Gmail Accounts on One Device Now">add</a> a totals row, a <strong>Supervisor Approval</strong> line, <strong>Employee Signature</strong>, and the pay period dates.</p>
 
 <h3>Fields to include: employee ID, project, breaks, approval</h3>
 <ul>
@@ -194,12 +194,12 @@ timesheet-template-google-docs.html"
 <p>When totals, overtime, or multiple projects become complex, move to Sheets. You can paste your Docs table headings into a Sheet and switch to time-aware formats.</p>
 
 <h3>Duration math that never breaks (time formats)</h3>
-<p>In Sheets, store start/end as <a href="/posts/gmail-learn-shortcuts.html" title="Learn Gmail Shortcuts Fast: Cut Your Inbox Time by 50% Today">times</a>, not text. Use a duration formula for hours:</p>
+<p>In Sheets, store start/end as times, not text. Use a duration formula for hours:</p>
 <ul>
   <li><strong>Duration (hh:mm):</strong> <code>=IF(OR(Start="",End=""),"",End-Start)</code> then format as <strong>Duration &gt; [h]:mm</strong>.</li>
   <li><strong>Subtract unpaid breaks:</strong> If Break is minutes, total hours = <code>=((End-Start)*24) - (Break/60)</code> and format as <strong>Number</strong> with 2 decimals.</li>
 </ul>
-<p>Modern Sheets tip: Array-fill durations down the column <a href="/posts/gmail-confidential-mode-secure-messages.html" title="Secure Sensitive Messages Now with Gmail Confidential Mode">with</a> one formula. Example using map logic: <code>=MAP(B2:B,C2:C,LAMBDA(s,e,IF(ISBLANK(e),"",TEXT(e-s,"[h]:mm"))))</code> (format output as Plain text or convert to value if needed).</p>
+<p>Modern Sheets <a href="/posts/gmail-tips-and-tricks.html" title="Top 25 Gmail Tips &amp; Tricks You Didn’t Know">tip</a>: Array-fill durations down the column with one formula. Example using map logic: <code>=MAP(B2:B,C2:C,LAMBDA(s,e,IF(ISBLANK(e),"",TEXT(e-s,"[h]:mm"))))</code> (format output as Plain text or convert to value if needed).</p>
 
 <h3>Breaks, lunch, and daily/weekly totals (copy-paste formulas)</h3>
 <ul>
@@ -209,13 +209,13 @@ timesheet-template-google-docs.html"
 </ul>
 
 <h3>Overtime concepts and weekly threshold examples</h3>
-<p>Many teams flag overtime after 40 hours in a 7-day workweek (jurisdiction dependent). A simple approach in Sheets:</p>
+<p>Many<a href="/posts/gmail-recover-deleted-emails.html" title="Recover Deleted Gmail Emails Fast - Complete Step-by-Step Guide"> </a>teams flag overtime after 40 hours in a 7-day workweek (jurisdiction dependent). A simple approach in Sheets:</p>
 <ol>
   <li>Cell <strong>WEEK_TOTAL</strong> contains weekly hours.</li>
   <li><strong>Regular hours:</strong> <code>=MIN(40, WEEK_TOTAL)</code></li>
   <li><strong>Overtime hours:</strong> <code>=MAX(0, WEEK_TOTAL-40)</code></li>
 </ol>
-<p>If you pay overtime at 1.5x the regular rate, create a pay summary:</p>
+<p>If you pay overtime at 1.5x the regular rate, <a href="/posts/create-an-ats-friendly-resume-on-google-docs.html" title="How to create an ATS-friendly resume in Google Docs">create</a> a pay summary:</p>
 <ul>
   <li><strong>Regular Pay:</strong> <code>=Regular_Hours * Rate</code></li>
   <li><strong>Overtime Pay:</strong> <code>=Overtime_Hours * Rate * 1.5</code></li>
@@ -266,16 +266,16 @@ timesheet-template-google-docs.html"
 <p>A: You must keep accurate records of hours worked and pay in many jurisdictions. A timesheet is a practical way to do it. Requirements and retention periods vary; use your payroll system as the authoritative store and keep timesheets consistent with it.</p>
 
 <h3>Q: Docs or Sheets—which should I use for a small team?</h3>
-<p>A: If you need printable, signable cards with minimal training, start with <strong>Docs</strong>. If you need auto-totals, overtime, filters, and edit locks, use <strong>Sheets</strong>. Many teams use both: Doc for client signatures, Sheet for calculations and archives.</p>
+<p>A: If you need printable, signable cards <a href="/posts/gmail-confidential-mode-secure-messages.html" title="Secure Sensitive Messages Now with Gmail Confidential Mode">with</a> minimal training, start with <strong>Docs</strong>. If you need auto-totals, overtime, <a href="/posts/inbox-zero-gmail-filters.html" title="Become Inbox Zero: Use Gmail Filters to Auto-Sort &amp; Label">filters</a>, and edit locks, use <strong>Sheets</strong>. Many teams use both: Doc for client signatures, Sheet for calculations and archives.</p>
 
 <h3>Q: How do I calculate overtime correctly in Sheets?</h3>
-<p>A: Create weekly totals and split hours into regular vs overtime using simple <code>MIN</code>/<code>MAX</code> logic. Multiply overtime hours by your applicable overtime rate (e.g., 1.5×). Confirm your local rules and your payroll system’s configuration.</p>
+<p>A: <a href="/posts/professional-invoice-using-google-docs.html" title="How to Create a Professional Invoice Using Google Docs">Create</a> weekly totals and split hours into regular vs overtime using simple <code>MIN</code>/<code>MAX</code> logic. Multiply overtime hours by your applicable overtime rate (e.g., 1.5×). Confirm your local rules and your payroll system’s configuration.</p>
 
 <h3>Q: How do I stop employees editing approved entries?</h3>
 <p>A: In Sheets, protect ranges for prior weeks and change employee access to Commenter after approval. Name the version at close, and export a PDF for the pay file.</p>
 
 <h3>Q: Can I attach timesheets to invoices automatically?</h3>
-<p>A: Yes. Export approved weekly tabs as PDFs and attach to your invoice template. If you invoice by project, add a Project column and summarize hours by project on a separate Summary tab.</p>
+<p>A: Yes. Export approved weekly tabs as PDFs and attach to your invoice <a href="/posts/affiliate-disclosure-statement-template.html" title="Affiliate Disclosure Template — Clear, Compliant &amp; Ready">template</a>. If you invoice by project, add a Project column and summarize hours by project on a separate Summary tab.</p>
 
 <h3>Q: How long should I keep timesheets?</h3>
 <p>A: Keep them in line with your local wage/hour recordkeeping rules and tax requirements. In practice, many organizations retain time and pay calculations for several years. Confirm with your payroll provider or legal counsel.</p>
