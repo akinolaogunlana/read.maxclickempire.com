@@ -7,7 +7,7 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 10;
+const LINK_LIMIT = 15;
 const SIMILARITY_THRESHOLD = 0.75;
 
 // ========= FORBIDDEN WORDS ==========
@@ -35,14 +35,20 @@ if (fs.existsSync(cacheFile)) {
 
 async function getSynonyms(word) {
   if (synonymCache[word]) return synonymCache[word];
-
   return new Promise((resolve) => {
     wn.lookup(word, (results) => {
+      if (!results || results.length === 0) {
+        synonymCache[word] = [];
+        return resolve([]);
+      }
       const synonyms = [];
       results.forEach((r) => {
-        synonyms.push(...r.synonyms);
+        if (r.pos === "n") {
+          synonyms.push(...r.synonyms);
+        }
       });
-      const unique = [...new Set(synonyms.map((s) => s.toLowerCase()))];
+      const unique = [...new Set(synonyms.map((s) => s.toLowerCase()))]
+        .filter((w) => /^[a-z\s-]+$/.test(w)); // keep only clean words
       synonymCache[word] = unique;
       fs.writeFileSync(cacheFile, JSON.stringify(synonymCache, null, 2));
       resolve(unique);
@@ -50,7 +56,7 @@ async function getSynonyms(word) {
   });
 }
 
-// ========= EXPAND FORBIDDEN WORDS WITH SYNONYMS ==========
+// ========= EXPAND FORBIDDEN WORDS ==========
 async function expandForbiddenWords() {
   const expanded = new Set([...FORBIDDEN_WORDS]);
   for (const word of FORBIDDEN_WORDS) {
@@ -124,6 +130,12 @@ const outboundLinkCount = Object.fromEntries(
 // ========= MAIN LOGIC ==========
 (async () => {
   const EXPANDED_FORBIDDEN = await expandForbiddenWords();
+
+  // 🔄 Preload synonyms for all metadata keywords
+  for (const [slug, data] of Object.entries(metadata)) {
+    const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
+    await getSynonyms(baseKeyword);
+  }
 
   for (const filename of posts) {
     const filePath = path.join(postsDir, filename);
@@ -200,7 +212,7 @@ const outboundLinkCount = Object.fromEntries(
           const synonyms = await getSynonyms(baseKeyword);
           let variants = generateKeywordVariants(baseKeyword).concat(synonyms);
 
-          // 🚫 Block forbidden single words + their synonyms
+          // 🚫 Block forbidden single words + synonyms
           variants = variants.filter(
             (v) => v.split(" ").length > 1 || !EXPANDED_FORBIDDEN.has(v.toLowerCase())
           );
@@ -226,10 +238,18 @@ const outboundLinkCount = Object.fromEntries(
       .filter((link) => link.score >= SIMILARITY_THRESHOLD && link.variants.length > 0)
       .sort((a, b) => b.score - a.score);
 
-    const paragraphs = $("p").toArray();
-    const shuffledParas = paragraphs.sort(() => Math.random() - 0.5);
+    // Rank paragraphs by keyword density (instead of random shuffle)
+    const paragraphs = $("p")
+      .toArray()
+      .sort((a, b) => {
+        const textA = $(a).text().toLowerCase();
+        const textB = $(b).text().toLowerCase();
+        const scoreA = [...nlpSet].filter((k) => textA.includes(k)).length;
+        const scoreB = [...nlpSet].filter((k) => textB.includes(k)).length;
+        return scoreB - scoreA;
+      });
 
-    shuffledParas.forEach((el) => {
+    paragraphs.forEach((el) => {
       if (inserted >= LINK_LIMIT) return;
       if ($(el).find("a").length > 0) return;
 
@@ -250,16 +270,16 @@ const outboundLinkCount = Object.fromEntries(
 
             for (const variant of variants) {
               const regex = new RegExp(
-                `\\b(${escapeRegExp(variant)})\\b`,
+                `(^|\\W)(${escapeRegExp(variant)})(?=\\W|$)`,
                 "i"
               );
               const match = text.match(regex);
 
               if (match) {
-                const anchorText = match[1];
-                const before = text.substring(0, match.index);
+                const anchorText = match[2];
+                const before = text.substring(0, match.index + match[1].length);
                 const after = text.substring(
-                  match.index + anchorText.length
+                  match.index + match[0].length
                 );
                 const safeTitle = escapeHtml(link.title);
                 const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
