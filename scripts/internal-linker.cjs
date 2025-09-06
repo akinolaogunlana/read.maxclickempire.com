@@ -7,8 +7,20 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 9;
+const LINK_LIMIT = 10;
 const SIMILARITY_THRESHOLD = 0.75;
+
+// ========= FORBIDDEN WORDS ==========
+const forbiddenFile = path.join(__dirname, "../data/forbidden-words.json");
+let FORBIDDEN_WORDS = new Set();
+try {
+  if (fs.existsSync(forbiddenFile)) {
+    const words = JSON.parse(fs.readFileSync(forbiddenFile, "utf8"));
+    FORBIDDEN_WORDS = new Set(words.map((w) => w.toLowerCase()));
+  }
+} catch {
+  console.warn("⚠️ Failed to load forbidden words, continuing...");
+}
 
 // ========= SYNONYM CACHE ==========
 const cacheFile = path.join(__dirname, "synonyms-cache.json");
@@ -36,6 +48,16 @@ async function getSynonyms(word) {
       resolve(unique);
     });
   });
+}
+
+// ========= EXPAND FORBIDDEN WORDS WITH SYNONYMS ==========
+async function expandForbiddenWords() {
+  const expanded = new Set([...FORBIDDEN_WORDS]);
+  for (const word of FORBIDDEN_WORDS) {
+    const synonyms = await getSynonyms(word);
+    synonyms.forEach((s) => expanded.add(s.toLowerCase()));
+  }
+  return expanded;
 }
 
 // ========= METADATA ==========
@@ -101,6 +123,8 @@ const outboundLinkCount = Object.fromEntries(
 
 // ========= MAIN LOGIC ==========
 (async () => {
+  const EXPANDED_FORBIDDEN = await expandForbiddenWords();
+
   for (const filename of posts) {
     const filePath = path.join(postsDir, filename);
     const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
@@ -151,7 +175,6 @@ const outboundLinkCount = Object.fromEntries(
             const words = data.title.toLowerCase().split(/\s+/);
             const ngrams = generateNgrams(words, 4);
 
-            // pick longest valid phrase
             let bestPhrase = words[0];
             let bestScore = -1;
 
@@ -175,7 +198,12 @@ const outboundLinkCount = Object.fromEntries(
           }
 
           const synonyms = await getSynonyms(baseKeyword);
-          const variants = generateKeywordVariants(baseKeyword).concat(synonyms);
+          let variants = generateKeywordVariants(baseKeyword).concat(synonyms);
+
+          // 🚫 Block forbidden single words + their synonyms
+          variants = variants.filter(
+            (v) => v.split(" ").length > 1 || !EXPANDED_FORBIDDEN.has(v.toLowerCase())
+          );
 
           const score = Math.max(
             scoreSimilarity(currentTitle, data.title),
@@ -195,7 +223,7 @@ const outboundLinkCount = Object.fromEntries(
     );
 
     const filteredLinks = potentialLinks
-      .filter((link) => link.score >= SIMILARITY_THRESHOLD)
+      .filter((link) => link.score >= SIMILARITY_THRESHOLD && link.variants.length > 0)
       .sort((a, b) => b.score - a.score);
 
     const paragraphs = $("p").toArray();
@@ -216,7 +244,6 @@ const outboundLinkCount = Object.fromEntries(
           for (const link of filteredLinks) {
             if (usedLinks.has(link.href)) continue;
 
-            // test longest variants first
             const variants = [...link.variants].sort(
               (a, b) => b.split(" ").length - a.split(" ").length
             );
@@ -257,103 +284,6 @@ const outboundLinkCount = Object.fromEntries(
         inserted !== 1 ? "s" : ""
       }`
     );
-  }
-
-  // ========= PHASE 2: FIX ORPHANS ==========
-  const orphanSlugs = Object.entries(inboundLinkCount)
-    .filter(([_, count]) => count === 0)
-    .map(([slug]) => slug);
-
-  if (orphanSlugs.length) {
-    console.log(`\n🧭 Detected ${orphanSlugs.length} orphan post(s):`);
-    orphanSlugs.forEach((slug) => console.log(`- ${slug}`));
-  }
-
-  const shuffledPosts = [...posts].sort(() => Math.random() - 0.5);
-
-  for (const [i, orphanSlug] of orphanSlugs.entries()) {
-    const orphanMeta = metadata[orphanSlug];
-    if (!orphanMeta?.title) continue;
-
-    let keyword;
-    if (orphanMeta.keyword) {
-      keyword = orphanMeta.keyword.toLowerCase();
-    } else {
-      const words = orphanMeta.title.toLowerCase().split(/\s+/);
-      const ngrams = generateNgrams(words, 4);
-
-      let bestPhrase = words[0];
-      let bestScore = -1;
-
-      for (const phrase of ngrams) {
-        const scores = [...ngrams].map((p) => scoreSimilarity(p, phrase));
-        const score = scores.length ? Math.max(...scores) : 0;
-        if (
-          score > bestScore ||
-          (score === bestScore &&
-            phrase.split(" ").length > bestPhrase.split(" ").length)
-        ) {
-          bestScore = score;
-          bestPhrase = phrase;
-        }
-      }
-      keyword = bestPhrase;
-    }
-
-    const synonyms = await getSynonyms(keyword);
-    const variants = generateKeywordVariants(keyword).concat(synonyms);
-
-    const targetFile = shuffledPosts[i % shuffledPosts.length];
-    const filePath = path.join(postsDir, targetFile);
-    const htmlRaw = fs.readFileSync(filePath, "utf8");
-    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
-
-    let inserted = false;
-
-    $("p").each((_, el) => {
-      if (inserted || $(el).find("a").length > 0) return;
-
-      $(el)
-        .contents()
-        .each((_, node) => {
-          if (node.type !== "text") return;
-
-          let text = node.data;
-
-          for (const variant of variants.sort(
-            (a, b) => b.split(" ").length - a.split(" ").length
-          )) {
-            const regex = new RegExp(
-              `\\b(${escapeRegExp(variant)})\\b`,
-              "i"
-            );
-            const match = text.match(regex);
-
-            if (match) {
-              const anchorText = match[1];
-              const before = text.substring(0, match.index);
-              const after = text.substring(
-                match.index + anchorText.length
-              );
-              const safeTitle = escapeHtml(orphanMeta.title);
-              const anchor = `<a href="/posts/${orphanSlug}.html" title="${safeTitle}">${anchorText}</a>`;
-
-              $(node).replaceWith(before + anchor + after);
-              inboundLinkCount[orphanSlug]++;
-              outboundLinkCount[targetFile.replace(".html", "")]++;
-              inserted = true;
-              console.log(
-                `🪄 Linked orphan [${orphanSlug}] from [${targetFile}]`
-              );
-              break;
-            }
-          }
-        });
-    });
-
-    if (inserted) {
-      fs.writeFileSync(filePath, $.html(), "utf8");
-    }
   }
 
   // ========= FINAL REPORT ==========
