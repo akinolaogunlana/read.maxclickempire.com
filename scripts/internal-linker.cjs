@@ -3,8 +3,6 @@ const path = require("path");
 const cheerio = require("cheerio");
 const keywordExtractor = require("keyword-extractor");
 const natural = require("natural");
-const WordNet = natural.WordNet;
-const wn = new WordNet();
 
 // ===== CONFIG =====
 const postsDir = path.join(__dirname, "..", "posts");
@@ -32,43 +30,26 @@ const escapeHtml = str =>
 const scoreSimilarity = (a, b) =>
   natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-// WordNet synonyms lookup
-const lookupSynonyms = word =>
-  new Promise(resolve => {
-    try {
-      wn.lookup(word, results => {
-        if (!results) return resolve([]);
-        const synonyms = results.flatMap(r => r.synonyms || []).map(s => s.toLowerCase());
-        resolve(synonyms);
-      });
-    } catch {
-      resolve([]);
-    }
-  });
-
-// Generate keyword variants with synonyms
-const generateKeywordVariants = async keyword => {
+// Generate keyword variants (without WordNet)
+const generateKeywordVariants = keyword => {
   const base = keyword.toLowerCase();
-  const variants = new Set([
+  return Array.from(new Set([
     base,
     base.replace(/-/g, " "),
     base.replace(/\s+/g, "-"),
     base.replace(/\s+/g, ""),
     base.charAt(0).toUpperCase() + base.slice(1),
     base.endsWith("s") ? base.slice(0, -1) : base + "s"
-  ]);
-  const synonyms = await lookupSynonyms(base);
-  synonyms.forEach(s => variants.add(s));
-  return Array.from(variants);
+  ]));
 };
 
-// Context weight function (prioritize headings, early paragraphs)
+// Context weight function
 const contextWeight = (element, index, total) => {
   const tag = element.tagName.toLowerCase();
   if (/h[1-3]/.test(tag)) return 2.0;
   if (tag === "p") {
-    if (index < Math.floor(total * 0.15)) return 1.5; // early paragraph
-    if (index > Math.floor(total * 0.85)) return 1.2; // last paragraph
+    if (index < Math.floor(total * 0.15)) return 1.5; 
+    if (index > Math.floor(total * 0.85)) return 1.2; 
     return 1.0;
   }
   if (tag === "li") return 1.2;
@@ -125,7 +106,7 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
       if (slug2 === slug || !data?.title) continue;
 
       const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
-      const variants = await generateKeywordVariants(baseKeyword);
+      const variants = generateKeywordVariants(baseKeyword);
 
       const score = Math.max(
         scoreSimilarity(currentTitle, data.title),
@@ -209,7 +190,7 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
     if (!orphanMeta?.title) continue;
 
     const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
-    const variants = await generateKeywordVariants(keyword);
+    const variants = generateKeywordVariants(keyword);
 
     const targetFile = shuffledPosts[i % shuffledPosts.length];
     const filePath = path.join(postsDir, targetFile);
