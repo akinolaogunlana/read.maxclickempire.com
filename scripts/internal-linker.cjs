@@ -6,19 +6,23 @@ const natural = require("natural");
 const WordNet = natural.WordNet;
 const wn = new WordNet();
 
-let OpenAI, client;
-if (process.env.OPENAI_API_KEY) {
-  OpenAI = require("openai");
-  client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-} else {
-  console.warn("⚠️ OpenAI API key missing — semantic embeddings will be skipped");
-}
-
+// ===== CONFIG =====
 const postsDir = path.join(__dirname, "..", "posts");
 const MAX_LINKS_PER_POST = 6;
 const MAX_LINKS_PER_URL = 2;
 const SIMILARITY_THRESHOLD = 0.7;
 
+// ===== OPENAI EMBEDDINGS (Optional) =====
+let OpenAI, client;
+if (process.env.OPENAI_API_KEY) {
+  OpenAI = require("openai");
+  client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  console.log("✅ OpenAI client initialized for embeddings");
+} else {
+  console.warn("⚠️ OpenAI API key missing — semantic embeddings will be skipped");
+}
+
+// ===== LOAD METADATA =====
 let metadata;
 try {
   const postMetaModule = require("../data/post-meta.js");
@@ -42,14 +46,21 @@ const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const scoreSimilarity = (a, b) =>
   natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
+// WordNet synonyms (safe)
 const lookupSynonyms = word =>
   new Promise(resolve => {
-    wn.lookup(word, results => {
-      const synonyms = results.flatMap(r => r.synonyms.map(s => s.toLowerCase()));
-      resolve(synonyms);
-    });
+    try {
+      wn.lookup(word, results => {
+        if (!results) return resolve([]);
+        const synonyms = results.flatMap(r => r.synonyms || []).map(s => s.toLowerCase());
+        resolve(synonyms);
+      });
+    } catch {
+      resolve([]);
+    }
   });
 
+// Generate keyword variants safely
 const generateKeywordVariants = async phrase => {
   const base = phrase.toLowerCase();
   const variants = new Set([
@@ -60,11 +71,14 @@ const generateKeywordVariants = async phrase => {
     base.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
     base.endsWith("s") ? base.slice(0, -1) : base + "s"
   ]);
+
   const synonyms = await lookupSynonyms(base);
   synonyms.forEach(s => variants.add(s));
+
   return Array.from(variants);
 };
 
+// Cosine similarity
 const cosineSimilarity = (vecA, vecB) => {
   const dot = vecA.reduce((sum, val, i) => sum + val * vecB[i], 0);
   const magA = Math.sqrt(vecA.reduce((sum, val) => sum + val * val, 0));
@@ -72,40 +86,46 @@ const cosineSimilarity = (vecA, vecB) => {
   return dot / (magA * magB);
 };
 
-// ===== LOAD POSTS =====
-const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
-const inboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
-const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
-const embeddingsMap = {};
-
-// ===== EMBEDDINGS (Optional) =====
-async function generateEmbeddings() {
-  if (!client) return;
-  console.log("⚡ Generating embeddings...");
-  for (const filename of posts) {
-    const html = fs.readFileSync(path.join(postsDir, filename), "utf8");
-    const $ = cheerio.load(html);
-    const text = $("body").text().trim();
-    if (!text) continue;
-    const res = await client.embeddings.create({ model: "text-embedding-3-large", input: text });
-    embeddingsMap[filename] = res.data[0].embedding;
-  }
-}
-
-// ===== CONTEXT WEIGHT FUNCTION =====
-function contextWeight(element, index, totalElements) {
+// Context weight
+function contextWeight(element, index, total) {
   const tag = element.tagName.toLowerCase();
   if (/h[1-3]/.test(tag)) return 2.0;
   if (tag === "p") return 1.5;
   if (tag === "li") return 1.2;
   if (/b|strong/.test(tag)) return 1.1;
   if (/i|em/.test(tag)) return 1.0;
-  if (index < Math.floor(totalElements * 0.15)) return 1.5;
-  if (index > Math.floor(totalElements * 0.85)) return 1.5;
+  if (index < Math.floor(total * 0.15)) return 1.5;
+  if (index > Math.floor(total * 0.85)) return 1.5;
   return 1.0;
 }
 
-// ===== CONTEXT-AWARE SMART LINKING =====
+// ===== LOAD POSTS =====
+const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
+const inboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
+const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
+const embeddingsMap = {};
+
+// ===== GENERATE EMBEDDINGS =====
+async function generateEmbeddings() {
+  if (!client) return;
+  console.log("⚡ Generating embeddings...");
+  for (const filename of posts) {
+    try {
+      const html = fs.readFileSync(path.join(postsDir, filename), "utf8");
+      const $ = cheerio.load(html);
+      const text = $("body").text().trim();
+      if (!text) continue;
+
+      const res = await client.embeddings.create({ model: "text-embedding-3-large", input: text });
+      embeddingsMap[filename] = res.data[0].embedding;
+      console.log(`✅ Embedding generated for ${filename}`);
+    } catch (err) {
+      console.warn(`⚠️ Failed to generate embedding for ${filename}: ${err.message}`);
+    }
+  }
+}
+
+// ===== SMART LINKING =====
 async function contextAwareSmartLinking() {
   console.log("⚡ Running context-aware smart linking...");
 
@@ -129,6 +149,7 @@ async function contextAwareSmartLinking() {
       return_changed_case: true,
       remove_duplicates: true
     });
+
     const metaKeywords = (htmlRaw.match(/<meta name="keywords" content="([^"]+)"/)?.[1] || "")
       .split(",")
       .map(k => k.trim());
@@ -136,40 +157,44 @@ async function contextAwareSmartLinking() {
     const linkUsageCount = {};
     let inserted = 0;
 
-    const potentialLinks = await Promise.all(
+    const potentialLinks = (await Promise.all(
       Object.entries(metadata)
         .filter(([slug2]) => slug2 !== slug)
         .map(async ([slug2, data]) => {
-          const baseKeyword = (data.keyword || data.title).toLowerCase();
-          const variants = await generateKeywordVariants(baseKeyword);
+          try {
+            const baseKeyword = (data.keyword || data.title).toLowerCase();
+            const variants = await generateKeywordVariants(baseKeyword);
 
-          let score = Math.max(
-            scoreSimilarity(currentTitle, data.title),
-            ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword)),
-            ...metaKeywords.map(k => scoreSimilarity(k, baseKeyword))
-          );
-
-          if (embeddingsMap[filename] && embeddingsMap[`${slug2}.html`]) {
-            const semScore = cosineSimilarity(
-              embeddingsMap[filename],
-              embeddingsMap[`${slug2}.html`]
+            let score = Math.max(
+              scoreSimilarity(currentTitle, data.title),
+              ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword)),
+              ...metaKeywords.map(k => scoreSimilarity(k, baseKeyword))
             );
-            score = Math.max(score, semScore);
-          }
 
-          return { keyword: baseKeyword, variants, href: `/posts/${slug2}.html`, title: data.title, score, slug: slug2 };
+            if (embeddingsMap[filename] && embeddingsMap[`${slug2}.html`]) {
+              score = Math.max(score, cosineSimilarity(
+                embeddingsMap[filename],
+                embeddingsMap[`${slug2}.html`]
+              ));
+            }
+
+            return { keyword: baseKeyword, variants, href: `/posts/${slug2}.html`, title: data.title, score, slug: slug2 };
+          } catch (err) {
+            console.warn(`⚠️ Failed for ${slug2}: ${err.message}`);
+            return null;
+          }
         })
-    );
+    )).filter(Boolean);
 
     const sortedLinks = potentialLinks
       .filter(l => l.score >= SIMILARITY_THRESHOLD)
       .sort((a, b) => b.score - a.score);
 
-    // Distribute links dynamically
+    // Insert links
     bodyElements.forEach((el, index) => {
       if (inserted >= MAX_LINKS_PER_POST) return;
 
-      const weight = contextWeight(el, index, bodyElements.length);
+      const weight = Math.min(contextWeight(el, index, bodyElements.length) / 2, 1.0);
       if (Math.random() > weight) return;
 
       $(el).contents().each((_, node) => {
@@ -208,7 +233,7 @@ async function contextAwareSmartLinking() {
   }
 }
 
-// ===== RUN =====
+// ===== RUN SCRIPT =====
 (async () => {
   if (client) await generateEmbeddings();
   await contextAwareSmartLinking();
