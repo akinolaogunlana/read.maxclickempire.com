@@ -7,7 +7,7 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 9;
+const LINK_LIMIT = 3;
 const SIMILARITY_THRESHOLD = 0.75;
 
 // ========= SYNONYM CACHE ==========
@@ -45,7 +45,7 @@ try {
   metadata = postMetaModule.postMetadata || {};
 } catch (err) {
   console.error("❌ Failed to load metadata:", err.message);
-  process.exit(1); // ✅ replaced illegal `continue`
+  process.exit(1);
 }
 
 // ========= HELPERS ==========
@@ -80,7 +80,7 @@ const generateKeywordVariants = (keyword) => {
 const scoreSimilarity = (a, b) =>
   natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-const generateNgrams = (words, maxN = 3) => {
+const generateNgrams = (words, maxN = 4) => {
   const ngrams = [];
   for (let n = 1; n <= maxN; n++) {
     for (let i = 0; i <= words.length - n; i++) {
@@ -149,8 +149,9 @@ const outboundLinkCount = Object.fromEntries(
             baseKeyword = data.keyword.toLowerCase();
           } else {
             const words = data.title.toLowerCase().split(/\s+/);
-            const ngrams = generateNgrams(words, 3);
+            const ngrams = generateNgrams(words, 4);
 
+            // pick longest valid phrase
             let bestPhrase = words[0];
             let bestScore = -1;
 
@@ -160,7 +161,12 @@ const outboundLinkCount = Object.fromEntries(
                 ...[...metaSet].map((k) => scoreSimilarity(k, phrase)),
               ];
               const score = scores.length ? Math.max(...scores) : 0;
-              if (score > bestScore) {
+
+              if (
+                score > bestScore ||
+                (score === bestScore &&
+                  phrase.split(" ").length > bestPhrase.split(" ").length)
+              ) {
                 bestScore = score;
                 bestPhrase = phrase;
               }
@@ -210,7 +216,12 @@ const outboundLinkCount = Object.fromEntries(
           for (const link of filteredLinks) {
             if (usedLinks.has(link.href)) continue;
 
-            for (const variant of link.variants) {
+            // test longest variants first
+            const variants = [...link.variants].sort(
+              (a, b) => b.split(" ").length - a.split(" ").length
+            );
+
+            for (const variant of variants) {
               const regex = new RegExp(
                 `\\b(${escapeRegExp(variant)})\\b`,
                 "i"
@@ -269,7 +280,7 @@ const outboundLinkCount = Object.fromEntries(
       keyword = orphanMeta.keyword.toLowerCase();
     } else {
       const words = orphanMeta.title.toLowerCase().split(/\s+/);
-      const ngrams = generateNgrams(words, 3);
+      const ngrams = generateNgrams(words, 4);
 
       let bestPhrase = words[0];
       let bestScore = -1;
@@ -277,7 +288,11 @@ const outboundLinkCount = Object.fromEntries(
       for (const phrase of ngrams) {
         const scores = [...ngrams].map((p) => scoreSimilarity(p, phrase));
         const score = scores.length ? Math.max(...scores) : 0;
-        if (score > bestScore) {
+        if (
+          score > bestScore ||
+          (score === bestScore &&
+            phrase.split(" ").length > bestPhrase.split(" ").length)
+        ) {
           bestScore = score;
           bestPhrase = phrase;
         }
@@ -305,7 +320,9 @@ const outboundLinkCount = Object.fromEntries(
 
           let text = node.data;
 
-          for (const variant of variants) {
+          for (const variant of variants.sort(
+            (a, b) => b.split(" ").length - a.split(" ").length
+          )) {
             const regex = new RegExp(
               `\\b(${escapeRegExp(variant)})\\b`,
               "i"
