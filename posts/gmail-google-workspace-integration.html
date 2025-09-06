@@ -111,11 +111,11 @@
 <body>
   <main>
     <article id="post-content">
-      <h1>Integrate Gmail with <a href="/posts/google-docs-guide.html" title="Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro">Google</a> Workspace Apps — Get Started Now</h1>                            
+      <h1>Integrate Gmail with Google Workspace Apps — Get Started Now</h1>                            
                             
                             
                             
-                            <p><strong>Bold fact:</strong> most teams waste hours every week switching tabs — integrating <a href="/posts/gmail-guide.html" title="Gmail Tutorial 2025: The Complete Beginner to Pro Guide|Tips, Tricks &amp; Security Updates">Gmail</a> with Calendar, Drive, Meet and third-party tools eliminates that drag and automates repetitive work. This guide shows exactly how to set up integrations that are secure, admin-friendly, and reliable.</p><p>What you’ll gain: a practical map of integration options (Marketplace <a href="/posts/manage-multiple-gmail-accounts.html" title="Add &amp; Manage Multiple Gmail Accounts on One Device Now">add</a>-ons, Apps Script, and direct API/OAuth), step-by-step setup examples you can copy, and admin checklists to avoid common policy roadblocks.</p><h2>Why integrate Gmail with Workspace apps?</h2>
+                            <p><strong>Bold fact:</strong> most teams waste hours every week switching tabs — integrating Gmail with Calendar, Drive, Meet and third-party tools eliminates that drag and automates repetitive work. This guide shows exactly <a href="/posts/letterhead-in-google-docs.html" title="How to Make a Letterhead in Google Docs">how</a> to set up integrations that are secure, admin-friendly, and reliable.</p><p>What you’ll gain: a practical map of integration options (Marketplace <a href="/posts/manage-multiple-gmail-accounts.html" title="Add &amp; Manage Multiple Gmail Accounts on One Device Now">add</a>-ons, Apps Script, and direct API/OAuth), step-by-step setup examples you can copy, and admin checklists to avoid common policy roadblocks.</p><h2>Why integrate Gmail with Workspace apps?</h2>
 <p><strong>Business benefits and common workflows</strong></p>
 <ul>
   <li>Stop duplicating data — attach Drive files directly in replies and save attachments automatically.</li>
@@ -145,7 +145,7 @@
   <li>User: Authenticate and grant requested permissions. Follow the add-on’s first-run setup.</li>
   <li>Test: Open an email and exercise the add-on (save attachment to Drive, create CRM record). Verify logs and access.</li>
 </ol><h2>Step-by-step: Create an Apps Script automation (example)</h2>
-<p>Below are two practical Apps Script examples you can copy into <strong>Extensions → Apps Script</strong> in Google Sheets or the Apps Script editor. Grant the script the required Gmail/Calendar/Drive scopes when prompted.</p><h3>Example 1 — Auto-label incoming emails and create Calendar events</h3>
+<p>Below are two practical Apps Script examples you can copy into <strong>Extensions → Apps Script</strong> in <a href="/posts/google-docs-guide.html" title="Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro">Google</a> Sheets or the Apps Script editor. Grant the script the required Gmail/Calendar/Drive scopes when prompted.</p><h3>Example 1 — Auto-label incoming emails and create Calendar events</h3>
 <p>Use case: When a confirmation email arrives (subject contains “Booking confirmed”), label it and create a calendar event from parsed date/time.</p>
 <ol>
   <li>Create a new Apps Script project and paste the function below.</li>
@@ -201,7 +201,7 @@ function processBookingEmails() {
 <p>Google has been adding AI features into Workspace (example: Gemini in Gmail to summarize threads and Calendar booking pages inserted into email drafts). Design integrations to coexist with these capabilities — keep UIs simple and prefer event-driven logic that won’t conflict with native features. </p><h2>Conclusion — road map to a working integration</h2>
 <p>Start by picking a path: Marketplace add-on for fast UI, Apps Script for custom automation, or Gmail API for enterprise integrations. Follow the admin checklist, limit scopes, and add monitoring. Use the sample scripts above to prototype, then scale by moving logic to verified OAuth apps or Cloud services as needed.</p>
 <p><strong>Next step:</strong> pick one workflow you want to automate (calendar invites from email or saving attachments to Drive), paste the sample script into Apps Script, authorize it, and test it for 48–72 hours. Iterate from logs and user feedback.</p><h2>Frequently Asked Questions</h2><h3>Q: How do I allow Gmail add-ons for my entire Workspace domain?</h3>
-<p>A: In the Admin console go to Apps → Google Workspace Marketplace apps, locate the app, and choose “Install for domain” or add it to an allowlist. Confirm any OAuth consent requirements.</p><h3>Q: Can I automatically create Calendar events from incoming emails?</h3>
+<p>A: In the Admin console go to Apps → <a href="/posts/google-sheets-guide.html" title="Google Sheets Guide | Sign In, Use Templates &amp; Build Dashboards">Google</a> Workspace Marketplace apps, locate the app, and choose “Install for domain” or add it to an allowlist. Confirm any OAuth consent requirements.</p><h3>Q: Can I automatically create Calendar events from incoming emails?</h3>
 <p>A: Yes — use Apps Script or a Marketplace add-on. Apps Script can parse email content, extract dates, and create events programmatically (example script shown above).</p><h3>Q: Are Marketplace add-ons safe to use with sensitive email data?</h3>
 <p>A: Review the app’s OAuth scopes, publisher trust level, independent security assessments, and restrict installation to trusted apps. For highly sensitive data, prefer internal Apps Script solutions with controlled scopes. </p><h3>Q: What’s the difference between Apps Script and the Gmail API?</h3>
 <p>A: Apps Script is a Google-hosted, low-code platform with built-in services (GmailApp, CalendarApp, DriveApp) ideal for quick automations. The Gmail REST API offers greater control and is typically used by external services or higher-scale integrations.</p><h3>Q: Why do my Apps Script triggers stop working sometimes?</h3>
