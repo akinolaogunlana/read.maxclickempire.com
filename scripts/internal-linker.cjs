@@ -8,9 +8,8 @@ const wn = new WordNet();
 
 // ===== CONFIG =====
 const postsDir = path.join(__dirname, "..", "posts");
-const MAX_LINKS_PER_POST = 6;
-const MAX_LINKS_PER_URL = 2;
-const SIMILARITY_THRESHOLD = 0.7;
+const LINK_LIMIT = 3;
+const SIMILARITY_THRESHOLD = 0.75;
 
 // ===== LOAD METADATA =====
 let metadata;
@@ -23,20 +22,17 @@ try {
 }
 
 // ===== HELPERS =====
-const escapeHtml = str =>
-  str.replace(/["&<>]/g, char => ({
-    '"': "&quot;",
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;"
-  }[char] || char));
-
 const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const escapeHtml = str =>
+  str.replace(/["&<>]/g, char =>
+    ({ '"': "&quot;", "&": "&amp;", "<": "&lt;", ">": "&gt;" }[char] || char)
+  );
 
 const scoreSimilarity = (a, b) =>
   natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-// WordNet synonyms
+// WordNet synonyms lookup
 const lookupSynonyms = word =>
   new Promise(resolve => {
     try {
@@ -50,60 +46,64 @@ const lookupSynonyms = word =>
     }
   });
 
-// Generate keyword variants safely with WordNet synonyms
-const generateKeywordVariants = async phrase => {
-  const base = phrase.toLowerCase();
+// Generate keyword variants with synonyms
+const generateKeywordVariants = async keyword => {
+  const base = keyword.toLowerCase();
   const variants = new Set([
     base,
     base.replace(/-/g, " "),
     base.replace(/\s+/g, "-"),
     base.replace(/\s+/g, ""),
-    base.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+    base.charAt(0).toUpperCase() + base.slice(1),
     base.endsWith("s") ? base.slice(0, -1) : base + "s"
   ]);
-
   const synonyms = await lookupSynonyms(base);
   synonyms.forEach(s => variants.add(s));
-
   return Array.from(variants);
 };
 
-// Context weight for link placement
-function contextWeight(element, index, total) {
+// Context weight function (prioritize headings, early paragraphs)
+const contextWeight = (element, index, total) => {
   const tag = element.tagName.toLowerCase();
   if (/h[1-3]/.test(tag)) return 2.0;
-  if (tag === "p") return 1.5;
+  if (tag === "p") {
+    if (index < Math.floor(total * 0.15)) return 1.5; // early paragraph
+    if (index > Math.floor(total * 0.85)) return 1.2; // last paragraph
+    return 1.0;
+  }
   if (tag === "li") return 1.2;
   if (/b|strong/.test(tag)) return 1.1;
   if (/i|em/.test(tag)) return 1.0;
-  if (index < Math.floor(total * 0.15)) return 1.5;
-  if (index > Math.floor(total * 0.85)) return 1.5;
   return 1.0;
-}
+};
 
 // ===== TRACKING =====
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 const inboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
 const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
 
-// ===== SMART LINKING =====
+// ===== PHASE 1: SMART LINKS =====
 (async () => {
-  console.log("⚡ Running context-aware smart linking...");
-
   for (const filename of posts) {
     const filePath = path.join(postsDir, filename);
     const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
     if (!htmlRaw) continue;
 
-    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+    let $;
+    try {
+      $ = cheerio.load(htmlRaw, { decodeEntities: false });
+    } catch (err) {
+      console.warn(`⚠️ Skipping malformed HTML in: ${filename}`);
+      continue;
+    }
+
     const slug = filename.replace(".html", "").toLowerCase();
     const currentMeta = metadata[slug] || {};
     const currentTitle = currentMeta.title || slug;
 
-    const bodyElements = $("body").find("h1,h2,h3,p,li,b,strong,i,em").toArray();
-    if (!bodyElements.length) continue;
-
     const bodyText = $("body").text().trim();
+    if (!bodyText) continue;
+
     const nlpKeywords = keywordExtractor.extract(bodyText, {
       language: "english",
       remove_digits: true,
@@ -111,51 +111,61 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
       remove_duplicates: true
     });
 
-    const metaKeywords = (htmlRaw.match(/<meta name="keywords" content="([^"]+)"/)?.[1] || "")
-      .split(",")
-      .map(k => k.trim());
+    const metaMatch = htmlRaw.match(/<meta name="keywords" content="([^"]+)"/);
+    const keywordsFromMeta = metaMatch ? metaMatch[1].split(",").map(k => k.trim()) : [];
 
-    const linkUsageCount = {};
+    const nlpSet = new Set(nlpKeywords);
+    const metaSet = new Set(keywordsFromMeta);
+    const usedLinks = new Set();
     let inserted = 0;
 
     // Prepare potential links
     const potentialLinks = [];
     for (const [slug2, data] of Object.entries(metadata)) {
       if (slug2 === slug || !data?.title) continue;
-      try {
-        const baseKeyword = (data.keyword || data.title).toLowerCase();
-        const variants = await generateKeywordVariants(baseKeyword);
 
-        const score = Math.max(
-          scoreSimilarity(currentTitle, data.title),
-          ...nlpKeywords.map(k => scoreSimilarity(k, baseKeyword)),
-          ...metaKeywords.map(k => scoreSimilarity(k, baseKeyword))
-        );
+      const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
+      const variants = await generateKeywordVariants(baseKeyword);
 
-        if (score >= SIMILARITY_THRESHOLD) {
-          potentialLinks.push({ slug: slug2, href: `/posts/${slug2}.html`, title: data.title, variants, score });
-        }
-      } catch { continue; }
+      const score = Math.max(
+        scoreSimilarity(currentTitle, data.title),
+        ...[...nlpSet].map(k => scoreSimilarity(k, baseKeyword)),
+        ...[...metaSet].map(k => scoreSimilarity(k, baseKeyword))
+      );
+
+      if (score >= SIMILARITY_THRESHOLD) {
+        potentialLinks.push({
+          keyword: baseKeyword,
+          variants,
+          href: `/posts/${slug2}.html`,
+          title: data.title,
+          score,
+          slug: slug2
+        });
+      }
     }
 
-    // Sort links by score descending
+    // Sort by score descending
     potentialLinks.sort((a, b) => b.score - a.score);
 
-    // Insert links into body
+    const bodyElements = $("h1,h2,h3,p,li,b,strong,i,em").toArray();
+
     bodyElements.forEach((el, index) => {
-      if (inserted >= MAX_LINKS_PER_POST) return;
+      if (inserted >= LINK_LIMIT) return;
+
       const weight = Math.min(contextWeight(el, index, bodyElements.length) / 2, 1.0);
       if (Math.random() > weight) return;
 
       $(el).contents().each((_, node) => {
-        if (inserted >= MAX_LINKS_PER_POST || node.type !== "text") return;
+        if (inserted >= LINK_LIMIT || node.type !== "text") return;
         let text = node.data;
+        let replaced = false;
 
         for (const link of potentialLinks) {
-          const usedTimes = linkUsageCount[link.href] || 0;
-          if (usedTimes >= MAX_LINKS_PER_URL) continue;
+          if (usedLinks.has(link.href)) continue;
 
-          for (const variant of link.variants.sort((a, b) => b.length - a.length)) {
+          const sortedVariants = link.variants.sort((a, b) => b.length - a.length);
+          for (const variant of sortedVariants) {
             const regex = new RegExp(`(^|\\W)(${escapeRegExp(variant)})(\\W|$)`, "i");
             const match = text.match(regex);
             if (!match) continue;
@@ -164,21 +174,78 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
             const before = text.slice(0, match.index + match[1].length);
             const after = text.slice(match.index + match[0].length - match[3].length);
             const anchor = `<a href="${link.href}" title="${escapeHtml(link.title)}">${anchorText}</a>`;
-            $(node).replaceWith(before + anchor + after);
 
-            linkUsageCount[link.href] = usedTimes + 1;
+            $(node).replaceWith(before + anchor + after);
+            usedLinks.add(link.href);
             inboundLinkCount[link.slug]++;
             outboundLinkCount[slug]++;
             inserted++;
+            replaced = true;
             break;
           }
-          if (inserted >= MAX_LINKS_PER_POST) break;
+          if (replaced || inserted >= LINK_LIMIT) break;
         }
       });
     });
 
     fs.writeFileSync(filePath, $.html(), "utf8");
-    console.log(`🔗 [${filename}] — inserted ${inserted} links`);
+    console.log(`🔗 [${filename}] — inserted ${inserted} smart link${inserted !== 1 ? "s" : ""}`);
+  }
+
+  // ===== PHASE 2: FIX ORPHANS =====
+  const orphanSlugs = Object.entries(inboundLinkCount)
+    .filter(([_, count]) => count === 0)
+    .map(([slug]) => slug);
+
+  if (orphanSlugs.length) {
+    console.log(`\n🧭 Detected ${orphanSlugs.length} orphan post(s):`);
+    orphanSlugs.forEach(slug => console.log(`- ${slug}`));
+  }
+
+  const shuffledPosts = [...posts].sort(() => Math.random() - 0.5);
+
+  for (const [i, orphanSlug] of orphanSlugs.entries()) {
+    const orphanMeta = metadata[orphanSlug];
+    if (!orphanMeta?.title) continue;
+
+    const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
+    const variants = await generateKeywordVariants(keyword);
+
+    const targetFile = shuffledPosts[i % shuffledPosts.length];
+    const filePath = path.join(postsDir, targetFile);
+    const htmlRaw = fs.readFileSync(filePath, "utf8");
+    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+
+    let inserted = false;
+    $("p").each((_, el) => {
+      if (inserted || $(el).find("a").length > 0) return;
+
+      $(el).contents().each((_, node) => {
+        if (node.type !== "text") return;
+        let text = node.data;
+
+        for (const variant of variants) {
+          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+          const match = text.match(regex);
+          if (!match) continue;
+
+          const anchorText = match[1];
+          const before = text.substring(0, match.index);
+          const after = text.substring(match.index + anchorText.length);
+          const safeTitle = escapeHtml(orphanMeta.title);
+          const anchor = `<a href="/posts/${orphanSlug}.html" title="${safeTitle}">${anchorText}</a>`;
+
+          $(node).replaceWith(before + anchor + after);
+          inboundLinkCount[orphanSlug]++;
+          outboundLinkCount[targetFile.replace(".html", "")]++;
+          inserted = true;
+          console.log(`🪄 Linked orphan [${orphanSlug}] from [${targetFile}]`);
+          break;
+        }
+      });
+    });
+
+    if (inserted) fs.writeFileSync(filePath, $.html(), "utf8");
   }
 
   // ===== FINAL REPORT =====
