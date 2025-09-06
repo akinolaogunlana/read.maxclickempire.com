@@ -1,9 +1,148 @@
 {
-  "to": [],
-  "a gmail": [],
+  "how": [],
+  "gmail": [],
+  "google": [
+    "google"
+  ],
+  "guide": [
+    "guide",
+    "run",
+    "draw",
+    "pass",
+    "guide_on",
+    "steer",
+    "lead",
+    "take",
+    "direct",
+    "conduct",
+    "maneuver",
+    "manoeuver",
+    "manoeuvre",
+    "point",
+    "head",
+    "channelize",
+    "channelise",
+    "scout",
+    "pathfinder",
+    "template",
+    "templet",
+    "guidebook",
+    "usher"
+  ],
+  "tips": [],
+  "tricks": [],
   "tutorial": [
     "tutorial"
   ],
+  "news": [
+    "newsworthiness",
+    "news",
+    "news_program",
+    "news_show",
+    "intelligence",
+    "tidings",
+    "word"
+  ],
+  "review": [
+    "review",
+    "look_back",
+    "retrospect",
+    "brush_up",
+    "refresh",
+    "go_over",
+    "survey",
+    "critique",
+    "reexamine",
+    "inspection",
+    "brushup",
+    "recapitulation",
+    "recap",
+    "revue",
+    "limited_review",
+    "follow-up",
+    "followup",
+    "reexamination",
+    "critical_review",
+    "review_article",
+    "reappraisal",
+    "revaluation",
+    "reassessment"
+  ],
+  "update": [
+    "update"
+  ],
+  "now": [
+    "now",
+    "immediately",
+    "instantly",
+    "straightaway",
+    "straight_off",
+    "directly",
+    "right_away",
+    "at_once",
+    "forthwith",
+    "like_a_shot",
+    "at_present",
+    "nowadays",
+    "today"
+  ],
+  "today": [
+    "today",
+    "nowadays",
+    "now"
+  ],
+  "top": [
+    "top(a)",
+    "top",
+    "top_off",
+    "crown",
+    "pinch",
+    "top_out",
+    "lead",
+    "clear",
+    "exceed",
+    "transcend",
+    "overstep",
+    "pass",
+    "go_past",
+    "circus_tent",
+    "big_top",
+    "round_top",
+    "cover",
+    "whirligig",
+    "teetotum",
+    "spinning_top",
+    "acme",
+    "height",
+    "elevation",
+    "peak",
+    "pinnacle",
+    "summit",
+    "superlative",
+    "meridian",
+    "tiptop",
+    "top_of_the_inning",
+    "crest",
+    "tip",
+    "top_side",
+    "upper_side",
+    "upside"
+  ],
+  "best": [
+    "better",
+    "best",
+    "better(p)",
+    "best(p)",
+    "outdo",
+    "outflank",
+    "trump",
+    "scoop",
+    "c._h._best",
+    "charles_herbert_best",
+    "topper"
+  ],
+  "to": [],
+  "a gmail": [],
   "|": [],
   "one device": [],
   "workspace email:": [],
@@ -20,7 +159,6 @@
     "not",
     "non"
   ],
-  "tricks": [],
   "auto-sort & label": [],
   "inbox time": [],
   "editable": [],
@@ -32,12 +170,12 @@
     "cancel"
   ],
   "edit,": [],
+  "recover today": [],
+  "recover deleted": [],
   "automatically": [
     "mechanically",
     "automatically"
   ],
-  "recover deleted": [],
-  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -160,11 +298,9 @@
     "guide"
   ],
   "guide)": [],
-  "how": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
-  "gmail": [],
+  "emails": [],
   "protect": [
     "protect"
   ],
@@ -245,68 +381,6 @@
     "discover",
     "larn",
     "acquire"
-  ],
-  "guide": [
-    "guide",
-    "run",
-    "draw",
-    "pass",
-    "guide_on",
-    "steer",
-    "lead",
-    "take",
-    "direct",
-    "conduct",
-    "maneuver",
-    "manoeuver",
-    "manoeuvre",
-    "point",
-    "head",
-    "channelize",
-    "channelise",
-    "scout",
-    "pathfinder",
-    "template",
-    "templet",
-    "guidebook",
-    "usher"
-  ],
-  "top": [
-    "top(a)",
-    "top",
-    "top_off",
-    "crown",
-    "pinch",
-    "top_out",
-    "lead",
-    "clear",
-    "exceed",
-    "transcend",
-    "overstep",
-    "pass",
-    "go_past",
-    "circus_tent",
-    "big_top",
-    "round_top",
-    "cover",
-    "whirligig",
-    "teetotum",
-    "spinning_top",
-    "acme",
-    "height",
-    "elevation",
-    "peak",
-    "pinnacle",
-    "summit",
-    "superlative",
-    "meridian",
-    "tiptop",
-    "top_of_the_inning",
-    "crest",
-    "tip",
-    "top_side",
-    "upper_side",
-    "upside"
   ],
   "fix": [
     "fix",
@@ -429,9 +503,6 @@
     "shuffle",
     "shuffling",
     "brand"
-  ],
-  "google": [
-    "google"
   ],
   "one-page": [],
   "safely:": [],
@@ -1001,11 +1072,6 @@
     "driving_force"
   ],
   "shortcuts": [],
-  "today": [
-    "today",
-    "nowadays",
-    "now"
-  ],
   "attendance": [
     "attendance",
     "attending"
@@ -1369,6 +1435,23 @@
     "family"
   ],
   "receiving": [],
+  "sheet": [
+    "sail",
+    "canvas",
+    "canvass",
+    "sheet",
+    "tack",
+    "mainsheet",
+    "weather_sheet",
+    "shroud",
+    "flat_solid",
+    "tabloid",
+    "rag",
+    "plane",
+    "bed_sheet",
+    "piece_of_paper",
+    "sheet_of_paper"
+  ],
   "fresh": [
     "newly",
     "freshly",
@@ -1395,24 +1478,6 @@
     "refreshful",
     "tonic"
   ],
-  "sheet": [
-    "sail",
-    "canvas",
-    "canvass",
-    "sheet",
-    "tack",
-    "mainsheet",
-    "weather_sheet",
-    "shroud",
-    "flat_solid",
-    "tabloid",
-    "rag",
-    "plane",
-    "bed_sheet",
-    "piece_of_paper",
-    "sheet_of_paper"
-  ],
-  "tips": [],
   "teachers": [],
   "homework": [
     "homework",
@@ -1486,7 +1551,6 @@
     "substantiation"
   ],
   "gmail tips": [],
-  "modern,": [],
   "matching": [
     "coordinated",
     "co-ordinated",
@@ -1495,6 +1559,7 @@
     "twin(a)",
     "twinned"
   ],
+  "modern,": [],
   "organized": [
     "organized",
     "organised",
@@ -1715,13 +1780,5 @@
     "alumna",
     "alum",
     "grad"
-  ],
-  "free google docs invoice": [],
-  "parent-teacher conference form template": [],
-  "google sheets guide |": [],
-  "google drive 2025: the": [],
-  "google docs productivity guide": [],
-  "integrate gmail with google": [],
-  "gmail labels vs folders:": [],
-  "customize your gmail themes,": []
+  ]
 }
