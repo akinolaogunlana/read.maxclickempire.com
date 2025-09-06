@@ -7,7 +7,7 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 3;
+const LINK_LIMIT = 9;
 const SIMILARITY_THRESHOLD = 0.75;
 
 // ========= SYNONYM CACHE ==========
