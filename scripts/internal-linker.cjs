@@ -15,7 +15,7 @@ if (process.env.OPENAI_API_KEY) {
 }
 
 const postsDir = path.join(__dirname, "..", "posts");
-const MAX_LINKS_PER_POST = 6;  // Slightly higher for dynamic distribution
+const MAX_LINKS_PER_POST = 6;
 const MAX_LINKS_PER_URL = 2;
 const SIMILARITY_THRESHOLD = 0.7;
 
@@ -31,7 +31,10 @@ try {
 // ===== HELPERS =====
 const escapeHtml = str =>
   str.replace(/["&<>]/g, char => ({
-    '"': "&quot;", "&": "&amp;", "<": "&lt;", ">": "&gt;"
+    '"': "&quot;",
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;"
   }[char] || char));
 
 const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -57,10 +60,8 @@ const generateKeywordVariants = async phrase => {
     base.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
     base.endsWith("s") ? base.slice(0, -1) : base + "s"
   ]);
-
   const synonyms = await lookupSynonyms(base);
   synonyms.forEach(s => variants.add(s));
-
   return Array.from(variants);
 };
 
@@ -94,20 +95,19 @@ async function generateEmbeddings() {
 // ===== CONTEXT WEIGHT FUNCTION =====
 function contextWeight(element, index, totalElements) {
   const tag = element.tagName.toLowerCase();
-  if (/h[1-3]/.test(tag)) return 2.0; // Headings high priority
-  if (tag === "p") return 1.5;         // Paragraph moderate
-  if (tag === "li") return 1.2;        // Lists lower
+  if (/h[1-3]/.test(tag)) return 2.0;
+  if (tag === "p") return 1.5;
+  if (tag === "li") return 1.2;
   if (/b|strong/.test(tag)) return 1.1;
   if (/i|em/.test(tag)) return 1.0;
-  // Boost start and end of content
-  if (index < Math.floor(totalElements * 0.15)) return 1.5;   // First 15% words
-  if (index > Math.floor(totalElements * 0.85)) return 1.5;   // Last 15% words
+  if (index < Math.floor(totalElements * 0.15)) return 1.5;
+  if (index > Math.floor(totalElements * 0.85)) return 1.5;
   return 1.0;
 }
 
 // ===== CONTEXT-AWARE SMART LINKING =====
 async function contextAwareSmartLinking() {
-  console.log("⚡ Running ultimate context-aware smart linking...");
+  console.log("⚡ Running context-aware smart linking...");
 
   for (const filename of posts) {
     const filePath = path.join(postsDir, filename);
@@ -165,12 +165,12 @@ async function contextAwareSmartLinking() {
       .filter(l => l.score >= SIMILARITY_THRESHOLD)
       .sort((a, b) => b.score - a.score);
 
-    // Distribute links dynamically based on context weight
+    // Distribute links dynamically
     bodyElements.forEach((el, index) => {
       if (inserted >= MAX_LINKS_PER_POST) return;
 
       const weight = contextWeight(el, index, bodyElements.length);
-      if (Math.random() > weight) return; // probabilistic placement
+      if (Math.random() > weight) return;
 
       $(el).contents().each((_, node) => {
         if (inserted >= MAX_LINKS_PER_POST || node.type !== "text") return;
