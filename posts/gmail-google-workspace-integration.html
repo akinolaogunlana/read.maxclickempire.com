@@ -126,8 +126,8 @@
 <h3>Built-in integrations (Calendar, Drive, Meet, Chat)</h3>
 <p>Gmail shows Drive attachments inline, suggests Calendar events, and provides Meet links from events. These features are enabled by default for Workspace users and require minimal admin configuration.</p><h3>Google Workspace Add-ons (Marketplace) — when to use them</h3>
 <p>Use add-ons when you need a polished in-Gmail UI that triggers actions without leaving the message. Marketplace add-ons are quick to deploy, can be domain-wide, and often require only admin approval. Learn to search the Marketplace for “Works with Gmail” add-ons. </p><h3>Apps Script automations — when to choose code</h3>
-<p>Choose Apps Script when you need custom logic, scheduled jobs, or cross-product automations (e.g., parse incoming messages, create Drive files, annotate Sheets, post to Chat). Apps Script is <a href="/posts/google-sheets-guide.html" title="Google Sheets Guide | Sign In, Use Templates &amp; Build Dashboards">Google</a>’s supported low-code platform and includes a Gmail service and triggers. </p><h3>Gmail API and third-party integrations (OAuth)</h3>
-<p>For high-scale or external service integrations, use the <a href="/posts/gmail-guide.html" title="Gmail Tutorial 2025: The Complete Beginner to Pro Guide|Tips, Tricks &amp; Security Updates">Gmail</a> REST API and OAuth 2.0. This is the route for external CRMs, enterprise middleware, or when you need granular control over message history and batch processing.</p><h2>Admin setup &amp; policy checklist (pre-integration)</h2>
+<p>Choose Apps Script when you need custom logic, scheduled jobs, or cross-product automations (e.g., parse incoming messages, create Drive files, annotate Sheets, post to Chat). Apps Script is Google’s supported low-code platform and includes a Gmail service and triggers. </p><h3>Gmail API and third-party integrations (OAuth)</h3>
+<p>For high-scale or external service integrations, use the Gmail REST API and OAuth 2.0. This is the route for external CRMs, enterprise middleware, or when you need granular control over message history and batch processing.</p><h2>Admin setup &amp; policy checklist (pre-integration)</h2>
 <p>Before rolling out integrations to users, complete this admin checklist in the Google Workspace Admin console:</p>
 <ol>
   <li><strong>Marketplace access:</strong> Allow Marketplace apps or allowlist specific apps so users can install them. Admins can also push apps domain-wide. </li>
@@ -145,7 +145,7 @@
   <li>User: Authenticate and grant requested permissions. Follow the add-on’s first-run setup.</li>
   <li>Test: Open an email and exercise the add-on (save attachment to Drive, create CRM record). Verify logs and access.</li>
 </ol><h2>Step-by-step: Create an Apps Script automation (example)</h2>
-<p>Below are two practical Apps Script examples you can copy into <strong>Extensions → Apps Script</strong> in <a href="/posts/google-docs-guide.html" title="Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro">Google</a> Sheets or the Apps Script editor. Grant the script the required Gmail/Calendar/Drive scopes when prompted.</p><h3>Example 1 — Auto-label incoming emails and create Calendar events</h3>
+<p>Below are two practical Apps Script examples you can copy into <strong>Extensions → Apps Script</strong> in Google Sheets or the Apps Script editor. Grant the script the required Gmail/Calendar/Drive scopes when prompted.</p><h3>Example 1 — Auto-label incoming emails and create Calendar events</h3>
 <p>Use case: When a confirmation email arrives (subject contains “Booking confirmed”), label it and create a calendar event from parsed date/time.</p>
 <ol>
   <li>Create a new Apps Script project and paste the function below.</li>
