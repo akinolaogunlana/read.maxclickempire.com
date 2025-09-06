@@ -4,12 +4,10 @@ const cheerio = require("cheerio");
 const keywordExtractor = require("keyword-extractor");
 const natural = require("natural");
 
-// ========== CONFIG ==========
 const postsDir = path.join(__dirname, "..", "posts");
 const LINK_LIMIT = 3;
 const SIMILARITY_THRESHOLD = 0.75;
 
-// ========== LOAD METADATA ==========
 let metadata;
 try {
   const postMetaModule = require("../data/post-meta.js");
@@ -19,9 +17,8 @@ try {
   process.exit(1);
 }
 
-// ========== UTILS ==========
+// ========= HELPERS ==========
 const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 const escapeHtml = (str) =>
   str.replace(/["&<>]/g, (char) => {
     switch (char) {
@@ -47,13 +44,16 @@ const generateKeywordVariants = (keyword) => {
 
 const scoreSimilarity = (a, b) => natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-// ========== TRACKING ==========
+// ========= TRACKING ==========
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
 const inboundLinkCount = Object.fromEntries(
   Object.keys(metadata).map(slug => [slug, 0])
 );
+const outboundLinkCount = Object.fromEntries(
+  Object.keys(metadata).map(slug => [slug, 0])
+);
 
-// ========== PHASE 1: Insert Smart Links & Track ==========
+// ========= PHASE 1: SMART LINKS ==========
 posts.forEach((filename) => {
   const filePath = path.join(postsDir, filename);
   const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
@@ -99,38 +99,65 @@ posts.forEach((filename) => {
         ...[...nlpSet].map(k => scoreSimilarity(k, baseKeyword)),
         ...[...metaSet].map(k => scoreSimilarity(k, baseKeyword))
       );
-      return { keyword: baseKeyword, variants, href: `/posts/${slug2}.html`, title: data.title, score, slug: slug2 };
+      return {
+        keyword: baseKeyword,
+        variants,
+        href: `/posts/${slug2}.html`,
+        title: data.title,
+        score,
+        slug: slug2
+      };
     })
     .filter(link => link.score >= SIMILARITY_THRESHOLD)
     .sort((a, b) => b.score - a.score);
 
-  $("p").each((_, el) => {
+  const paragraphs = $("p").toArray();
+  const shuffledParas = paragraphs.sort(() => Math.random() - 0.5);
+
+  shuffledParas.forEach((el) => {
     if (inserted >= LINK_LIMIT) return;
+    if ($(el).find("a").length > 0) return;
 
-    let html = $(el).html();
-    potentialLinks.forEach(link => {
-      if (inserted >= LINK_LIMIT || usedLinks.has(link.href)) return;
+    $(el).contents().each((i, node) => {
+      if (inserted >= LINK_LIMIT || node.type !== "text") return;
 
-      link.variants.forEach(variant => {
-        const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
-        if (regex.test(html)) {
-          const safeTitle = escapeHtml(link.title);
-          html = html.replace(regex, `<a href="${link.href}" title="${safeTitle}">$1</a>`);
-          usedLinks.add(link.href);
-          inboundLinkCount[link.slug]++;
-          inserted++;
+      let text = node.data;
+      let replaced = false;
+
+      for (const link of potentialLinks) {
+        if (usedLinks.has(link.href)) continue;
+
+        for (const variant of link.variants) {
+          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+          const match = text.match(regex);
+
+          if (match) {
+            const anchorText = match[1];
+            const before = text.substring(0, match.index);
+            const after = text.substring(match.index + anchorText.length);
+            const safeTitle = escapeHtml(link.title);
+            const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
+
+            $(node).replaceWith(before + anchor + after);
+            usedLinks.add(link.href);
+            inboundLinkCount[link.slug]++;
+            outboundLinkCount[slug]++;
+            inserted++;
+            replaced = true;
+            break;
+          }
         }
-      });
-    });
 
-    $(el).html(html);
+        if (replaced || inserted >= LINK_LIMIT) break;
+      }
+    });
   });
 
   fs.writeFileSync(filePath, $.html(), "utf8");
   console.log(`🔗 [${filename}] — inserted ${inserted} smart link${inserted !== 1 ? "s" : ""}`);
 });
 
-// ========== PHASE 2: Resolve Orphan Posts ==========
+// ========= PHASE 2: FIX ORPHANS ==========
 const orphanSlugs = Object.entries(inboundLinkCount)
   .filter(([_, count]) => count === 0)
   .map(([slug]) => slug);
@@ -140,41 +167,61 @@ if (orphanSlugs.length) {
   orphanSlugs.forEach(slug => console.log(`- ${slug}`));
 }
 
-orphanSlugs.forEach(orphanSlug => {
+const shuffledPosts = [...posts].sort(() => Math.random() - 0.5);
+
+orphanSlugs.forEach((orphanSlug, i) => {
   const orphanMeta = metadata[orphanSlug];
   if (!orphanMeta?.title) return;
 
   const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
   const variants = generateKeywordVariants(keyword);
 
-  posts.forEach(filename => {
-    const targetSlug = filename.replace(".html", "").toLowerCase();
-    if (targetSlug === orphanSlug) return;
+  const targetFile = shuffledPosts[i % shuffledPosts.length];
+  const filePath = path.join(postsDir, targetFile);
+  const htmlRaw = fs.readFileSync(filePath, "utf8");
+  const $ = cheerio.load(htmlRaw, { decodeEntities: false });
 
-    const filePath = path.join(postsDir, filename);
-    const htmlRaw = fs.readFileSync(filePath, "utf8");
-    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+  let inserted = false;
 
-    let inserted = false;
+  $("p").each((_, el) => {
+    if (inserted || $(el).find("a").length > 0) return;
 
-    $("p").each((_, el) => {
-      if (inserted) return;
+    $(el).contents().each((_, node) => {
+      if (node.type !== "text") return;
 
-      let html = $(el).html();
-      variants.forEach(variant => {
+      let text = node.data;
+
+      for (const variant of variants) {
         const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
-        if (!inserted && regex.test(html)) {
+        const match = text.match(regex);
+
+        if (match) {
+          const anchorText = match[1];
+          const before = text.substring(0, match.index);
+          const after = text.substring(match.index + anchorText.length);
           const safeTitle = escapeHtml(orphanMeta.title);
-          html = html.replace(regex, `<a href="/posts/${orphanSlug}.html" title="${safeTitle}">$1</a>`);
-          inserted = true;
+          const anchor = `<a href="/posts/${orphanSlug}.html" title="${safeTitle}">${anchorText}</a>`;
+
+          $(node).replaceWith(before + anchor + after);
           inboundLinkCount[orphanSlug]++;
-          console.log(`🪄 Linked orphan [${orphanSlug}] from [${filename}]`);
+          outboundLinkCount[targetFile.replace(".html", "")]++;
+          inserted = true;
+          console.log(`🪄 Linked orphan [${orphanSlug}] from [${targetFile}]`);
+          break;
         }
-      });
-
-      if (inserted) $(el).html(html);
+      }
     });
-
-    if (inserted) fs.writeFileSync(filePath, $.html(), "utf8");
   });
+
+  if (inserted) {
+    fs.writeFileSync(filePath, $.html(), "utf8");
+  }
+});
+
+// ========= FINAL REPORT ==========
+console.log("\n📊 Link Report");
+Object.keys(metadata).forEach(slug => {
+  console.log(
+    `- ${slug}: ${inboundLinkCount[slug]} inbound | ${outboundLinkCount[slug]} outbound`
+  );
 });
