@@ -4,12 +4,10 @@ const cheerio = require("cheerio");
 const keywordExtractor = require("keyword-extractor");
 const natural = require("natural");
 
-// ===== CONFIG =====
 const postsDir = path.join(__dirname, "..", "posts");
 const LINK_LIMIT = 3;
 const SIMILARITY_THRESHOLD = 0.75;
 
-// ===== LOAD METADATA =====
 let metadata;
 try {
   const postMetaModule = require("../data/post-meta.js");
@@ -19,142 +17,126 @@ try {
   process.exit(1);
 }
 
-// ===== HELPERS =====
-const escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// ========= HELPERS ==========
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeHtml = (str) =>
+  str.replace(/["&<>]/g, (char) => {
+    switch (char) {
+      case '"': return "&quot;";
+      case "&": return "&amp;";
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      default: return char;
+    }
+  });
 
-const escapeHtml = str =>
-  str.replace(/["&<>]/g, char =>
-    ({ '"': "&quot;", "&": "&amp;", "<": "&lt;", ">": "&gt;" }[char] || char)
-  );
-
-const scoreSimilarity = (a, b) =>
-  natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
-
-// Generate keyword variants (without WordNet)
-const generateKeywordVariants = keyword => {
+const generateKeywordVariants = (keyword) => {
   const base = keyword.toLowerCase();
   return Array.from(new Set([
     base,
     base.replace(/-/g, " "),
-    base.replace(/\s+/g, "-"),
-    base.replace(/\s+/g, ""),
+    base.replace(/\s/g, "-"),
+    base.replace(/\s/g, ""),
     base.charAt(0).toUpperCase() + base.slice(1),
     base.endsWith("s") ? base.slice(0, -1) : base + "s"
   ]));
 };
 
-// Context weight function
-const contextWeight = (element, index, total) => {
-  const tag = element.tagName.toLowerCase();
-  if (/h[1-3]/.test(tag)) return 2.0;
-  if (tag === "p") {
-    if (index < Math.floor(total * 0.15)) return 1.5; 
-    if (index > Math.floor(total * 0.85)) return 1.2; 
-    return 1.0;
-  }
-  if (tag === "li") return 1.2;
-  if (/b|strong/.test(tag)) return 1.1;
-  if (/i|em/.test(tag)) return 1.0;
-  return 1.0;
-};
+const scoreSimilarity = (a, b) => natural.JaroWinklerDistance(a.toLowerCase(), b.toLowerCase());
 
-// ===== TRACKING =====
+// ========= TRACKING ==========
 const posts = fs.readdirSync(postsDir).filter(f => f.endsWith(".html"));
-const inboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
-const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [slug, 0]));
+const inboundLinkCount = Object.fromEntries(
+  Object.keys(metadata).map(slug => [slug, 0])
+);
+const outboundLinkCount = Object.fromEntries(
+  Object.keys(metadata).map(slug => [slug, 0])
+);
 
-// ===== PHASE 1: SMART LINKS =====
-(async () => {
-  for (const filename of posts) {
-    const filePath = path.join(postsDir, filename);
-    const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
-    if (!htmlRaw) continue;
+// ========= PHASE 1: SMART LINKS ==========
+posts.forEach((filename) => {
+  const filePath = path.join(postsDir, filename);
+  const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
+  if (!htmlRaw) return;
 
-    let $;
-    try {
-      $ = cheerio.load(htmlRaw, { decodeEntities: false });
-    } catch (err) {
-      console.warn(`⚠️ Skipping malformed HTML in: ${filename}`);
-      continue;
-    }
+  let $;
+  try {
+    $ = cheerio.load(htmlRaw, { decodeEntities: false });
+  } catch (err) {
+    console.warn(`⚠️ Skipping malformed HTML in: ${filename}`);
+    return;
+  }
 
-    const slug = filename.replace(".html", "").toLowerCase();
-    const currentMeta = metadata[slug] || {};
-    const currentTitle = currentMeta.title || slug;
+  const slug = filename.replace(".html", "").toLowerCase();
+  const currentMeta = metadata[slug] || {};
+  const currentTitle = currentMeta.title || slug;
 
-    const bodyText = $("body").text().trim();
-    if (!bodyText) continue;
+  const bodyText = $("body").text().trim();
+  if (!bodyText) return;
 
-    const nlpKeywords = keywordExtractor.extract(bodyText, {
-      language: "english",
-      remove_digits: true,
-      return_changed_case: true,
-      remove_duplicates: true
-    });
+  const nlpKeywords = keywordExtractor.extract(bodyText, {
+    language: "english",
+    remove_digits: true,
+    return_changed_case: true,
+    remove_duplicates: true
+  });
 
-    const metaMatch = htmlRaw.match(/<meta name="keywords" content="([^"]+)"/);
-    const keywordsFromMeta = metaMatch ? metaMatch[1].split(",").map(k => k.trim()) : [];
+  const metaMatch = htmlRaw.match(/<meta name="keywords" content="([^"]+)"/);
+  const keywordsFromMeta = metaMatch ? metaMatch[1].split(",").map(k => k.trim()) : [];
 
-    const nlpSet = new Set(nlpKeywords);
-    const metaSet = new Set(keywordsFromMeta);
-    const usedLinks = new Set();
-    let inserted = 0;
+  const nlpSet = new Set(nlpKeywords);
+  const metaSet = new Set(keywordsFromMeta);
+  const usedLinks = new Set();
+  let inserted = 0;
 
-    // Prepare potential links
-    const potentialLinks = [];
-    for (const [slug2, data] of Object.entries(metadata)) {
-      if (slug2 === slug || !data?.title) continue;
-
+  const potentialLinks = Object.entries(metadata)
+    .filter(([slug2, data]) => slug2 !== slug && data?.title)
+    .map(([slug2, data]) => {
       const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
       const variants = generateKeywordVariants(baseKeyword);
-
       const score = Math.max(
         scoreSimilarity(currentTitle, data.title),
         ...[...nlpSet].map(k => scoreSimilarity(k, baseKeyword)),
         ...[...metaSet].map(k => scoreSimilarity(k, baseKeyword))
       );
+      return {
+        keyword: baseKeyword,
+        variants,
+        href: `/posts/${slug2}.html`,
+        title: data.title,
+        score,
+        slug: slug2
+      };
+    })
+    .filter(link => link.score >= SIMILARITY_THRESHOLD)
+    .sort((a, b) => b.score - a.score);
 
-      if (score >= SIMILARITY_THRESHOLD) {
-        potentialLinks.push({
-          keyword: baseKeyword,
-          variants,
-          href: `/posts/${slug2}.html`,
-          title: data.title,
-          score,
-          slug: slug2
-        });
-      }
-    }
+  const paragraphs = $("p").toArray();
+  const shuffledParas = paragraphs.sort(() => Math.random() - 0.5);
 
-    // Sort by score descending
-    potentialLinks.sort((a, b) => b.score - a.score);
+  shuffledParas.forEach((el) => {
+    if (inserted >= LINK_LIMIT) return;
+    if ($(el).find("a").length > 0) return;
 
-    const bodyElements = $("h1,h2,h3,p,li,b,strong,i,em").toArray();
+    $(el).contents().each((i, node) => {
+      if (inserted >= LINK_LIMIT || node.type !== "text") return;
 
-    bodyElements.forEach((el, index) => {
-      if (inserted >= LINK_LIMIT) return;
+      let text = node.data;
+      let replaced = false;
 
-      const weight = Math.min(contextWeight(el, index, bodyElements.length) / 2, 1.0);
-      if (Math.random() > weight) return;
+      for (const link of potentialLinks) {
+        if (usedLinks.has(link.href)) continue;
 
-      $(el).contents().each((_, node) => {
-        if (inserted >= LINK_LIMIT || node.type !== "text") return;
-        let text = node.data;
-        let replaced = false;
+        for (const variant of link.variants) {
+          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+          const match = text.match(regex);
 
-        for (const link of potentialLinks) {
-          if (usedLinks.has(link.href)) continue;
-
-          const sortedVariants = link.variants.sort((a, b) => b.length - a.length);
-          for (const variant of sortedVariants) {
-            const regex = new RegExp(`(^|\\W)(${escapeRegExp(variant)})(\\W|$)`, "i");
-            const match = text.match(regex);
-            if (!match) continue;
-
-            const anchorText = match[2];
-            const before = text.slice(0, match.index + match[1].length);
-            const after = text.slice(match.index + match[0].length - match[3].length);
-            const anchor = `<a href="${link.href}" title="${escapeHtml(link.title)}">${anchorText}</a>`;
+          if (match) {
+            const anchorText = match[1];
+            const before = text.substring(0, match.index);
+            const after = text.substring(match.index + anchorText.length);
+            const safeTitle = escapeHtml(link.title);
+            const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
 
             $(node).replaceWith(before + anchor + after);
             usedLinks.add(link.href);
@@ -164,52 +146,56 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
             replaced = true;
             break;
           }
-          if (replaced || inserted >= LINK_LIMIT) break;
         }
-      });
+
+        if (replaced || inserted >= LINK_LIMIT) break;
+      }
     });
+  });
 
-    fs.writeFileSync(filePath, $.html(), "utf8");
-    console.log(`🔗 [${filename}] — inserted ${inserted} smart link${inserted !== 1 ? "s" : ""}`);
-  }
+  fs.writeFileSync(filePath, $.html(), "utf8");
+  console.log(`🔗 [${filename}] — inserted ${inserted} smart link${inserted !== 1 ? "s" : ""}`);
+});
 
-  // ===== PHASE 2: FIX ORPHANS =====
-  const orphanSlugs = Object.entries(inboundLinkCount)
-    .filter(([_, count]) => count === 0)
-    .map(([slug]) => slug);
+// ========= PHASE 2: FIX ORPHANS ==========
+const orphanSlugs = Object.entries(inboundLinkCount)
+  .filter(([_, count]) => count === 0)
+  .map(([slug]) => slug);
 
-  if (orphanSlugs.length) {
-    console.log(`\n🧭 Detected ${orphanSlugs.length} orphan post(s):`);
-    orphanSlugs.forEach(slug => console.log(`- ${slug}`));
-  }
+if (orphanSlugs.length) {
+  console.log(`\n🧭 Detected ${orphanSlugs.length} orphan post(s):`);
+  orphanSlugs.forEach(slug => console.log(`- ${slug}`));
+}
 
-  const shuffledPosts = [...posts].sort(() => Math.random() - 0.5);
+const shuffledPosts = [...posts].sort(() => Math.random() - 0.5);
 
-  for (const [i, orphanSlug] of orphanSlugs.entries()) {
-    const orphanMeta = metadata[orphanSlug];
-    if (!orphanMeta?.title) continue;
+orphanSlugs.forEach((orphanSlug, i) => {
+  const orphanMeta = metadata[orphanSlug];
+  if (!orphanMeta?.title) return;
 
-    const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
-    const variants = generateKeywordVariants(keyword);
+  const keyword = (orphanMeta.keyword || orphanMeta.title.split(" ")[0]).toLowerCase();
+  const variants = generateKeywordVariants(keyword);
 
-    const targetFile = shuffledPosts[i % shuffledPosts.length];
-    const filePath = path.join(postsDir, targetFile);
-    const htmlRaw = fs.readFileSync(filePath, "utf8");
-    const $ = cheerio.load(htmlRaw, { decodeEntities: false });
+  const targetFile = shuffledPosts[i % shuffledPosts.length];
+  const filePath = path.join(postsDir, targetFile);
+  const htmlRaw = fs.readFileSync(filePath, "utf8");
+  const $ = cheerio.load(htmlRaw, { decodeEntities: false });
 
-    let inserted = false;
-    $("p").each((_, el) => {
-      if (inserted || $(el).find("a").length > 0) return;
+  let inserted = false;
 
-      $(el).contents().each((_, node) => {
-        if (node.type !== "text") return;
-        let text = node.data;
+  $("p").each((_, el) => {
+    if (inserted || $(el).find("a").length > 0) return;
 
-        for (const variant of variants) {
-          const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
-          const match = text.match(regex);
-          if (!match) continue;
+    $(el).contents().each((_, node) => {
+      if (node.type !== "text") return;
 
+      let text = node.data;
+
+      for (const variant of variants) {
+        const regex = new RegExp(`\\b(${escapeRegExp(variant)})\\b`, "i");
+        const match = text.match(regex);
+
+        if (match) {
           const anchorText = match[1];
           const before = text.substring(0, match.index);
           const after = text.substring(match.index + anchorText.length);
@@ -223,15 +209,19 @@ const outboundLinkCount = Object.fromEntries(Object.keys(metadata).map(slug => [
           console.log(`🪄 Linked orphan [${orphanSlug}] from [${targetFile}]`);
           break;
         }
-      });
+      }
     });
-
-    if (inserted) fs.writeFileSync(filePath, $.html(), "utf8");
-  }
-
-  // ===== FINAL REPORT =====
-  console.log("\n📊 Link Report");
-  Object.keys(metadata).forEach(slug => {
-    console.log(`- ${slug}: ${inboundLinkCount[slug]} inbound | ${outboundLinkCount[slug]} outbound`);
   });
-})();
+
+  if (inserted) {
+    fs.writeFileSync(filePath, $.html(), "utf8");
+  }
+});
+
+// ========= FINAL REPORT ==========
+console.log("\n📊 Link Report");
+Object.keys(metadata).forEach(slug => {
+  console.log(
+    `- ${slug}: ${inboundLinkCount[slug]} inbound | ${outboundLinkCount[slug]} outbound`
+  );
+});
