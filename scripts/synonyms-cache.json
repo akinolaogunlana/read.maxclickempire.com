@@ -97,8 +97,8 @@
   "any email": [],
   "automate": [],
   "docs": [],
-  "use gmail": [],
   "redirecting...": [],
+  "use gmail": [],
   "not": [],
   "auto-sort & label": [],
   "inbox time": [],
@@ -106,8 +106,8 @@
   "delete": [],
   "edit,": [],
   "recover today": [],
-  "automatically": [],
   "recover deleted": [],
+  "automatically": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -167,12 +167,12 @@
     "purchase"
   ],
   "customize": [],
-  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
+  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -327,6 +327,7 @@
   "forward": [
     "forward"
   ],
+  "complete": [],
   "master": [
     "passkey",
     "passe-partout",
@@ -343,7 +344,6 @@
     "lord",
     "maestro"
   ],
-  "complete": [],
   "letter": [
     "letter",
     "missive"
@@ -594,17 +594,17 @@
     "substantiation"
   ],
   "gmail tips": [],
-  "matching": [],
   "modern,": [],
+  "matching": [],
   "organized": [],
+  "seating": [
+    "seating",
+    "seats"
+  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
-  ],
-  "seating": [
-    "seating",
-    "seats"
   ],
   "changers": [],
   "remote": [
