@@ -97,23 +97,23 @@
   "any email": [],
   "automate": [],
   "docs": [],
-  "redirecting...": [],
   "use gmail": [],
+  "redirecting...": [],
   "not": [],
   "auto-sort & label": [],
   "inbox time": [],
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover deleted": [],
   "recover today": [],
+  "recover deleted": [],
   "automatically": [],
   "classroom seating chart google": [],
-  "recovery today": [],
   "conference": [
     "conference",
     "league"
   ],
+  "recovery today": [],
   "resume templates": [],
   "with": [],
   "in": [
@@ -167,12 +167,12 @@
     "purchase"
   ],
   "customize": [],
-  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
+  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -552,7 +552,6 @@
     "professional"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -565,6 +564,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "manage": [],
   "report": [
@@ -597,14 +597,14 @@
   "matching": [],
   "modern,": [],
   "organized": [],
-  "seating": [
-    "seating",
-    "seats"
-  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
+  ],
+  "seating": [
+    "seating",
+    "seats"
   ],
   "changers": [],
   "remote": [
