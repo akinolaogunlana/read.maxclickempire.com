@@ -105,9 +105,9 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover today": [],
   "automatically": [],
   "recover deleted": [],
+  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -556,8 +556,15 @@
     "schoolroom"
   ],
   "organize": [],
+  "pro": [
+    "pro",
+    "professional"
+  ],
+  "proposal": [
+    "proposal",
+    "proposition"
+  ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -570,11 +577,8 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
-  "pro": [
-    "pro",
-    "professional"
-  ],
   "manage": [],
   "report": [
     "reputation",
@@ -631,10 +635,6 @@
   ],
   "gmail shortcuts": [],
   "choose": [],
-  "proposal": [
-    "proposal",
-    "proposition"
-  ],
   "sent": [
     "sent"
   ],
