@@ -184,12 +184,12 @@
     "fill-in"
   ],
   "customize": [],
+  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
-  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -656,10 +656,10 @@
   "gmail smart compose": [],
   "gmail shortcuts": [],
   "choose": [],
+  "offline": [],
   "sent": [
     "sent"
   ],
-  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
