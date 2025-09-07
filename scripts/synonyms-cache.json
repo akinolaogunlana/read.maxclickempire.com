@@ -105,9 +105,9 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover deleted": [],
-  "recover today": [],
   "automatically": [],
+  "recover today": [],
+  "recover deleted": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -552,6 +552,7 @@
     "professional"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -564,7 +565,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "manage": [],
   "report": [
@@ -597,14 +597,14 @@
   "modern,": [],
   "matching": [],
   "organized": [],
+  "seating": [
+    "seating",
+    "seats"
+  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
-  ],
-  "seating": [
-    "seating",
-    "seats"
   ],
   "changers": [],
   "remote": [
