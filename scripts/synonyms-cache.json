@@ -97,8 +97,8 @@
   "any email": [],
   "automate": [],
   "docs": [],
-  "redirecting...": [],
   "use gmail": [],
+  "redirecting...": [],
   "not": [],
   "auto-sort & label": [],
   "inbox time": [],
@@ -152,8 +152,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -167,12 +167,12 @@
     "purchase"
   ],
   "customize": [],
-  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
+  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -552,7 +552,6 @@
     "professional"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -565,6 +564,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "manage": [],
   "report": [
@@ -597,14 +597,14 @@
   "modern,": [],
   "matching": [],
   "organized": [],
-  "seating": [
-    "seating",
-    "seats"
-  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
+  ],
+  "seating": [
+    "seating",
+    "seats"
   ],
   "changers": [],
   "remote": [
@@ -677,14 +677,6 @@
     "protection"
   ],
   "google docs invoice": [],
-  "space": [
-    "quad",
-    "space",
-    "place",
-    "distance",
-    "blank",
-    "infinite"
-  ],
   "storage": [
     "repositing",
     "reposition",
