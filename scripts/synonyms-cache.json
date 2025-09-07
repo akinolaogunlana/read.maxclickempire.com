@@ -167,12 +167,12 @@
     "purchase"
   ],
   "customize": [],
+  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
-  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -597,14 +597,14 @@
   "modern,": [],
   "matching": [],
   "organized": [],
+  "seating": [
+    "seating",
+    "seats"
+  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
-  ],
-  "seating": [
-    "seating",
-    "seats"
   ],
   "changers": [],
   "remote": [
