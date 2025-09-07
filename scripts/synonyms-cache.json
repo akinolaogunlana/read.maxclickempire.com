@@ -105,9 +105,9 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover today": [],
-  "automatically": [],
   "recover deleted": [],
+  "automatically": [],
+  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -546,21 +546,16 @@
   "small": [
     "small"
   ],
+  "homework": [
+    "homework",
+    "prep",
+    "preparation"
+  ],
   "classroom": [
     "classroom",
     "schoolroom"
   ],
-  "class": [
-    "class",
-    "year",
-    "division",
-    "course",
-    "stratum",
-    "form",
-    "grade",
-    "category",
-    "family"
-  ],
+  "organize": [],
   "receiving": [],
   "fresh": [],
   "sheet": [
@@ -576,11 +571,6 @@
     "plane"
   ],
   "teachers": [],
-  "homework": [
-    "homework",
-    "prep",
-    "preparation"
-  ],
   "pro": [
     "pro",
     "professional"
@@ -660,7 +650,17 @@
     "graph"
   ],
   "student planner template": [],
-  "organize": [],
+  "class": [
+    "class",
+    "year",
+    "division",
+    "course",
+    "stratum",
+    "form",
+    "grade",
+    "category",
+    "family"
+  ],
   "options)": [],
   "timesheet": [],
   "stop": [
