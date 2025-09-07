@@ -105,8 +105,8 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover deleted": [],
   "recover today": [],
+  "recover deleted": [],
   "automatically": [],
   "classroom seating chart google": [],
   "recovery today": [],
@@ -152,8 +152,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
+  "emails": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -552,6 +552,7 @@
     "professional"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -564,7 +565,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "manage": [],
   "report": [
@@ -597,14 +597,14 @@
   "matching": [],
   "modern,": [],
   "organized": [],
+  "seating": [
+    "seating",
+    "seats"
+  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
-  ],
-  "seating": [
-    "seating",
-    "seats"
   ],
   "changers": [],
   "remote": [
