@@ -105,9 +105,9 @@
   "editable": [],
   "delete": [],
   "edit,": [],
+  "recover today": [],
   "automatically": [],
   "recover deleted": [],
-  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -167,12 +167,12 @@
     "purchase"
   ],
   "customize": [],
+  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
-  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -313,6 +313,10 @@
   ],
   "enable": [],
   "folders:": [],
+  "proposal": [
+    "proposal",
+    "proposition"
+  ],
   "meeting": [
     "confluence",
     "meeting",
@@ -323,7 +327,6 @@
   "forward": [
     "forward"
   ],
-  "complete": [],
   "master": [
     "passkey",
     "passe-partout",
@@ -340,6 +343,7 @@
     "lord",
     "maestro"
   ],
+  "complete": [],
   "letter": [
     "letter",
     "missive"
@@ -389,19 +393,6 @@
     "signal",
     "signaling",
     "mark"
-  ],
-  "drive": [
-    "drive",
-    "parkway",
-    "ride",
-    "driving",
-    "driveway",
-    "campaign",
-    "cause",
-    "crusade",
-    "movement",
-    "effort",
-    "thrust"
   ],
   "shortcuts": [],
   "attendance": [
@@ -560,11 +551,8 @@
     "pro",
     "professional"
   ],
-  "proposal": [
-    "proposal",
-    "proposition"
-  ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -577,7 +565,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "manage": [],
   "report": [
@@ -610,14 +597,14 @@
   "matching": [],
   "modern,": [],
   "organized": [],
-  "seating": [
-    "seating",
-    "seats"
-  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
+  ],
+  "seating": [
+    "seating",
+    "seats"
   ],
   "changers": [],
   "remote": [
@@ -648,6 +635,19 @@
   "chart": [
     "chart",
     "graph"
+  ],
+  "drive": [
+    "drive",
+    "parkway",
+    "ride",
+    "driving",
+    "driveway",
+    "campaign",
+    "cause",
+    "crusade",
+    "movement",
+    "effort",
+    "thrust"
   ],
   "student planner template": [],
   "class": [
