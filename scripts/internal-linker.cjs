@@ -7,7 +7,8 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const LINK_LIMIT = 15;
+const MIN_LINKS = 5;
+const MAX_LINKS = 15;
 const SIMILARITY_THRESHOLD = 0.75;
 
 // ========= FORBIDDEN WORDS ==========
@@ -22,6 +23,17 @@ try {
   console.warn("⚠️ Failed to load forbidden words, continuing...");
 }
 
+// ========= PER-LINK WHITELIST ==========
+const whitelistFile = path.join(__dirname, "../data/link-whitelist.json");
+let LINK_KEYWORD_WHITELIST = {};
+try {
+  if (fs.existsSync(whitelistFile)) {
+    LINK_KEYWORD_WHITELIST = JSON.parse(fs.readFileSync(whitelistFile, "utf8"));
+  }
+} catch {
+  console.warn("⚠️ Failed to load link whitelist, continuing...");
+}
+
 // ========= SYNONYM CACHE ==========
 const cacheFile = path.join(__dirname, "synonyms-cache.json");
 let synonymCache = {};
@@ -33,8 +45,10 @@ if (fs.existsSync(cacheFile)) {
   }
 }
 
-async function getSynonyms(word) {
-  if (synonymCache[word]) return synonymCache[word];
+async function getSynonyms(word, bodyWords) {
+  if (synonymCache[word]) {
+    return synonymCache[word].filter((s) => bodyWords.has(s));
+  }
   return new Promise((resolve) => {
     wn.lookup(word, (results) => {
       if (!results || results.length === 0) {
@@ -48,10 +62,10 @@ async function getSynonyms(word) {
         }
       });
       const unique = [...new Set(synonyms.map((s) => s.toLowerCase()))]
-        .filter((w) => /^[a-z\s-]+$/.test(w)); // keep only clean words
+        .filter((w) => /^[a-z\s-]+$/.test(w));
       synonymCache[word] = unique;
       fs.writeFileSync(cacheFile, JSON.stringify(synonymCache, null, 2));
-      resolve(unique);
+      resolve(unique.filter((s) => bodyWords.has(s)));
     });
   });
 }
@@ -60,7 +74,7 @@ async function getSynonyms(word) {
 async function expandForbiddenWords() {
   const expanded = new Set([...FORBIDDEN_WORDS]);
   for (const word of FORBIDDEN_WORDS) {
-    const synonyms = await getSynonyms(word);
+    const synonyms = await getSynonyms(word, new Set());
     synonyms.forEach((s) => expanded.add(s.toLowerCase()));
   }
   return expanded;
@@ -131,12 +145,6 @@ const outboundLinkCount = Object.fromEntries(
 (async () => {
   const EXPANDED_FORBIDDEN = await expandForbiddenWords();
 
-  // 🔄 Preload synonyms for all metadata keywords
-  for (const [slug, data] of Object.entries(metadata)) {
-    const baseKeyword = (data.keyword || data.title.split(" ")[0]).toLowerCase();
-    await getSynonyms(baseKeyword);
-  }
-
   for (const filename of posts) {
     const filePath = path.join(postsDir, filename);
     const htmlRaw = fs.readFileSync(filePath, "utf8").trim();
@@ -154,8 +162,15 @@ const outboundLinkCount = Object.fromEntries(
     const currentMeta = metadata[slug] || {};
     const currentTitle = currentMeta.title || slug;
 
+    const linkPath = `/posts/${filename}`;
+    const perLink = LINK_KEYWORD_WHITELIST[linkPath] || {};
+    const perKeywords = new Set((perLink.keywords || []).map(w => w.toLowerCase()));
+    const perPhrases = new Set((perLink.phrases || []).map(w => w.toLowerCase()));
+    const perLinks = new Set(perLink.links || []);
+
     const bodyText = $("body").text().trim();
     if (!bodyText) continue;
+    const bodyWords = new Set(bodyText.toLowerCase().split(/\W+/));
 
     const nlpKeywords = keywordExtractor.extract(bodyText, {
       language: "english",
@@ -209,13 +224,20 @@ const outboundLinkCount = Object.fromEntries(
             baseKeyword = bestPhrase;
           }
 
-          const synonyms = await getSynonyms(baseKeyword);
+          const synonyms = await getSynonyms(baseKeyword, bodyWords);
           let variants = generateKeywordVariants(baseKeyword).concat(synonyms);
 
-          // 🚫 Block forbidden single words + synonyms
-          variants = variants.filter(
-            (v) => v.split(" ").length > 1 || !EXPANDED_FORBIDDEN.has(v.toLowerCase())
-          );
+          // 🚫 Block forbidden unless whitelisted
+          variants = variants.filter((v) => {
+            const clean = v.toLowerCase();
+            return (
+              v.split(" ").length > 1 ||
+              !EXPANDED_FORBIDDEN.has(clean) ||
+              perKeywords.has(clean) ||
+              perPhrases.has(clean) ||
+              perLinks.has(`/posts/${slug2}.html`)
+            );
+          });
 
           const score = Math.max(
             scoreSimilarity(currentTitle, data.title),
@@ -238,7 +260,6 @@ const outboundLinkCount = Object.fromEntries(
       .filter((link) => link.score >= SIMILARITY_THRESHOLD && link.variants.length > 0)
       .sort((a, b) => b.score - a.score);
 
-    // Rank paragraphs by keyword density (instead of random shuffle)
     const paragraphs = $("p")
       .toArray()
       .sort((a, b) => {
@@ -250,13 +271,13 @@ const outboundLinkCount = Object.fromEntries(
       });
 
     paragraphs.forEach((el) => {
-      if (inserted >= LINK_LIMIT) return;
+      if (inserted >= MAX_LINKS) return;
       if ($(el).find("a").length > 0) return;
 
       $(el)
         .contents()
         .each((i, node) => {
-          if (inserted >= LINK_LIMIT || node.type !== "text") return;
+          if (inserted >= MAX_LINKS || node.type !== "text") return;
 
           let text = node.data;
           let replaced = false;
@@ -278,9 +299,7 @@ const outboundLinkCount = Object.fromEntries(
               if (match) {
                 const anchorText = match[2];
                 const before = text.substring(0, match.index + match[1].length);
-                const after = text.substring(
-                  match.index + match[0].length
-                );
+                const after = text.substring(match.index + match[0].length);
                 const safeTitle = escapeHtml(link.title);
                 const anchor = `<a href="${link.href}" title="${safeTitle}">${anchorText}</a>`;
 
@@ -293,20 +312,63 @@ const outboundLinkCount = Object.fromEntries(
                 break;
               }
             }
-            if (replaced || inserted >= LINK_LIMIT) break;
+            if (replaced || inserted >= MAX_LINKS) break;
           }
         });
     });
 
+    // ✅ Add fallback Related Articles section if too few links
+    if (inserted < MIN_LINKS) {
+      const needed = MIN_LINKS - inserted;
+      const extraLinks = filteredLinks
+        .filter((l) => !usedLinks.has(l.href))
+        .slice(0, needed);
+
+      if (extraLinks.length > 0) {
+        const relatedSection = `
+          <div class="related-articles">
+            <h3>Related Articles</h3>
+            <ul>
+              ${extraLinks
+                .map(
+                  (l) =>
+                    `<li><a href="${l.href}" title="${escapeHtml(
+                      l.title
+                    )}">${escapeHtml(l.title)}</a></li>`
+                )
+                .join("\n")}
+            </ul>
+          </div>
+        `;
+        $("body").append(relatedSection);
+        extraLinks.forEach((l) => {
+          usedLinks.add(l.href);
+          inboundLinkCount[l.slug]++;
+          outboundLinkCount[slug]++;
+          inserted++;
+        });
+        console.log(
+          `➕ [${filename}] added Related Articles with ${extraLinks.length} links`
+        );
+      }
+    }
+
     fs.writeFileSync(filePath, $.html(), "utf8");
-    console.log(
-      `🔗 [${filename}] — inserted ${inserted} smart link${
-        inserted !== 1 ? "s" : ""
-      }`
-    );
+
+    // ✅ Report link status
+    if (inserted < MIN_LINKS) {
+      console.warn(
+        `⚠️ [${filename}] still below min links (inserted ${inserted}).`
+      );
+    } else if (inserted > MAX_LINKS) {
+      console.warn(
+        `⚠️ [${filename}] exceeded max links (${inserted}, cap ${MAX_LINKS}).`
+      );
+    } else {
+      console.log(`🔗 [${filename}] — inserted ${inserted} smart links`);
+    }
   }
 
-  // ========= FINAL REPORT ==========
   console.log("\n📊 Link Report");
   Object.keys(metadata).forEach((slug) => {
     console.log(
@@ -314,5 +376,3 @@ const outboundLinkCount = Object.fromEntries(
     );
   });
 })();
-
-
