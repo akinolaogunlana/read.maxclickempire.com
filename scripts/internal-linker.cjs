@@ -320,9 +320,15 @@ const outboundLinkCount = Object.fromEntries(
     // ✅ Add fallback Related Articles section if too few links
     if (inserted < MIN_LINKS) {
       const needed = MIN_LINKS - inserted;
-      const extraLinks = filteredLinks
-        .filter((l) => !usedLinks.has(l.href))
-        .slice(0, needed);
+
+      // Include orphan pages first (0-7 inbound links)
+      const orphanLinks = filteredLinks
+        .filter((l) => !usedLinks.has(l.href) && inboundLinkCount[l.slug] <= 7);
+
+      const extraLinks = [
+        ...orphanLinks,
+        ...filteredLinks.filter((l) => !usedLinks.has(l.href) && !orphanLinks.includes(l))
+      ].slice(0, needed);
 
       if (extraLinks.length > 0) {
         const relatedSection = `
@@ -348,7 +354,7 @@ const outboundLinkCount = Object.fromEntries(
           inserted++;
         });
         console.log(
-          `➕ [${filename}] added Related Articles with ${extraLinks.length} links`
+          `➕ [${filename}] added Related Articles with ${extraLinks.length} links (including orphan pages)`
         );
       }
     }
@@ -369,10 +375,18 @@ const outboundLinkCount = Object.fromEntries(
     }
   }
 
+  // ✅ Final report
   console.log("\n📊 Link Report");
   Object.keys(metadata).forEach((slug) => {
     console.log(
       `- ${slug}: ${inboundLinkCount[slug]} inbound | ${outboundLinkCount[slug]} outbound`
     );
   });
+
+  // ✅ Orphan pages (0-7 inbound links)
+  const orphanPages = Object.keys(metadata).filter((slug) => inboundLinkCount[slug] <= 7);
+  if (orphanPages.length > 0) {
+    console.warn("\n⚠️ Orphan pages (0-7 inbound links):");
+    orphanPages.forEach((slug) => console.warn(`- ${slug} (${inboundLinkCount[slug]} inbound links)`));
+  }
 })();
