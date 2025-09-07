@@ -106,14 +106,14 @@
   "delete": [],
   "edit,": [],
   "recover deleted": [],
-  "recover today": [],
   "automatically": [],
+  "recover today": [],
   "classroom seating chart google": [],
-  "recovery today": [],
   "conference": [
     "conference",
     "league"
   ],
+  "recovery today": [],
   "resume templates": [],
   "with": [],
   "in": [
@@ -152,8 +152,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -562,7 +562,6 @@
     "family"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -575,6 +574,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "homework": [
     "homework",
@@ -616,14 +616,14 @@
   "matching": [],
   "modern,": [],
   "organized": [],
-  "seating": [
-    "seating",
-    "seats"
-  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
+  ],
+  "seating": [
+    "seating",
+    "seats"
   ],
   "changers": [],
   "remote": [
