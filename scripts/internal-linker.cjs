@@ -7,7 +7,7 @@ const WordNet = natural.WordNet;
 const wn = new WordNet();
 
 const postsDir = path.join(__dirname, "..", "posts");
-const MIN_LINKS = 5;
+const MIN_LINKS = 12;
 const MAX_LINKS = 15;
 const SIMILARITY_THRESHOLD = 0.75;
 
