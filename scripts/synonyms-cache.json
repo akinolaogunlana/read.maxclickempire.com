@@ -95,6 +95,7 @@
   "one device": [],
   "workspace email:": [],
   "any email": [],
+  "without": [],
   "automate": [],
   "docs": [],
   "use gmail": [],
@@ -105,9 +106,9 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover today": [],
   "recover deleted": [],
   "automatically": [],
+  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -116,13 +117,13 @@
   ],
   "resume templates": [],
   "with": [],
-  "cut inbox chaos now": [],
   "in": [
     "indiana",
     "in",
     "indium",
     "inch"
   ],
+  "cut inbox chaos now": [],
   "a": [
     "a",
     "ampere",
@@ -144,6 +145,7 @@
   "ready": [
     "ready"
   ],
+  "write": [],
   "free": [
     "free"
   ],
@@ -152,8 +154,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -167,12 +169,12 @@
     "purchase"
   ],
   "customize": [],
-  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
+  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -566,7 +568,9 @@
     "plane"
   ],
   "teachers": [],
-  "manage": [],
+  "remote": [
+    "remote"
+  ],
   "report": [
     "reputation",
     "report",
@@ -577,6 +581,18 @@
     "account",
     "study"
   ],
+  "class": [
+    "class",
+    "year",
+    "division",
+    "course",
+    "stratum",
+    "form",
+    "grade",
+    "category",
+    "family"
+  ],
+  "manage": [],
   "free google docs resume": [],
   "professional": [
     "master",
@@ -593,6 +609,7 @@
     "check",
     "substantiation"
   ],
+  "smart compose": [],
   "gmail tips": [],
   "interviews": [],
   "format)": [],
@@ -604,19 +621,18 @@
   "printable)": [],
   "for": [],
   "changers": [],
-  "remote": [
-    "remote"
-  ],
   "gmail filters": [],
   "contract": [
     "contract",
     "declaration"
   ],
+  "gmail smart compose": [],
   "gmail shortcuts": [],
   "choose": [],
   "sent": [
     "sent"
   ],
+  "offline": [],
   "safe": [
     "condom",
     "rubber",
@@ -642,20 +658,14 @@
     "thrust"
   ],
   "student planner template": [],
-  "class": [
-    "class",
-    "year",
-    "division",
-    "course",
-    "stratum",
-    "form",
-    "grade",
-    "category",
-    "family"
-  ],
   "options)": [],
   "organized": [],
   "timesheet": [],
+  "smart": [
+    "smart",
+    "smarting",
+    "smartness"
+  ],
   "accounts": [],
   "google docs resume templates": [],
   "minimalist": [
@@ -663,6 +673,14 @@
   ],
   "confidential": [],
   "login": [],
+  "access": [
+    "access",
+    "approach",
+    "entree",
+    "accession",
+    "admission",
+    "admittance"
+  ],
   "security": [
     "security",
     "surety",
