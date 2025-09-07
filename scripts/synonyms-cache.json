@@ -156,8 +156,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
+  "emails": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -581,6 +581,7 @@
     "professional"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -593,7 +594,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "remote": [
     "remote"
@@ -656,10 +656,10 @@
   "gmail smart compose": [],
   "gmail shortcuts": [],
   "choose": [],
-  "offline": [],
   "sent": [
     "sent"
   ],
+  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
