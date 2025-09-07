@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-07T21:32:02.848Z</lastmod>
+    <lastmod>2025-09-07T22:13:39.317Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -645,6 +645,27 @@ timesheet-template-google-docs.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Secure Sensitive Messages Now with Gmail Confidential Mode</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/enable-gmail-offline-mode.html</loc>
+    <lastmod>2025-09-07T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Enable Gmail Offline Mode Now — Access Email Without Internet</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-smart-compose.html
+gmail-offline-mode.html</loc>
+    <lastmod>2025-09-07T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Enable Gmail Smart Compose Today — Write Emails Faster Now</image:title>
     </image:image>
   </url>
 </urlset>

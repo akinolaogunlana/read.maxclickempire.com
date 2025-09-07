@@ -142,7 +142,7 @@
 <p>Map mailbox owners to addresses. For teams, plan role addresses (support@, sales@) as groups or shared mailboxes. Decide whether to use delegated mailboxes or separate accounts for role-based logins.</p><h3>Choose a domain &amp; verify ownership</h3>
 <p>Workspace requires domain verification (DNS TXT) to prove ownership. Add the TXT record at your registrar (Google provides the exact value during setup). Keep TTL low (e.g., 300s) for faster propagation.</p><h3>Required DNS access (registrar, TTL considerations)</h3>
 <p>Admin access to add MX, SPF, DKIM, DMARC is mandatory. If you don’t have DNS access, request it before switching mail routing. Note propagation — DNS updates can take <a href="/posts/meeting-minutes-template-google-docs-free.html" title="Meeting Minutes Template Google Docs (Free)">minutes</a> to 48 hours depending on TTL and registrar caches.</p><h2>Step-by-step: Sign up and create your Workspace account</h2>
-<p>Choose to buy Workspace directly from Google or via a reseller (sometimes useful for regional billing or bundled deals). You can also start with a <a href="/posts/free-google-docs-resume-career-changers.html" title="Free Google Docs resume for career changers">free</a> trial. The signup flow will ask for:</p>
+<p>Choose to buy Workspace directly from Google or via a reseller (sometimes useful for regional billing or bundled deals). You can also start with a free trial. The signup flow will ask for:</p>
 <ol>
   <li>Business name and country</li>
   <li>Contact email</li>
@@ -185,7 +185,7 @@
   <li>Update clients (Outlook, mobile) to use new credentials or OAuth flows.</li>
   <li>Keep old mail server read-only for 7–14 days as a rollback safeguard.</li>
 </ul><h2>Security &amp; compliance — hardening your Gmail for Business</h2>
-<p>Recent security alerts emphasize strengthening account protections (2FA, passkeys, security keys) and phishing defenses. Enable precautionary measures immediately when launching Workspace. </p><h3>Enforce 2-step verification / passkeys and SSO options</h3>
+<p>Recent security alerts emphasize strengthening account protections (2FA, passkeys, security keys) and phishing defenses. <a href="/posts/enable-gmail-offline-mode.html" title="Enable Gmail Offline Mode Now — Access Email Without Internet">Enable</a> precautionary measures immediately when launching Workspace. </p><h3>Enforce 2-step verification / passkeys and SSO options</h3>
 <p>Require 2-step verification for all users. Where available, use passkeys or hardware security keys for highest assurance. Consider SSO with SAML for centralized identity management.</p><h3>Advanced protection: endpoint rules, phishing detection, alert center</h3>
 <p>Enable endpoint management for mobile device controls, configure advanced phishing protections and use Google’s alert center (for Enterprise) to monitor suspicious activity. Use security health checks in Admin console <a href="/posts/daily-attendance-sheet-teachers-google-docs.html" title="Daily Attendance Sheet for Teachers | Free Google Docs">daily</a> after rollout.</p><h3>Backup, retention, and eDiscovery basics</h3>
 <p>Workspace is not a backup solution by default. Use Google Vault (available on higher plans) for retention and eDiscovery. Consider third-party backup if you need long-term archives or local copies.</p><h2>Admin best practices &amp; ongoing management</h2>
