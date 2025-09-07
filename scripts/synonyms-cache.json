@@ -105,8 +105,8 @@
   "editable": [],
   "delete": [],
   "edit,": [],
-  "recover today": [],
   "recover deleted": [],
+  "recover today": [],
   "automatically": [],
   "classroom seating chart google": [],
   "recovery today": [],
@@ -594,17 +594,17 @@
     "substantiation"
   ],
   "gmail tips": [],
-  "matching": [],
   "modern,": [],
+  "matching": [],
   "organized": [],
-  "seating": [
-    "seating",
-    "seats"
-  ],
   "invoice": [
     "bill",
     "account",
     "invoice"
+  ],
+  "seating": [
+    "seating",
+    "seats"
   ],
   "changers": [],
   "remote": [
