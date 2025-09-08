@@ -565,7 +565,6 @@
     "professional"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -578,6 +577,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "remote": [
     "remote"
@@ -646,10 +646,10 @@
   "gmail shortcuts": [],
   "categories": [],
   "choose": [],
-  "offline": [],
   "sent": [
     "sent"
   ],
+  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
