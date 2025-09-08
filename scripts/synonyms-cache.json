@@ -100,16 +100,16 @@
   "automate": [],
   "docs": [],
   "use gmail": [],
-  "not": [],
   "redirecting...": [],
+  "not": [],
   "auto-sort & label": [],
   "inbox time": [],
   "editable": [],
   "delete": [],
   "backup your gmail safely": [],
   "edit,": [],
-  "automatically": [],
   "recover deleted": [],
+  "automatically": [],
   "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
@@ -125,7 +125,6 @@
     "indium",
     "inch"
   ],
-  "cut inbox chaos now": [],
   "a": [
     "a",
     "ampere",
@@ -150,6 +149,20 @@
   "write": [],
   "free": [
     "free"
+  ],
+  "cut": [
+    "cut",
+    "cutting",
+    "undercut",
+    "swing",
+    "snub",
+    "deletion",
+    "excision",
+    "track",
+    "stinger",
+    "gash",
+    "slash",
+    "slice"
   ],
   "—": [],
   "+": [],
@@ -184,12 +197,12 @@
     "fill-in"
   ],
   "customize": [],
+  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
-  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -333,7 +346,6 @@
     "docket"
   ],
   "enable": [],
-  "folders:": [],
   "proposal": [
     "proposal",
     "proposition"
@@ -443,7 +455,6 @@
     "productivity",
     "productiveness"
   ],
-  "faster": [],
   "delivery": [
     "delivery",
     "rescue",
@@ -540,20 +551,6 @@
     "procession",
     "advancement"
   ],
-  "cut": [
-    "cut",
-    "cutting",
-    "undercut",
-    "swing",
-    "snub",
-    "deletion",
-    "excision",
-    "track",
-    "stinger",
-    "gash",
-    "slash",
-    "slice"
-  ],
   "inbox": [],
   "small": [
     "small"
@@ -575,12 +572,12 @@
     "precedence",
     "precedency"
   ],
-  "organize": [],
   "pro": [
     "pro",
     "professional"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -593,7 +590,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "remote": [
     "remote"
@@ -655,15 +651,17 @@
   ],
   "gmail smart compose": [],
   "gmail shortcuts": [],
+  "categories": [],
   "choose": [],
-  "offline": [],
   "sent": [
     "sent"
   ],
+  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
   ],
+  "faster": [],
   "safe": [
     "condom",
     "rubber",
@@ -707,6 +705,7 @@
   "options)": [],
   "organized": [],
   "timesheet": [],
+  "folders": [],
   "smart": [
     "smart",
     "smarting",
