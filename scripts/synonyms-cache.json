@@ -108,9 +108,9 @@
   "backup your gmail safely": [],
   "edit,": [],
   "master gmail labels": [],
-  "recover deleted": [],
   "recover today": [],
   "automatically": [],
+  "recover deleted": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -160,6 +160,7 @@
   "backup,": [],
   "emails": [],
   "email:": [],
+  "master gmail:": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -221,6 +222,7 @@
   ],
   "labels": [],
   "creative": [],
+  "your": [],
   "export": [
     "export",
     "exportation"
@@ -425,7 +427,6 @@
     "sensitive"
   ],
   "manage": [],
-  "your": [],
   "productivity": [
     "productivity",
     "productiveness"
@@ -612,9 +613,10 @@
     "check",
     "substantiation"
   ],
-  "stores": [],
-  "archived": [],
-  "professors": [],
+  "gmail templates": [],
+  "gmail shortcuts": [],
+  "gmail tips": [],
+  "gmail filters": [],
   "interviews": [],
   "format)": [],
   "seating": [
@@ -629,13 +631,11 @@
   ],
   "for": [],
   "changers": [],
-  "gmail filters": [],
   "contract": [
     "contract",
     "declaration"
   ],
   "gmail smart compose": [],
-  "gmail shortcuts": [],
   "categories": [],
   "choose": [],
   "sent": [
