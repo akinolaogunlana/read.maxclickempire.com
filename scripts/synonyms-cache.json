@@ -109,8 +109,8 @@
   "edit,": [],
   "master gmail labels": [],
   "recover deleted": [],
-  "recover today": [],
   "automatically": [],
+  "recover today": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -563,7 +563,6 @@
     "professional"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -576,6 +575,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "remote": [
     "remote"
@@ -643,10 +643,10 @@
   "gmail shortcuts": [],
   "categories": [],
   "choose": [],
+  "offline": [],
   "sent": [
     "sent"
   ],
-  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
