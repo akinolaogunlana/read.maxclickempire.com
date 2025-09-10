@@ -158,8 +158,8 @@
   "template|free": [],
   "guide)": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -557,6 +557,7 @@
     "precedency"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -569,7 +570,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "remote": [
     "remote"
@@ -612,7 +612,7 @@
     "check",
     "substantiation"
   ],
-  "students": [],
+  "stores": [],
   "archived": [],
   "professors": [],
   "interviews": [],
@@ -638,10 +638,10 @@
   "gmail shortcuts": [],
   "categories": [],
   "choose": [],
-  "offline": [],
   "sent": [
     "sent"
   ],
+  "offline": [],
   "highlight": [
     "highlight",
     "highlighting"
