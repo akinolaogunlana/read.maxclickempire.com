@@ -108,8 +108,122 @@
   <li><strong>Students:</strong> Use labels like “Assignments,” “Exams,” and “Clubs.” Schedule emails to professors at business hours for better response rates.</li>
   <li><strong>Freelancers:</strong> Set up templates for invoices, proposals, and follow-ups. Use confidential mode for sensitive contracts.</li>
   <li><strong>Business Owners:</strong> Delegate email to assistants, use filters for customer inquiries, and integrate Gmail with Google Meet for seamless scheduling.</li>
-</ul><h2>Next Steps</h2>
-<p>This completes Phase 2 — diving deep into logging in, managing multiple accounts, and productivity features. The next phase will focus on <strong>Security & Recovery</strong>, transforming Gmail into a fortress against hackers and phishing in 2025.</p><!--
+
+
+<h2 id="security">Section 3: Security & Recovery Playbook</h2>
+<p>Security is where most Gmail users underestimate the risks. In 2025, Gmail remains a prime target for phishing, credential stuffing, and AI-driven scams. Below is a detailed security and recovery manual that even IT administrators can adopt.</p>
+
+<h3>1. Enabling Two-Step Verification (2SV)</h3>
+<ul>
+  <li>Navigate to <em>myaccount.google.com/security</em>.</li>
+  <li>Under <strong>Signing in to Google</strong>, select <em>2-Step Verification</em>.</li>
+  <li>Choose between <strong>Google Prompt</strong>, <strong>Authenticator App</strong>, or <strong>SMS Backup</strong>.</li>
+  <li>Set up a backup method — ideally, a hardware security key or recovery codes.</li>
+</ul>
+<p><strong>Pro Tip:</strong> Avoid relying solely on SMS. SIM-swap attacks are rising, and hackers exploit weak telecom procedures.</p>
+
+<h3>2. Passkeys and Hardware Keys</h3>
+<p>Passkeys allow passwordless sign-in using biometrics like fingerprints or Face ID. In Gmail 2025, you can pair this with <strong>FIDO2-compliant security keys</strong> (YubiKey, Titan Key).</p>
+<p>Setup path:</p>
+<ol>
+  <li>Go to <em>myaccount.google.com/security</em>.</li>
+  <li>Click <em>Passkeys</em> → Add a Passkey.</li>
+  <li>Register biometric or USB key. Keep a secondary device as backup.</li>
+</ol>
+
+<h3>3. Advanced Protection Program (APP)</h3>
+<p>If you are a journalist, crypto entrepreneur, or public figure, consider <strong>Google’s Advanced Protection</strong>. It requires two hardware keys and locks down third-party access.</p>
+
+<h3>4. Recovery Without Phone or Email</h3>
+<p>Forgot your Gmail password and no longer have access to recovery email/phone? Your options in 2025 include:</p>
+<ul>
+  <li>Use a device you previously signed in from (Google remembers trusted devices).</li>
+  <li>Provide last known password attempts — partial matches can help recovery.</li>
+  <li>Access recovery via <em>Google Account Recovery</em> (<strong>g.co/recover</strong>).</li>
+  <li>Check if your Google Takeout backups are still accessible (may require identity verification).</li>
+</ul>
+
+<h3>5. Backup Codes Strategy</h3>
+<p>Always generate at least 10 backup codes. Store them offline: print a copy, laminate it, and hide it in a safe place. Digital copies should be encrypted with VeraCrypt or BitLocker.</p>
+
+<h2 id="troubleshooting">Section 4: Troubleshooting & Downtime Guide</h2>
+<h3>1. Gmail Not Loading</h3>
+<ul>
+  <li>Check <strong>Google Workspace Status Dashboard</strong>.</li>
+  <li>Clear cache and cookies; disable extensions that interfere (ad blockers, script blockers).</li>
+  <li>Switch to <em>incognito mode</em> or use another browser.</li>
+</ul>
+
+<h3>2. Emails Going to Spam</h3>
+<p>Reasons:</p>
+<ul>
+  <li>Too many links or suspicious attachments.</li>
+  <li>Sender flagged by Gmail’s AI filters.</li>
+  <li>Reply-to mismatch between sender domain and email origin.</li>
+</ul>
+<p><strong>Fix:</strong> Mark legitimate emails as “Not Spam” → Create a filter → Add to Contacts.</p>
+
+<h3>3. Missing Emails</h3>
+<p>Steps:</p>
+<ol>
+  <li>Search with <code>in:all</code> or <code>in:anywhere</code> filters.</li>
+  <li>Check <em>All Mail</em> → ensure labels aren’t hiding messages.</li>
+  <li>Verify forwarding rules or filters that may auto-archive.</li>
+</ol>
+
+<h2 id="defense">Section 5: Spam & Phishing Defense</h2>
+<h3>1. Recognizing Phishing Emails</h3>
+<p>Red flags include:</p>
+<ul>
+  <li>Urgent requests for money or password resets.</li>
+  <li>Suspicious domains (e.g., gmai1.com instead of gmail.com).</li>
+  <li>Attachments with .exe, .scr, or macro-enabled Office files.</li>
+</ul>
+
+<h3>2. Gmail’s Built-in Protections</h3>
+<p>Gmail AI in 2025 now auto-summarizes suspicious messages. Example: “⚠ This looks like a password-stealing attempt.” Always heed these banners.</p>
+
+<h3>3. Manual Defense</h3>
+<ul>
+  <li>Use <code>report phishing</code> on suspicious emails.</li>
+  <li>Create custom filters: block domains with <code>*.ru</code>, <code>*.xyz</code> if irrelevant.</li>
+  <li>Enable <em>Images Off by Default</em> in Settings → General → Images.</li>
+</ul>
+
+<h2 id="bonus">Section 6: Bonus Tips & Tricks</h2>
+<ul>
+  <li><strong>Undo Send:</strong> Increase cancellation window to 30 seconds in Settings.</li>
+  <li><strong>Confidential Mode:</strong> Send self-expiring emails with restricted forwarding.</li>
+  <li><strong>Search Operators:</strong> Example: <code>has:attachment filename:pdf</code> finds only PDFs.</li>
+  <li><strong>Offline Gmail:</strong> Enable under Settings → Offline. Stores 90 days of mail for no-internet access.</li>
+  <li><strong>Smart Compose:</strong> AI-assisted drafting saves ~30% typing time.</li>
+</ul>
+
+<h2 id="faq">Section 7: Frequently Asked Questions</h2>
+<h3>1. Can I have Gmail without a phone number?</h3>
+<p>Yes, but recovery options will be limited. Use recovery email + passkeys instead.</p>
+
+<h3>2. Is Gmail still free in 2025?</h3>
+<p>Yes, personal Gmail accounts remain free. Workspace accounts are paid for organizations.</p>
+
+<h3>3. What happens if I delete my Gmail?</h3>
+<p>You lose emails permanently, but Google Play purchases tied to the account remain (unless entire Google Account is deleted).</p>
+
+<h3>4. How secure is Gmail compared to ProtonMail?</h3>
+<p>ProtonMail is end-to-end encrypted by default. Gmail is encrypted in transit and offers AI protections but isn’t E2E by default unless using client-side encryption.</p>
+
+<h2 id="closing">Section 8: Closing Thoughts</h2>
+<p>By following this guide, you’ve mastered Gmail account creation, multiple-account management, security, productivity, troubleshooting, and advanced defense. Gmail remains the world’s email backbone, but the responsibility lies with you to configure it wisely. Treat your inbox as your digital identity — protect it relentlessly.</p>
+
+<!-- Authoritative external sources: Google Help (https://support.google.com), Google Workspace Updates (https://workspaceupdates.googleblog.com), Android Central (https://www.androidcentral.com) -->
+
+  
+
+
+
+
+
+<!--
 https://support.google.com/accounts
 https://support.google.com/mail
 https://safety.google/authentication
