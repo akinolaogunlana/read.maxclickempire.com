@@ -1,7 +1,13 @@
 // scripts/generate-posts-json.cjs
 const fs = require("fs");
 const path = require("path");
-const posts = require("../data/post-meta.js"); // must export an array
+const postsModule = require("../data/post-meta.js"); // exports { postMetadata }
+
+// Convert object to array
+const posts = Object.entries(postsModule.postMetadata).map(([slug, meta]) => ({
+  ...meta,
+  slug
+}));
 
 const apiDir = path.join(process.cwd(), "api");
 if (!fs.existsSync(apiDir)) fs.mkdirSync(apiDir);
@@ -11,7 +17,7 @@ const masterFeed = posts.map(post => ({
   title: post.title,
   slug: post.slug,
   url: `https://read.maxclickempire.com/posts/${post.slug}.html`,
-  date: post.date,
+  date: post.datePublished || post.dateModified || new Date().toISOString(),
   description: post.description || "",
   tags: post.tags || []
 }));
@@ -34,7 +40,7 @@ posts.forEach(post => {
     title: post.title,
     slug: post.slug,
     url: `https://read.maxclickempire.com/posts/${post.slug}.html`,
-    date: post.date,
+    date: post.datePublished || post.dateModified || new Date().toISOString(),
     description: post.description || "",
     tags: post.tags || [],
     content
