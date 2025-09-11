@@ -99,8 +99,8 @@
   "without": [],
   "automate": [],
   "docs": [],
-  "redirecting...": [],
   "use gmail": [],
+  "redirecting...": [],
   "not": [],
   "auto-sort & label": [],
   "inbox time": [],
@@ -110,9 +110,9 @@
   "backup your gmail safely": [],
   "edit,": [],
   "master gmail labels": [],
-  "recover deleted": [],
-  "recover today": [],
   "automatically": [],
+  "recover today": [],
+  "recover deleted": [],
   "classroom seating chart google": [],
   "recovery today": [],
   "conference": [
@@ -148,6 +148,10 @@
     "window",
     "windowpane"
   ],
+  "cloud": [
+    "swarm",
+    "cloud"
+  ],
   "ready": [
     "ready"
   ],
@@ -158,11 +162,11 @@
   "—": [],
   "+": [],
   "template|free": [],
-  "guide)": [],
   "guide:": [],
+  "guide)": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
+  "emails": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -575,7 +579,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -588,6 +591,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "gmail offline mode": [],
   "remote": [
@@ -631,10 +635,10 @@
     "check",
     "substantiation"
   ],
-  "gmail shortcuts": [],
-  "gmail filters": [],
   "gmail tips": [],
   "gmail templates": [],
+  "gmail shortcuts": [],
+  "gmail filters": [],
   "interviews": [],
   "format)": [],
   "seating": [
@@ -665,6 +669,7 @@
   ],
   "categories": [],
   "choose": [],
+  "compliant": [],
   "sent": [
     "sent"
   ],
