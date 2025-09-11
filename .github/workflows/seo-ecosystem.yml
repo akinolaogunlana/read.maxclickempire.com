@@ -15,7 +15,7 @@ on:
       - 'scripts/'
       - 'seo-ecosystem-generator.cjs'
       - 'scripts/fix-post-meta.cjs'
-      - 'scripts/generate-posts-json.js'
+      - 'scripts/generate-posts-json.cjs'
       - 'wrap-with-template.js'
       - 'assets/seo-enhancer.js'
 
@@ -50,7 +50,7 @@ jobs:
         run: node scripts/fix-post-meta.cjs  
 
       - name: 📑 Generate API posts.json and slugs  
-        run: node scripts/generate-posts-json.js  
+        run: node scripts/generate-posts-json.cjs  
 
       - name: 🔗 Add Internal Links  
         run: node scripts/internal-linker.cjs  
