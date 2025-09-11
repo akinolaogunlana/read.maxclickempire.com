@@ -1,1 +1,17 @@
-
+{
+  "schema_version": "v1",
+  "name_for_human": "MaxClickEmpire Blog",
+  "name_for_model": "maxclickempire_blog",
+  "description_for_human": "Access tutorials and guides on Gmail, Google Docs, Sheets, Drive, Calendar, Gmail AI, SEO, and affiliate marketing from MaxClickEmpire.",
+  "description_for_model": "Plugin to fetch MaxClickEmpire blog content. Use /api/posts.json to list posts, and /api/{slug}.json to retrieve the full content of a single post.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://read.maxclickempire.com/.well-known/openapi.yaml"
+  },
+  "logo_url": "https://read.maxclickempire.com/assets/favicon.png",
+  "contact_email": "maxclickempire@gmail.com",
+  "legal_info_url": "https://read.maxclickempire.com/privacy-policy.html"
+}
