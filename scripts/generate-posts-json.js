@@ -1,7 +1,7 @@
 // scripts/generate-posts-json.js
-import fs from "fs";
-import path from "path";
-import posts from "../data/post-meta.js"; // ✅ metadata file
+const fs = require("fs");
+const path = require("path");
+const posts = require("../data/post-meta.js"); // ✅ metadata file
 
 const apiDir = path.join(process.cwd(), "api");
 
