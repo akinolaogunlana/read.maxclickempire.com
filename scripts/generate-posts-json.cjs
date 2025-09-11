@@ -1,16 +1,12 @@
-// scripts/generate-posts-json.js
+// scripts/generate-posts-json.cjs
 const fs = require("fs");
 const path = require("path");
-const posts = require("../data/post-meta.js"); // ✅ Import metadata
+const posts = require("../data/post-meta.js"); // must export an array
 
 const apiDir = path.join(process.cwd(), "api");
+if (!fs.existsSync(apiDir)) fs.mkdirSync(apiDir);
 
-// Ensure /api directory exists
-if (!fs.existsSync(apiDir)) {
-  fs.mkdirSync(apiDir);
-}
-
-// ---------- MASTER FEED (posts.json) ----------
+// ---------- MASTER FEED ----------
 const masterFeed = posts.map(post => ({
   title: post.title,
   slug: post.slug,
@@ -20,17 +16,14 @@ const masterFeed = posts.map(post => ({
   tags: post.tags || []
 }));
 
-fs.writeFileSync(
-  path.join(apiDir, "posts.json"),
-  JSON.stringify(masterFeed, null, 2)
-);
+fs.writeFileSync(path.join(apiDir, "posts.json"), JSON.stringify(masterFeed, null, 2));
 console.log("✅ api/posts.json generated");
 
-// ---------- INDIVIDUAL POSTS (slug.json) ----------
+// ---------- INDIVIDUAL POSTS ----------
 posts.forEach(post => {
   const postPath = path.join(process.cwd(), "posts", `${post.slug}.html`);
-
   let content = "";
+
   if (fs.existsSync(postPath)) {
     content = fs.readFileSync(postPath, "utf-8");
   } else {
@@ -44,12 +37,9 @@ posts.forEach(post => {
     date: post.date,
     description: post.description || "",
     tags: post.tags || [],
-    content: content
+    content
   };
 
-  fs.writeFileSync(
-    path.join(apiDir, `${post.slug}.json`),
-    JSON.stringify(postData, null, 2)
-  );
+  fs.writeFileSync(path.join(apiDir, `${post.slug}.json`), JSON.stringify(postData, null, 2));
   console.log(`✅ api/${post.slug}.json generated`);
 });
