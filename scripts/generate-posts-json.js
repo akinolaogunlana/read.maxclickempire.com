@@ -1,55 +1,54 @@
 // scripts/generate-posts-json.js
+
 const fs = require("fs");
 const path = require("path");
-const posts = require("../data/post-meta.js"); // ✅ metadata file
+const https = require("https");
+const { parseStringPromise } = require("xml2js");
 
-const apiDir = path.join(process.cwd(), "api");
+const RSS_URL = "https://maxclickempire.com/rss.xml";
 
-// Ensure /api directory exists
-if (!fs.existsSync(apiDir)) {
-  fs.mkdirSync(apiDir);
+function fetchFeed(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => resolve(data));
+    }).on("error", (err) => reject(err));
+  });
 }
 
-// ---------- MASTER FEED (posts.json) ----------
-const masterFeed = posts.map(post => ({
-  title: post.title,
-  slug: post.slug,
-  url: `https://read.maxclickempire.com/posts/${post.slug}.html`,
-  date: post.date,
-  description: post.description || "",
-  tags: post.tags || []
-}));
+(async () => {
+  try {
+    const xml = await fetchFeed(RSS_URL);
+    const parsed = await parseStringPromise(xml);
 
-fs.writeFileSync(
-  path.join(apiDir, "posts.json"),
-  JSON.stringify(masterFeed, null, 2)
-);
-console.log("✅ api/posts.json generated");
+    if (!parsed.rss || !parsed.rss.channel[0].item) {
+      throw new Error("No posts found in RSS feed");
+    }
 
-// ---------- INDIVIDUAL POSTS (slug.json) ----------
-posts.forEach(post => {
-  const postPath = path.join(process.cwd(), "posts", `${post.slug}.html`);
+    const posts = parsed.rss.channel[0].item.map((entry, index) => ({
+      id: index + 1,
+      title: entry.title[0],
+      url: entry.link[0],
+      summary: entry.description ? entry.description[0] : "",
+      publishedAt: entry.pubDate ? entry.pubDate[0] : "",
+    }));
 
-  let content = "";
-  if (fs.existsSync(postPath)) {
-    content = fs.readFileSync(postPath, "utf-8");
-  } else {
-    console.warn(`⚠️ Missing file: posts/${post.slug}.html`);
+    // Ensure /api directory exists
+    const apiDir = path.join(__dirname, "..", "api");
+    if (!fs.existsSync(apiDir)) {
+      fs.mkdirSync(apiDir, { recursive: true });
+    }
+
+    // Save as /api/posts.json
+    fs.writeFileSync(
+      path.join(apiDir, "posts.json"),
+      JSON.stringify(posts, null, 2)
+    );
+
+    console.log("✅ posts.json generated from RSS feed!");
+  } catch (err) {
+    console.error("❌ Failed to generate posts.json:", err);
+    process.exit(1);
   }
-
-  const postData = {
-    title: post.title,
-    slug: post.slug,
-    url: `https://read.maxclickempire.com/posts/${post.slug}.html`,
-    date: post.date,
-    description: post.description || "",
-    tags: post.tags || [],
-    content: content
-  };
-
-  fs.writeFileSync(
-    path.join(apiDir, `${post.slug}.json`),
-    JSON.stringify(postData, null, 2)
-  );
-  console.log(`✅ api/${post.slug}.json generated`);
-});
+})();
