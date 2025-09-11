@@ -1,0 +1,74 @@
+openapi: 3.0.1
+info:
+  title: MaxClickEmpire Blog Plugin
+  description: API for accessing blog posts from read.maxclickempire.com
+  version: 1.0.0
+servers:
+  - url: https://read.maxclickempire.com
+
+paths:
+  /api/posts.json:
+    get:
+      summary: Get all blog posts
+      operationId: getAllPosts
+      tags:
+        - Posts
+      responses:
+        "200":
+          description: A list of blog posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostSummary"
+
+  /api/{slug}.json:
+    get:
+      summary: Get a single blog post by slug
+      operationId: getPostBySlug
+      tags:
+        - Posts
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: The slug of the blog post
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A single blog post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostDetail"
+
+components:
+  schemas:
+    PostSummary:
+      type: object
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        url:
+          type: string
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    PostDetail:
+      allOf:
+        - $ref: "#/components/schemas/PostSummary"
+        - type: object
+          properties:
+            content:
+              type: string
