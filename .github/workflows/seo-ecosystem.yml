@@ -15,6 +15,7 @@ on:
       - 'scripts/'
       - 'seo-ecosystem-generator.cjs'
       - 'scripts/fix-post-meta.cjs'
+      - 'scripts/generate-posts-json.js'
       - 'wrap-with-template.js'
       - 'assets/seo-enhancer.js'
 
@@ -48,6 +49,9 @@ jobs:
       - name: 🛠️ Fix post-meta.js (Node + Browser compatible)  
         run: node scripts/fix-post-meta.cjs  
 
+      - name: 📑 Generate API posts.json and slugs  
+        run: node scripts/generate-posts-json.js  
+
       - name: 🔗 Add Internal Links  
         run: node scripts/internal-linker.cjs  
 
@@ -77,13 +81,13 @@ jobs:
           curl "https://www.google.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"  
           curl "https://www.bing.com/ping?sitemap=https://read.maxclickempire.com/sitemap.xml"  
 
-      - name: 🔄 Commit SEO, Sitemap, Metadata, Archive, and posts  
+      - name: 🔄 Commit SEO, Sitemap, Metadata, Archive, API, and posts  
         run: |  
           git config --global user.name "maxclick-seo-bot"  
           git config --global user.email "github-actions@users.noreply.github.com"  
           # Add only safe files (exclude credentials)
-          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger archive.html posts/ || true  
-          git commit -m "♻️ Auto SEO, Metadata, Posts & Archive Update" || echo "No changes to commit"  
+          git add sitemap.xml rss.xml robots.txt data/post-meta.js .deploy-trigger archive.html posts/ api/ || true  
+          git commit -m "♻️ Auto SEO, Metadata, API, Archive & Posts Update" || echo "No changes to commit"  
           git push || echo "No changes to push"  
 
       - name: 🌍 Deploy to GitHub Pages  
