@@ -160,7 +160,7 @@ gmail-priority-inbox.html" title="Export &amp; Backup Your Gmail Safely — Star
   <li>Use aliases for role addresses to avoid extra license costs (each alias routes to a primary mailbox).</li>
 </ul><h3>Set up routing, compliance, and retention policies</h3>
 <p>Admins can configure content compliance rules (block or route messages), <a href="/posts/gmail-undo-send-safety-window.html" title="Set Gmail Undo Send Now: Choose Your Perfect Safety Window">set</a> retention rules, and apply vault/eDiscovery settings on applicable plans. Configure data retention from the Admin console to meet your compliance needs.</p><h3>Delegation, shared mailboxes, and resource calendars</h3>
-<p>Email delegation allows a user to read/send on behalf of another without separate credentials. For shared inboxes, use Google Groups (Collaborative Inbox) or resource calendars for room/equipment bookings.</p><h2>DNS, MX records, and deliverability (SPF, DKIM, DMARC)</h2>
+<p><a href="/posts/find-archived-emails-gmail.html" title="Find Archived Emails in Gmail — Complete Step-by-Step Guide">Email</a> delegation allows a user to read/send on behalf of another without separate credentials. For shared inboxes, use Google Groups (Collaborative Inbox) or resource calendars for room/equipment bookings.</p><h2>DNS, MX records, and deliverability (SPF, DKIM, DMARC)</h2>
 <p>Deliverability depends on properly configuring MX, SPF, DKIM, and DMARC. After domain verification, add the MX records Google provides. Then implement SPF (TXT), generate DKIM keys in Admin console and add DNS record, and finally publish a DMARC policy to help reporting and enforcement.</p><h3>Add MX records — exact records &amp; propagation tips</h3>
 <ul>
   <li>Priority 1: <strong>ASPMX.L.GOOGLE.COM</strong></li>
@@ -172,7 +172,7 @@ gmail-priority-inbox.html" title="Export &amp; Backup Your Gmail Safely — Star
   <li><strong>DKIM:</strong> In Admin Console &gt; Apps &gt; Google Workspace &gt; Gmail &gt; Authenticate email — generate a 2048-bit key, add the DNS TXT record Google provides, then click “Start authentication”.</li>
   <li><strong>DMARC:</strong> Add TXT: <code>v=DMARC1; p=quarantine; rua=mailto:postmaster@yourdomain.com; ruf=mailto:admin@yourdomain.com; pct=100</code> — start with <code>p=none</code> for monitoring, then move to <code>p=quarantine</code> or <code>p=reject</code>.</li>
 </ol><h3>Troubleshooting deliverability &amp; common DNS mistakes</h3>
-<p>Common problems: <a href="/posts/manage-multiple-gmail-accounts.html" title="manage multiple gmail accounts">multiple</a> SPF records (combine into one), missing DKIM record, or wrong MX hostnames. Use Google Toolbox and third-party tools to verify SPF/DKIM/DMARC and check header traces when deliverability fails.</p><h2>Migrate email &amp; data to Google Workspace (step-by-step)</h2>
+<p>Common problems: multiple SPF records (combine into one), missing DKIM record, or wrong MX hostnames. Use Google Toolbox and third-party tools to verify SPF/DKIM/DMARC and check header traces when deliverability fails.</p><h2>Migrate email &amp; data to Google Workspace (step-by-step)</h2>
 <p>Selecting the right migration path depends on your source system, mailbox size, and continuity needs. Google provides migration tools; GWMME is for Exchange migrations. Third-party tools handle edge cases and complex archives. </p><h3>Pick the right migration method (Data Migration Service vs GWMME vs IMAP)</h3>
 <ul>
   <li><strong>Data Migration Service:</strong> Good for IMAP sources and Microsoft 365/Exchange online.</li>
