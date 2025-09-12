@@ -110,8 +110,8 @@
   "backup your gmail safely": [],
   "edit,": [],
   "master gmail labels": [],
-  "recover today": [],
   "recover deleted": [],
+  "recover today": [],
   "automatically": [],
   "classroom seating chart google": [],
   "recovery today": [],
@@ -159,14 +159,42 @@
   "free": [
     "free"
   ],
+  "check": [
+    "check",
+    "bridle",
+    "curb",
+    "chip",
+    "hindrance",
+    "hinderance",
+    "deterrent",
+    "impediment",
+    "balk",
+    "baulk",
+    "handicap",
+    "tick",
+    "checkout",
+    "confirmation",
+    "verification",
+    "substantiation",
+    "arrest",
+    "halt",
+    "hitch",
+    "stay",
+    "stop",
+    "stoppage",
+    "chit",
+    "tab",
+    "assay",
+    "cheque"
+  ],
   "—": [],
   "+": [],
   "template|free": [],
-  "guide)": [],
   "guide:": [],
+  "guide)": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
+  "emails": [],
   "protect": [],
   "email": [
     "e-mail",
@@ -579,7 +607,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -592,6 +619,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "gmail offline mode": [],
   "remote": [
@@ -635,10 +663,10 @@
     "check",
     "substantiation"
   ],
-  "gmail tips": [],
-  "gmail templates": [],
   "gmail filters": [],
+  "gmail tips": [],
   "gmail shortcuts": [],
+  "gmail templates": [],
   "interviews": [],
   "format)": [],
   "seating": [
