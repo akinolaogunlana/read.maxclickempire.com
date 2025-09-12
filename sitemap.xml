@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-12T03:20:11.596Z</lastmod>
+    <lastmod>2025-09-12T10:57:20.723Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -694,5 +694,15 @@ gmail-priority-inbox.html</loc>
     <lastmod>2025-09-10T22:23:43.416Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-is-down-now.html</loc>
+    <lastmod>2025-09-12T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Check If Gmail Is Down Now — Verify Gmail Outage &amp; Restore Email Fast</image:title>
+    </image:image>
   </url>
 </urlset>
