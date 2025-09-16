@@ -200,7 +200,7 @@
   <li>Once confident, edit the filter to add the forward action and remove the temporary label.</li>
 </ol><h2>Workspace and admin considerations (Google Workspace / G Suite)</h2>
 <h3>Admin routing, compliance, Vault, and forwarding limits</h3>
-<p>Workspace admins have organization-level routing, compliance rules, and Vault for discovery. Forwarding outside the organization may be restricted or logged. For organization-wide forwarding, use admin routing rules or create sanctioned routing accounts.</p><h3>Forwarding to external addresses: policies and quota considerations</h3>
+<p>Workspace admins have organization-level routing, compliance rules, and Vault for discovery. Forwarding outside the organization may be restricted or logged. For organization-wide forwarding, use admin routing rules or <a href="/posts/gmail-create-signature-with-images-links.html" title="Create a Gmail Signature With Images &amp; Links — Start Now">create</a> sanctioned routing accounts.</p><h3>Forwarding to external addresses: policies and quota considerations</h3>
 <p>Workspace imposes sending and forwarding quotas. Frequent outputs to many external addresses can trigger limits or throttling. If you plan to forward high volumes externally, coordinate with your Workspace admin to avoid deliverability or compliance issues.</p><h2>Security, privacy, and compliance best practices</h2>
 <h3>Avoid accidental data leaks — consent, notices, and audits</h3>
 <ul>
@@ -215,7 +215,7 @@
 <p>Forwarding via filters forwards the entire message including attachments by default, but Apps Script-based forwards that re-send the body may strip original attachments unless explicitly included. For full fidelity, use forwarding (not a new send) when attachments must be preserved, or attach original messages using <code>GmailMessage.getRawContent()</code> in advanced scripts (requires technical skill).</p><h2>Maintenance and monitoring — keep forwarding healthy long-term</h2>
 <h3>Auditing rules, removing stale forwards, and labeling strategy</h3>
 <p>Every 3–6 months review filters and forwarding addresses. Remove verification for addresses no longer needed and <a href="/posts/gmail-delete-account.html" title="Delete Your Gmail Account Safely: Backup, Remove, and Recover Today">delete</a> filters that forward to ex-employees. Use labels like "auto-forwarded" to visually track forwarded items.</p><h3>Alerts and automation for forwarding failures</h3>
-<p>Create a <a href="/posts/daily-attendance-sheet-teachers-google-docs.html" title="Daily Attendance Sheet for Teachers | Free Google Docs">daily</a> digest label (e.g., label:forward-errors) for failed sends from scripts, or use Apps Script to send you an admin report if forwarding count drops or errors occur.</p><h2>Automation + integrations (Apps Script, Zapier, Make, email routing rules)</h2>
+<p>Create a daily digest label (e.g., label:forward-errors) for failed sends from scripts, or use Apps Script to send you an admin report if forwarding count drops or errors occur.</p><h2>Automation + integrations (Apps Script, Zapier, Make, email routing rules)</h2>
 <h3>Sample Apps Script to forward filtered messages to multiple addresses</h3>
 <p>See the Apps Script sample above. For production: use a service account, respect sending limits, and consider using an external SMTP via a verified provider for high-volume distributions.</p><h3>Integrations for CRM or ticketing systems (practical patterns)</h3>
 <ul>
