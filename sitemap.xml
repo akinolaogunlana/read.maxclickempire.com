@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-09-16T09:55:00.807Z</lastmod>
+    <lastmod>2025-09-16T10:09:14.760Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -713,6 +713,16 @@ gmail-priority-inbox.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Master Gmail Tabs — Organize Promotions &amp; Social Today</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-track-sent-emails.html</loc>
+    <lastmod>2025-09-16T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>How to Track Sent Emails in Gmail — Start Tracking Opens Now</image:title>
     </image:image>
   </url>
 </urlset>
