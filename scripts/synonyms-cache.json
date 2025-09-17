@@ -115,15 +115,15 @@
   ],
   "edit,": [],
   "master gmail labels": [],
-  "automatically": [],
   "recover today": [],
   "recover deleted": [],
+  "automatically": [],
   "classroom seating chart google": [],
-  "recovery today": [],
   "conference": [
     "conference",
     "league"
   ],
+  "recovery today": [],
   "resume templates": [],
   "with": [],
   "in": [
@@ -192,8 +192,8 @@
   "—": [],
   "+": [],
   "template|free": [],
-  "guide)": [],
   "guide:": [],
+  "guide)": [],
   "backup,": [],
   "email:": [],
   "emails": [],
@@ -223,12 +223,12 @@
     "fill-in"
   ],
   "customize": [],
+  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
-  "learn": [],
   "fix": [
     "localization",
     "localisation",
@@ -633,7 +633,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -646,6 +645,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "gmail offline mode": [],
   "remote": [
@@ -689,10 +689,10 @@
     "check",
     "substantiation"
   ],
-  "gmail filters": [],
-  "gmail templates": [],
-  "gmail tips": [],
   "gmail shortcuts": [],
+  "gmail tips": [],
+  "gmail templates": [],
+  "gmail filters": [],
   "interviews": [],
   "format)": [],
   "seating": [
