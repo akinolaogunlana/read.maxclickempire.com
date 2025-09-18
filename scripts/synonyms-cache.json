@@ -101,8 +101,8 @@
   "without": [],
   "automate": [],
   "docs": [],
-  "redirecting...": [],
   "use gmail": [],
+  "redirecting...": [],
   "not": [],
   "auto-sort & label": [],
   "inbox time": [],
@@ -192,8 +192,8 @@
   "—": [],
   "+": [],
   "template|free": [],
-  "guide:": [],
   "guide)": [],
+  "guide:": [],
   "backup,": [],
   "emails": [],
   "email:": [],
@@ -480,6 +480,13 @@
     "sensitive"
   ],
   "manage": [],
+  "move": [
+    "move",
+    "motion",
+    "movement",
+    "motility",
+    "relocation"
+  ],
   "your": [],
   "productivity": [
     "productivity",
@@ -647,6 +654,15 @@
     "plane"
   ],
   "teachers": [],
+  "outlook": [
+    "lookout",
+    "outlook",
+    "expectation",
+    "prospect",
+    "mentality",
+    "mindset",
+    "mind-set"
+  ],
   "gmail offline mode": [],
   "remote": [
     "remote"
@@ -691,8 +707,8 @@
   ],
   "gmail shortcuts": [],
   "gmail tips": [],
-  "gmail templates": [],
   "gmail filters": [],
+  "gmail templates": [],
   "interviews": [],
   "format)": [],
   "seating": [
@@ -707,6 +723,7 @@
   ],
   "for": [],
   "changers": [],
+  "archived": [],
   "contract": [
     "contract",
     "declaration"
@@ -784,8 +801,8 @@
     "organiser",
     "arranger"
   ],
-  "gmail storage cleanup": [],
   "gmail labels vs categories": [],
+  "gmail storage cleanup": [],
   "ai": [
     "ai"
   ],
