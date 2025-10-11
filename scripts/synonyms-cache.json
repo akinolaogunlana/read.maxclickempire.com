@@ -581,7 +581,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -594,6 +593,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "outlook": [
     "lookout",
@@ -651,10 +651,10 @@
     "check",
     "substantiation"
   ],
-  "gmail templates": [],
   "gmail tips": [],
   "gmail filters": [],
   "gmail shortcuts": [],
+  "gmail templates": [],
   "interviews": [],
   "format)": [],
   "seating": [
@@ -662,12 +662,12 @@
     "seats"
   ],
   "printable": [],
-  "for": [],
   "planner": [
     "planner",
     "contriver",
     "deviser"
   ],
+  "for": [],
   "changers": [],
   "archived": [],
   "contract": [
@@ -747,8 +747,8 @@
     "organiser",
     "arranger"
   ],
-  "gmail storage cleanup": [],
   "gmail labels vs categories": [],
+  "gmail storage cleanup": [],
   "ai": [
     "ai"
   ],
