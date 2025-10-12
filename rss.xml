@@ -9,6 +9,22 @@
     <atom:link href="https://read.maxclickempire.com/rss.xml" rel="self" type="application/rss+xml" />
     
 <item>
+  <title><![CDATA[How to Use Gmail Passkeys (2025 Security Guide)]]></title>
+  <description><![CDATA[Set up Gmail passkeys the right way: step-by-step for Android, iPhone, Windows, macOS, and ChromeOS, plus recovery, Advanced Protection, and expert security tips.]]></description>
+  <link>https://read.maxclickempire.com/posts/gmail-passkeys-guide.html</link>
+  <guid isPermaLink="true">https://read.maxclickempire.com/posts/gmail-passkeys-guide.html</guid>
+  <pubDate>Sun, 12 Oct 2025 00:00:00 GMT</pubDate>
+  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
+  <category><![CDATA[Gmail passkeys]]></category>
+    <category><![CDATA[Google passkey setup]]></category>
+    <category><![CDATA[Gmail security 2025]]></category>
+    <category><![CDATA[FIDO2 passkeys]]></category>
+    <category><![CDATA[Google Advanced Protection passkey]]></category>
+  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
+  <content:encoded><![CDATA[Set up Gmail passkeys the right way: step-by-step for Android, iPhone, Windows, macOS, and ChromeOS, plus recovery, Advanced Protection, and expert security tips.]]></content:encoded>
+</item>
+
+<item>
   <title><![CDATA[Move from Outlook to Gmail — Start Your Migration Now]]></title>
   <description><![CDATA[Step-by-step Outlook to Gmail migration guide: backup PSTs, pick the right tool, map folders to labels, and cut over with zero surprises. Start now.]]></description>
   <link>https://read.maxclickempire.com/posts/gmail-outlook-migration.html</link>
@@ -325,21 +341,6 @@ gmail-priority-inbox.html</guid>
     <category><![CDATA[printable purchase order]]></category>
   <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
   <content:encoded><![CDATA[Build a professional purchase order in Google Docs for your small store—free template layout, step-by-step setup, numbering, and a fast Docs + Sheets workflow.]]></content:encoded>
-</item>
-
-<item>
-  <title><![CDATA[Gmail App Tutorial 2025| Master Mobile Email & Boost Productivity]]></title>
-  <description><![CDATA[Master Gmail app tips for Android & iOS: swipe, labels, scheduling, shortcuts, Gemini features and security. Follow this guide to optimize mobile email now.]]></description>
-  <link>https://read.maxclickempire.com/posts/gmail-app-mobile-productivity-tips.html</link>
-  <guid isPermaLink="true">https://read.maxclickempire.com/posts/gmail-app-mobile-productivity-tips.html</guid>
-  <pubDate>Thu, 04 Sep 2025 00:00:00 GMT</pubDate>
-  <author><![CDATA[webmaster@maxclickempire.com (MaxClickEmpire)]]></author>
-  <category><![CDATA[gmail app tips]]></category>
-    <category><![CDATA[gmail app tips android]]></category>
-    <category><![CDATA[gmail app tips ios]]></category>
-    <category><![CDATA[Gmail tip 2025]]></category>
-  <enclosure url="https://read.maxclickempire.com/assets/og-image.jpg" type="image/jpeg" length="0" />
-  <content:encoded><![CDATA[Master Gmail app tips for Android & iOS: swipe, labels, scheduling, shortcuts, Gemini features and security. Follow this guide to optimize mobile email now.]]></content:encoded>
 </item>
   </channel>
 </rss>
