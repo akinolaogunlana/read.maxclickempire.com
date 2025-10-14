@@ -359,7 +359,7 @@ timesheet-template-google-docs.html</loc>
   </url>
   <url>
     <loc>https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html</loc>
-    <lastmod>2025-10-14T17:12:28.510Z</lastmod>
+    <lastmod>2025-10-14T20:21:19.117Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -743,6 +743,16 @@ gmail-priority-inbox.html</loc>
     <image:image>
       <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
       <image:title>Move from Outlook to Gmail — Start Your Migration Now</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://read.maxclickempire.com/posts/gmail-promotions-tab-clean-inbox-guide.html</loc>
+    <lastmod>2025-10-14T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://read.maxclickempire.com/assets/og-image.jpg</image:loc>
+      <image:title>Master Gmail Promotions &amp; Social Tabs: Clean Your Inbox Today</image:title>
     </image:image>
   </url>
 </urlset>
