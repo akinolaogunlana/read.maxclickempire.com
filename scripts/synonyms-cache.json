@@ -93,12 +93,13 @@
   "—": [],
   "+": [],
   "template|free": [],
-  "guide)": [],
   "guide:": [],
+  "guide)": [],
   "redirecting...": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
+  "promotions": [],
   "links": [
     "links"
   ],
@@ -200,12 +201,12 @@
   ],
   "labels": [],
   "creative": [],
+  "multiple": [
+    "multiple"
+  ],
   "export": [
     "export",
     "exportation"
-  ],
-  "multiple": [
-    "multiple"
   ],
   "phone": [
     "earphone",
@@ -234,6 +235,9 @@
   "fast": [
     "fast",
     "fasting"
+  ],
+  "clean": [
+    "clean"
   ],
   "find": [
     "discovery",
@@ -581,7 +585,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -594,6 +597,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "outlook": [
     "lookout",
@@ -635,6 +639,11 @@
     "league"
   ],
   "free google docs resume": [],
+  "social": [
+    "sociable",
+    "social",
+    "mixer"
+  ],
   "professional": [
     "master",
     "professional",
@@ -652,8 +661,8 @@
     "substantiation"
   ],
   "gmail shortcuts": [],
-  "gmail filters": [],
   "gmail tips": [],
+  "gmail filters": [],
   "gmail templates": [],
   "interviews": [],
   "format)": [],
@@ -747,8 +756,8 @@
     "organiser",
     "arranger"
   ],
-  "gmail storage cleanup": [],
   "gmail labels vs categories": [],
+  "gmail storage cleanup": [],
   "ai": [
     "ai"
   ],
