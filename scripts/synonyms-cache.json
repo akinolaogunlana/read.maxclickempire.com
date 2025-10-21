@@ -585,6 +585,7 @@
     "smartness"
   ],
   "receiving": [],
+  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -597,7 +598,6 @@
     "rag",
     "plane"
   ],
-  "fresh": [],
   "teachers": [],
   "outlook": [
     "lookout",
@@ -661,8 +661,8 @@
     "substantiation"
   ],
   "gmail filters": [],
-  "gmail tips": [],
   "gmail templates": [],
+  "gmail tips": [],
   "gmail shortcuts": [],
   "interviews": [],
   "format)": [],
