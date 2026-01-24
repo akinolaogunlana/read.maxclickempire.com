@@ -97,8 +97,8 @@
   "guide:": [],
   "redirecting...": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "promotions": [],
   "links": [
     "links"
@@ -585,7 +585,6 @@
     "smartness"
   ],
   "receiving": [],
-  "fresh": [],
   "sheet": [
     "sail",
     "canvas",
@@ -598,6 +597,7 @@
     "rag",
     "plane"
   ],
+  "fresh": [],
   "teachers": [],
   "outlook": [
     "lookout",
@@ -660,10 +660,10 @@
     "check",
     "substantiation"
   ],
-  "gmail filters": [],
-  "gmail shortcuts": [],
-  "gmail templates": [],
   "gmail tips": [],
+  "gmail templates": [],
+  "gmail shortcuts": [],
+  "gmail filters": [],
   "interviews": [],
   "format)": [],
   "seating": [
