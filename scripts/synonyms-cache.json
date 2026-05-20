@@ -312,7 +312,6 @@
     "agenda",
     "docket"
   ],
-  "enable": [],
   "mastery": [
     "mastery",
     "subordination",
@@ -321,6 +320,7 @@
     "command",
     "control"
   ],
+  "enable": [],
   "proposal": [
     "proposal",
     "proposition"
@@ -660,8 +660,8 @@
     "check",
     "substantiation"
   ],
-  "gmail tips": [],
   "gmail templates": [],
+  "gmail tips": [],
   "gmail shortcuts": [],
   "gmail filters": [],
   "interviews": [],
