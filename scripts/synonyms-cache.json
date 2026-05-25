@@ -97,8 +97,8 @@
   "guide:": [],
   "redirecting...": [],
   "backup,": [],
-  "emails": [],
   "email:": [],
+  "emails": [],
   "promotions": [],
   "links": [
     "links"
@@ -129,12 +129,12 @@
     "fill-in"
   ],
   "customize": [],
-  "learn": [],
   "add": [
     "add",
     "adhd",
     "mbd"
   ],
+  "learn": [],
   "free": [
     "free"
   ],
@@ -312,7 +312,6 @@
     "agenda",
     "docket"
   ],
-  "enable": [],
   "mastery": [
     "mastery",
     "subordination",
@@ -321,6 +320,7 @@
     "command",
     "control"
   ],
+  "enable": [],
   "proposal": [
     "proposal",
     "proposition"
@@ -662,8 +662,8 @@
   ],
   "gmail shortcuts": [],
   "gmail tips": [],
-  "gmail templates": [],
   "gmail filters": [],
+  "gmail templates": [],
   "interviews": [],
   "format)": [],
   "seating": [
