@@ -8,8 +8,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/affiliate-disclosure-statement-template.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:04.828Z",
-    "sourceLastModified": 1786509544828.8857
+    "timestamp": "2026-08-13T04:42:36.630Z",
+    "sourceLastModified": 1786596156630.6074
   },
   "best-docs-resume-templates-that-get-you-hired": {
     "title": "Best Free Google Docs Resume Templates (2025) — ATS-Friendly",
@@ -19,8 +19,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/best-docs-resume-templates-that-get-you-hired.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:07.142Z",
-    "sourceLastModified": 1786509547142.948
+    "timestamp": "2026-08-13T04:42:39.340Z",
+    "sourceLastModified": 1786596159340.5974
   },
   "create-an-ats-friendly-resume-on-google-docs": {
     "title": "How to create an ATS-friendly resume in Google Docs",
@@ -30,8 +30,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-an-ats-friendly-resume-on-google-docs.html",
     "datePublished": "2025-08-10T00:00:00.000Z",
     "dateModified": "2025-08-10T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:13.132Z",
-    "sourceLastModified": 1786509553132.102
+    "timestamp": "2026-08-13T04:42:45.830Z",
+    "sourceLastModified": 1786596165830.6113
   },
   "modern-resume-templates-google-docs-get-jobs": {
     "title": "Modern, ATS-Friendly Google Docs Resume Templates That Get Interviews",
@@ -41,8 +41,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/modern-resume-templates-google-docs-get-jobs.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:05.994Z",
-    "sourceLastModified": 1786509605994.496
+    "timestamp": "2026-08-13T04:43:38.092Z",
+    "sourceLastModified": 1786596218092.6963
   },
   "google-docs-resume-template-fresh-graduates": {
     "title": "Fresh Graduate Resume Template | Free Google Docs",
@@ -52,8 +52,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-resume-template-fresh-graduates.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:54.060Z",
-    "sourceLastModified": 1786509594060.1892
+    "timestamp": "2026-08-13T04:43:25.955Z",
+    "sourceLastModified": 1786596205955.676
   },
   "one-page-resume-template-google-docs-free-download": {
     "title": "One-Page Resume Template in Google Docs (Free Download)",
@@ -63,8 +63,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/one-page-resume-template-google-docs-free-download.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:06.964Z",
-    "sourceLastModified": 1786509606964.5215
+    "timestamp": "2026-08-13T04:43:39.053Z",
+    "sourceLastModified": 1786596219053.698
   },
   "minimalist-docs-resume-template-free-ats-friendly": {
     "title": "Best Minimalist Google Docs Resume Template|Free & ATS-Friendly",
@@ -74,8 +74,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/minimalist-docs-resume-template-free-ats-friendly.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:05.042Z",
-    "sourceLastModified": 1786509605042.4717
+    "timestamp": "2026-08-13T04:43:37.123Z",
+    "sourceLastModified": 1786596217123.6946
   },
   "creative-graphic-designer-resume-google-docs": {
     "title": "Creative Resume Template for Graphic Designers | Google Docs Free",
@@ -85,8 +85,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/creative-graphic-designer-resume-google-docs.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:15.708Z",
-    "sourceLastModified": 1786509555708.1687
+    "timestamp": "2026-08-13T04:42:48.630Z",
+    "sourceLastModified": 1786596168630.618
   },
   "remote-job-resume-template-google-docs": {
     "title": "Remote Resume Template in Google Docs | Free & Editable",
@@ -96,8 +96,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/remote-job-resume-template-google-docs.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:13.764Z",
-    "sourceLastModified": 1786509613764.6987
+    "timestamp": "2026-08-13T04:43:45.827Z",
+    "sourceLastModified": 1786596225827.724
   },
   "free-google-docs-resume-career-changers": {
     "title": "Free Google Docs resume for career changers",
@@ -107,8 +107,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/free-google-docs-resume-career-changers.html",
     "datePublished": "2025-08-12T00:00:00.000Z",
     "dateModified": "2025-08-12T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:24.985Z",
-    "sourceLastModified": 1786509564985.418
+    "timestamp": "2026-08-13T04:42:57.809Z",
+    "sourceLastModified": 1786596177809.637
   },
   "cover-letter-template-matching-resume": {
     "title": "Cover Letter & Resume Templates in Google Docs | Free Matching",
@@ -118,8 +118,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/cover-letter-template-matching-resume.html",
     "datePublished": "2025-08-11T00:00:00.000Z",
     "dateModified": "2025-08-11T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:12.139Z",
-    "sourceLastModified": 1786509552139.0764
+    "timestamp": "2026-08-13T04:42:44.794Z",
+    "sourceLastModified": 1786596164794.609
   },
   "invoice-docs-templates-for-freelancers": {
     "title": "Free Google Docs Invoice Templates for Freelancers",
@@ -129,8 +129,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/invoice-docs-templates-for-freelancers.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:01.463Z",
-    "sourceLastModified": 1786509601463.3801
+    "timestamp": "2026-08-13T04:43:33.512Z",
+    "sourceLastModified": 1786596213512.6885
   },
   "professional-invoice-using-google-docs": {
     "title": "How to Create a Professional Invoice Using Google Docs",
@@ -140,8 +140,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/professional-invoice-using-google-docs.html",
     "datePublished": "2025-08-13T00:00:00.000Z",
     "dateModified": "2025-08-13T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:08.930Z",
-    "sourceLastModified": 1786509608930.5728
+    "timestamp": "2026-08-13T04:43:41.061Z",
+    "sourceLastModified": 1786596221061.7014
   },
   "proposal-template-google-docs-for-small-businesses": {
     "title": "Proposal Template for Small Business in Google Docs|Free",
@@ -151,8 +151,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/proposal-template-google-docs-for-small-businesses.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:10.015Z",
-    "sourceLastModified": 1786509610015.601
+    "timestamp": "2026-08-13T04:43:42.126Z",
+    "sourceLastModified": 1786596222126.711
   },
   "business-letter-template-google-docs-formal-format": {
     "title": "Business Letter Template Google Docs (Formal Format)",
@@ -162,8 +162,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/business-letter-template-google-docs-formal-format.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:09.055Z",
-    "sourceLastModified": 1786509549055.9968
+    "timestamp": "2026-08-13T04:42:41.465Z",
+    "sourceLastModified": 1786596161465.602
   },
   "meeting-minutes-template-google-docs-free": {
     "title": "Meeting Minutes Template Google Docs (Free)",
@@ -173,8 +173,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/meeting-minutes-template-google-docs-free.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:04.117Z",
-    "sourceLastModified": 1786509604117.448
+    "timestamp": "2026-08-13T04:43:36.191Z",
+    "sourceLastModified": 1786596216191.6929
   },
   "timesheet-template-google-docs.html\ntimesheet-template-google-docs": {
     "title": "Timesheet Template Google Docs | Free & Printable for Employees",
@@ -184,8 +184,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/timesheet-template-google-docs.html\ntimesheet-template-google-docs.html",
     "datePublished": "2025-08-14T00:00:00.000Z",
     "dateModified": "2025-08-14T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:20.138Z",
-    "sourceLastModified": 1786509620138.8616
+    "timestamp": "2026-08-13T04:43:52.198Z",
+    "sourceLastModified": 1786596232198.7437
   },
   "letterhead-in-google-docs": {
     "title": "How to Make a Letterhead in Google Docs",
@@ -195,8 +195,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/letterhead-in-google-docs.html",
     "datePublished": "2025-08-15T00:00:00.000Z",
     "dateModified": "2025-08-15T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:02.251Z",
-    "sourceLastModified": 1786509602251.4004
+    "timestamp": "2026-08-13T04:43:34.281Z",
+    "sourceLastModified": 1786596214281.6897
   },
   "purchase-order-templates-google-docs": {
     "title": "Purchase Order Template for Small Stores | Free Google Docs",
@@ -206,8 +206,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/purchase-order-templates-google-docs.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:11.962Z",
-    "sourceLastModified": 1786509611962.6519
+    "timestamp": "2026-08-13T04:43:44.032Z",
+    "sourceLastModified": 1786596224032.7205
   },
   "delivery-note-template-google-docs-free-printable": {
     "title": "Delivery Note Template in Google Docs | Free & Printable",
@@ -217,8 +217,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/delivery-note-template-google-docs-free-printable.html",
     "datePublished": "2025-08-17T00:00:00.000Z",
     "dateModified": "2025-08-17T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:19.014Z",
-    "sourceLastModified": 1786509559014.256
+    "timestamp": "2026-08-13T04:42:51.941Z",
+    "sourceLastModified": 1786596171941.6257
   },
   "sales-contract-template-free-editable-google-docs": {
     "title": "Sales Contract Template — Free, Editable Google Docs (Pro Legal Layout)",
@@ -228,8 +228,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/sales-contract-template-free-editable-google-docs.html",
     "datePublished": "2025-08-18T00:00:00.000Z",
     "dateModified": "2025-08-18T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:15.151Z",
-    "sourceLastModified": 1786509615151.7341
+    "timestamp": "2026-08-13T04:43:47.195Z",
+    "sourceLastModified": 1786596227195.727
   },
   "student-planner-template-google-docs": {
     "title": "Student Planner Template in Google Docs | Free & Printable",
@@ -239,8 +239,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/student-planner-template-google-docs.html",
     "datePublished": "2025-08-19T00:00:00.000Z",
     "dateModified": "2025-08-19T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:17.513Z",
-    "sourceLastModified": 1786509617513.7944
+    "timestamp": "2026-08-13T04:43:49.561Z",
+    "sourceLastModified": 1786596229561.733
   },
   "classroom-seating-chart-google-docs-template": {
     "title": "Classroom seating chart Google Docs template",
@@ -250,8 +250,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/classroom-seating-chart-google-docs-template.html",
     "datePublished": "2025-08-19T00:00:00.000Z",
     "dateModified": "2025-08-19T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:10.628Z",
-    "sourceLastModified": 1786509550628.0374
+    "timestamp": "2026-08-13T04:42:43.133Z",
+    "sourceLastModified": 1786596163133.6055
   },
   "editable-class-schedule-google-docs": {
     "title": "Editable Class Schedule in Google Docs (Step-by-Step + Free Options)",
@@ -261,8 +261,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/editable-class-schedule-google-docs.html",
     "datePublished": "2025-08-20T00:00:00.000Z",
     "dateModified": "2025-08-20T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:19.804Z",
-    "sourceLastModified": 1786509559804.2773
+    "timestamp": "2026-08-13T04:42:52.708Z",
+    "sourceLastModified": 1786596172708.6274
   },
   "homework-planner-google-docs": {
     "title": "Google Docs Homework Organizer | Free Student Planner Template",
@@ -272,8 +272,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/homework-planner-google-docs.html",
     "datePublished": "2025-08-20T00:00:00.000Z",
     "dateModified": "2025-08-20T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:00.041Z",
-    "sourceLastModified": 1786509600041.344
+    "timestamp": "2026-08-13T04:43:32.075Z",
+    "sourceLastModified": 1786596212075.686
   },
   "Google-Docs-Student-Planner-Template": {
     "title": "Redirecting...",
@@ -296,8 +296,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/syllabus-template-for-college-professors-google-docs-free.html",
     "datePublished": "2025-08-22T00:00:00.000Z",
     "dateModified": "2025-08-22T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:19.217Z",
-    "sourceLastModified": 1786509619217.838
+    "timestamp": "2026-08-13T04:43:51.236Z",
+    "sourceLastModified": 1786596231236.7397
   },
   "parent-teacher-conference-form-google-docs": {
     "title": "Parent-Teacher Conference Form Template (Free, Editable & Printable)",
@@ -307,8 +307,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/parent-teacher-conference-form-google-docs.html",
     "datePublished": "2025-08-22T00:00:00.000Z",
     "dateModified": "2025-08-22T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:08.019Z",
-    "sourceLastModified": 1786509608019.549
+    "timestamp": "2026-08-13T04:43:40.160Z",
+    "sourceLastModified": 1786596220160.6997
   },
   "student-progress-report-template-google-docs": {
     "title": "Progress Report Template for Students | Free Google Docs",
@@ -318,8 +318,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/student-progress-report-template-google-docs.html",
     "datePublished": "2025-08-22T00:00:00.000Z",
     "dateModified": "2025-08-22T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:18.374Z",
-    "sourceLastModified": 1786509618374.8164
+    "timestamp": "2026-08-13T04:43:50.408Z",
+    "sourceLastModified": 1786596230408.7363
   },
   "daily-attendance-sheet-teachers-google-docs": {
     "title": "Daily Attendance Sheet for Teachers | Free Google Docs",
@@ -329,8 +329,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/daily-attendance-sheet-teachers-google-docs.html",
     "datePublished": "2025-08-27T00:00:00.000Z",
     "dateModified": "2025-08-27T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:18.004Z",
-    "sourceLastModified": 1786509558004.2285
+    "timestamp": "2026-08-13T04:42:50.905Z",
+    "sourceLastModified": 1786596170905.6233
   },
   "google-docs-guide": {
     "title": "Google Docs: The Complete Guide to Create, Edit, and Share Like a Pro",
@@ -340,8 +340,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-docs-guide.html",
     "datePublished": "2025-08-28T00:00:00.000Z",
     "dateModified": "2025-08-28T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:53.337Z",
-    "sourceLastModified": 1786509593337.1704
+    "timestamp": "2026-08-13T04:43:25.196Z",
+    "sourceLastModified": 1786596205196.6748
   },
   "google-sheets-guide": {
     "title": "Google Sheets Guide | Sign In, Use Templates & Build Dashboards",
@@ -351,8 +351,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-sheets-guide.html",
     "datePublished": "2025-08-28T00:00:00.000Z",
     "dateModified": "2025-08-28T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:58.178Z",
-    "sourceLastModified": 1786509598178.2964
+    "timestamp": "2026-08-13T04:43:30.225Z",
+    "sourceLastModified": 1786596210225.6829
   },
   "google-drive-guide": {
     "title": "Google Drive Guide 2025: Master Cloud Storage and Collaboration",
@@ -362,8 +362,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-drive-guide.html",
     "datePublished": "2025-09-11T00:00:00.000Z",
     "dateModified": "2025-09-11T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:56.796Z",
-    "sourceLastModified": 1786509596796.2605
+    "timestamp": "2026-08-13T04:43:28.683Z",
+    "sourceLastModified": 1786596208683.6804
   },
   "gmail-guide": {
     "title": "Gmail 2025 Mastery Guide: AI Tools, Security & Productivity Hacks",
@@ -373,8 +373,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-guide.html",
     "datePublished": "2025-09-10T00:00:00.000Z",
     "dateModified": "2025-10-14T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:35.029Z",
-    "sourceLastModified": 1786509575029.695
+    "timestamp": "2026-08-13T04:43:07.507Z",
+    "sourceLastModified": 1786596187507.648
   },
   "gmail-passkeys-guide": {
     "title": "How to Use Gmail Passkeys (2025 Security Guide)",
@@ -384,8 +384,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-passkeys-guide.html",
     "datePublished": "2025-10-12T00:00:00.000Z",
     "dateModified": "2025-08-29T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:41.380Z",
-    "sourceLastModified": 1786509581380.8547
+    "timestamp": "2026-08-13T04:43:13.580Z",
+    "sourceLastModified": 1786596193580.6572
   },
   "gmail-tips-and-tricks": {
     "title": "Top 25 Gmail Tips & Tricks You Didn’t Know",
@@ -395,8 +395,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-tips-and-tricks.html",
     "datePublished": "2025-08-29T00:00:00.000Z",
     "dateModified": "2025-08-29T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:49.842Z",
-    "sourceLastModified": 1786509589842.0793
+    "timestamp": "2026-08-13T04:43:21.764Z",
+    "sourceLastModified": 1786596201764.6694
   },
   "gmail-not-receiving-emails-fix": {
     "title": "How to Fix Gmail Not Receiving Emails |Complete 2025 Guide",
@@ -405,9 +405,9 @@ let postMetadata = {
     "ogImage": "https://read.maxclickempire.com/assets/og-image.jpg",
     "canonical": "https://read.maxclickempire.com/posts/gmail-not-receiving-emails-fix.html",
     "datePublished": "2025-08-29T21:37:37.412Z",
-    "dateModified": "2026-08-12T04:38:57.622Z",
-    "timestamp": "2026-08-12T04:39:39.519Z",
-    "sourceLastModified": 1786509579519.8079
+    "dateModified": "2026-08-13T04:42:28.576Z",
+    "timestamp": "2026-08-13T04:43:11.815Z",
+    "sourceLastModified": 1786596191815.6548
   },
   "ultimate-google-docs-productivity-guide": {
     "title": "Google Docs Productivity Guide | 50+ Hacks, AI Templates & Shortcuts",
@@ -417,8 +417,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/ultimate-google-docs-productivity-guide.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:21.486Z",
-    "sourceLastModified": 1786509621486.8958
+    "timestamp": "2026-08-13T04:43:53.517Z",
+    "sourceLastModified": 1786596233517.749
   },
   "create-gmail-account-step-by-step-guide": {
     "title": "How to Create a Gmail Account: Step-by-Step Guide",
@@ -428,8 +428,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/create-gmail-account-step-by-step-guide.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:14.051Z",
-    "sourceLastModified": 1786509554051.1257
+    "timestamp": "2026-08-13T04:42:46.802Z",
+    "sourceLastModified": 1786596166802.6138
   },
   "sign-in-to-gmail-complete-login-guide-desktop-mobile": {
     "title": "How to Sign In to Gmail | Complete Login Guide (Desktop & Mobile)",
@@ -439,8 +439,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/sign-in-to-gmail-complete-login-guide-desktop-mobile.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:16.775Z",
-    "sourceLastModified": 1786509616775.7756
+    "timestamp": "2026-08-13T04:43:48.803Z",
+    "sourceLastModified": 1786596228803.7302
   },
   "recover-gmail-password-without-phone-or-email": {
     "title": "Recover Gmail Password Without Phone or Email | 2025 Guide",
@@ -450,8 +450,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/recover-gmail-password-without-phone-or-email.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:12.770Z",
-    "sourceLastModified": 1786509612770.673
+    "timestamp": "2026-08-13T04:43:44.816Z",
+    "sourceLastModified": 1786596224816.7222
   },
   "protect-gmail-from-hackers-phishing": {
     "title": "How to Protect Gmail from Hackers & Phishing | 2025 Guide",
@@ -461,8 +461,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/protect-gmail-from-hackers-phishing.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:11.094Z",
-    "sourceLastModified": 1786509611094.6294
+    "timestamp": "2026-08-13T04:43:43.185Z",
+    "sourceLastModified": 1786596223185.7188
   },
   "enable-2-step-verification-gmail": {
     "title": "How to Enable 2-Step Verification on Gmail | 2025 Guide",
@@ -472,8 +472,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/enable-2-step-verification-gmail.html",
     "datePublished": "2025-08-30T00:00:00.000Z",
     "dateModified": "2025-08-30T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:20.564Z",
-    "sourceLastModified": 1786509560564.298
+    "timestamp": "2026-08-13T04:42:53.417Z",
+    "sourceLastModified": 1786596173417.629
   },
   "gmail-learn-shortcuts": {
     "title": "Learn Gmail Shortcuts Fast: Cut Your Inbox Time by 50% Today",
@@ -483,8 +483,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-learn-shortcuts.html",
     "datePublished": "2025-08-31T00:00:00.000Z",
     "dateModified": "2025-08-31T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:37.885Z",
-    "sourceLastModified": 1786509577885.7668
+    "timestamp": "2026-08-13T04:43:10.293Z",
+    "sourceLastModified": 1786596190293.6526
   },
   "schedule-emails-gmail": {
     "title": "How to Schedule Emails in Gmail Today: Learn, Set, and Automate Send Later",
@@ -494,8 +494,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/schedule-emails-gmail.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:15.780Z",
-    "sourceLastModified": 1786509615780.7502
+    "timestamp": "2026-08-13T04:43:47.807Z",
+    "sourceLastModified": 1786596227807.7283
   },
   "gmail-undo-recall-email": {
     "title": "Undo or Recall Sent Email in Gmail — Stop Mistakes Fast Today",
@@ -505,8 +505,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-undo-recall-email.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:51.525Z",
-    "sourceLastModified": 1786509591525.1233
+    "timestamp": "2026-08-13T04:43:23.437Z",
+    "sourceLastModified": 1786596203437.672
   },
   "gmail-delete-account": {
     "title": "Delete Your Gmail Account Safely: Backup, Remove, and Recover Today",
@@ -516,8 +516,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-delete-account.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:29.167Z",
-    "sourceLastModified": 1786509569167.5361
+    "timestamp": "2026-08-13T04:43:01.840Z",
+    "sourceLastModified": 1786596181840.643
   },
   "gmail-delete-all-emails": {
     "title": "Delete All Emails in Gmail Now — Fast & Safe Guide (2025 Steps)",
@@ -527,8 +527,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-delete-all-emails.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:29.825Z",
-    "sourceLastModified": 1786509569825.555
+    "timestamp": "2026-08-13T04:43:02.455Z",
+    "sourceLastModified": 1786596182455.6436
   },
   "gmail-login-problems-fix": {
     "title": "Gmail Login Problems Fix Now — Desktop & Mobile Recovery Today",
@@ -538,8 +538,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-login-problems-fix.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:38.471Z",
-    "sourceLastModified": 1786509578471.7815
+    "timestamp": "2026-08-13T04:43:10.839Z",
+    "sourceLastModified": 1786596190839.6533
   },
   "find-archived-emails-gmail": {
     "title": "Find Archived Emails in Gmail — Complete Step-by-Step Guide",
@@ -549,8 +549,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/find-archived-emails-gmail.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:22.760Z",
-    "sourceLastModified": 1786509562760.3577
+    "timestamp": "2026-08-13T04:42:55.676Z",
+    "sourceLastModified": 1786596175676.633
   },
   "gmail-recover-deleted-emails": {
     "title": "Recover Deleted Gmail Emails Fast - Complete Step-by-Step Guide",
@@ -560,8 +560,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-recover-deleted-emails.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:43.651Z",
-    "sourceLastModified": 1786509583651.915
+    "timestamp": "2026-08-13T04:43:15.719Z",
+    "sourceLastModified": 1786596195719.6604
   },
   "gmail-app-mobile-productivity-tips": {
     "title": "Gmail App Tutorial 2025| Master Mobile Email & Boost Productivity",
@@ -571,8 +571,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-app-mobile-productivity-tips.html",
     "datePublished": "2025-09-04T00:00:00.000Z",
     "dateModified": "2025-09-04T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:25.929Z",
-    "sourceLastModified": 1786509565929.444
+    "timestamp": "2026-08-13T04:42:58.730Z",
+    "sourceLastModified": 1786596178730.6384
   },
   "gmail-storage-cleanup-drive-mobile": {
     "title": "Gmail Storage Cleanup (2025 Guide) — Free Up Space on Gmail & Drive Fast",
@@ -582,8 +582,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-storage-cleanup-drive-mobile.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-08T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:47.087Z",
-    "sourceLastModified": 1786509587087.0063
+    "timestamp": "2026-08-13T04:43:19.083Z",
+    "sourceLastModified": 1786596199083.6653
   },
   "gmail-block-spam-unwanted-emails": {
     "title": "Gmail Spam Block | Stop Unwanted Emails on Mobile & Desktop",
@@ -593,8 +593,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-block-spam-unwanted-emails.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:26.676Z",
-    "sourceLastModified": 1786509566676.4653
+    "timestamp": "2026-08-13T04:42:59.443Z",
+    "sourceLastModified": 1786596179443.64
   },
   "gmail-google-workspace-integration": {
     "title": "Integrate Gmail with Google Workspace Apps — Get Started Now",
@@ -604,8 +604,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-google-workspace-integration.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:31.883Z",
-    "sourceLastModified": 1786509571883.6135
+    "timestamp": "2026-08-13T04:43:04.471Z",
+    "sourceLastModified": 1786596184471.6448
   },
   "gmail-labels-vs-folders": {
     "title": "Master Gmail Labels vs Categories vs Folders — Organize Now",
@@ -615,8 +615,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-labels-vs-folders.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-09T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:36.766Z",
-    "sourceLastModified": 1786509576766.7388
+    "timestamp": "2026-08-13T04:43:09.106Z",
+    "sourceLastModified": 1786596189106.651
   },
   "google-workspace-email-setup": {
     "title": "Get Google Workspace Email: Set Up Gmail for Business Today",
@@ -626,8 +626,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/google-workspace-email-setup.html",
     "datePublished": "2025-09-01T00:00:00.000Z",
     "dateModified": "2025-09-01T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:59.251Z",
-    "sourceLastModified": 1786509599251.3237
+    "timestamp": "2026-08-13T04:43:31.271Z",
+    "sourceLastModified": 1786596211271.6846
   },
   "gmail-search-operators-guide": {
     "title": "Find Any Email Fast: Master Gmail Search Operators Now — 2025 Guide",
@@ -637,8 +637,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-search-operators-guide.html",
     "datePublished": "2025-09-02T00:00:00.000Z",
     "dateModified": "2025-09-02T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:44.984Z",
-    "sourceLastModified": 1786509584984.9504
+    "timestamp": "2026-08-13T04:43:16.997Z",
+    "sourceLastModified": 1786596196997.662
   },
   "forward-emails-gmail-groups": {
     "title": "Forward Emails Automatically and Create Gmail Groups — Start Now",
@@ -648,8 +648,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/forward-emails-gmail-groups.html",
     "datePublished": "2025-09-02T00:00:00.000Z",
     "dateModified": "2025-09-02T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:23.827Z",
-    "sourceLastModified": 1786509563827.3865
+    "timestamp": "2026-08-13T04:42:56.646Z",
+    "sourceLastModified": 1786596176646.6348
   },
   "manage-multiple-gmail-accounts": {
     "title": "Manage Gmail Accounts: Add Multiple Accounts on Android, iPhone & Desktop (2025 Guide)",
@@ -659,8 +659,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/manage-multiple-gmail-accounts.html",
     "datePublished": "2025-09-03T00:00:00.000Z",
     "dateModified": "2025-09-08T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:03.094Z",
-    "sourceLastModified": 1786509603094.4219
+    "timestamp": "2026-08-13T04:43:35.144Z",
+    "sourceLastModified": 1786596215144.6912
   },
   "inbox-zero-gmail-filters": {
     "title": "Become Inbox Zero: Use Gmail Filters to Auto-Sort & Label",
@@ -670,8 +670,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/inbox-zero-gmail-filters.html",
     "datePublished": "2025-09-03T00:00:00.000Z",
     "dateModified": "2025-09-03T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:40:00.753Z",
-    "sourceLastModified": 1786509600753.362
+    "timestamp": "2026-08-13T04:43:32.817Z",
+    "sourceLastModified": 1786596212817.6873
   },
   "gmail-templates-prewritten-emails": {
     "title": "Save Time Fast: Use Gmail Templates for Pre-Written Emails",
@@ -681,8 +681,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-templates-prewritten-emails.html",
     "datePublished": "2025-09-03T00:00:00.000Z",
     "dateModified": "2025-09-03T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:48.777Z",
-    "sourceLastModified": 1786509588777.0513
+    "timestamp": "2026-08-13T04:43:20.718Z",
+    "sourceLastModified": 1786596200718.668
   },
   "gmail-undo-send-safety-window": {
     "title": "Set Gmail Undo Send Now: Choose Your Perfect Safety Window",
@@ -692,8 +692,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-undo-send-safety-window.html",
     "datePublished": "2025-09-03T00:00:00.000Z",
     "dateModified": "2025-09-03T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:52.286Z",
-    "sourceLastModified": 1786509592286.143
+    "timestamp": "2026-08-13T04:43:24.175Z",
+    "sourceLastModified": 1786596204175.673
   },
   "customize-gmail-themes-layouts-inbox": {
     "title": "Customize Your Gmail Themes, Layout & Inbox|Complete Tutorial",
@@ -703,8 +703,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/customize-gmail-themes-layouts-inbox.html",
     "datePublished": "2025-09-05T00:00:00.000Z",
     "dateModified": "2025-09-05T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:16.960Z",
-    "sourceLastModified": 1786509556960.201
+    "timestamp": "2026-08-13T04:42:49.873Z",
+    "sourceLastModified": 1786596169873.6208
   },
   "gmail-confidential-mode-secure-messages": {
     "title": "Secure Sensitive Messages Now with Gmail Confidential Mode",
@@ -714,8 +714,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-confidential-mode-secure-messages.html",
     "datePublished": "2025-09-05T00:00:00.000Z",
     "dateModified": "2025-09-05T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:27.633Z",
-    "sourceLastModified": 1786509567633.4927
+    "timestamp": "2026-08-13T04:43:00.369Z",
+    "sourceLastModified": 1786596180369.6414
   },
   "enable-gmail-offline-mode": {
     "title": "Enable Gmail Offline Mode Now — Access Email Without Internet",
@@ -725,8 +725,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/enable-gmail-offline-mode.html",
     "datePublished": "2025-09-07T00:00:00.000Z",
     "dateModified": "2025-09-07T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:22.017Z",
-    "sourceLastModified": 1786509562017.3374
+    "timestamp": "2026-08-13T04:42:54.939Z",
+    "sourceLastModified": 1786596174939.6316
   },
   "gmail-smart-compose.html\ngmail-offline-mode": {
     "title": "Enable Gmail Smart Compose Today — Write Emails Faster Now",
@@ -736,8 +736,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-smart-compose.html\ngmail-offline-mode.html",
     "datePublished": "2025-09-07T00:00:00.000Z",
     "dateModified": "2025-09-07T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:46.072Z",
-    "sourceLastModified": 1786509586072.9792
+    "timestamp": "2026-08-13T04:43:18.043Z",
+    "sourceLastModified": 1786596198043.6638
   },
   "gmail-export-backup.html\ngmail-priority-inbox": {
     "title": "Export & Backup Your Gmail Safely — Start Your Secure Backup Now",
@@ -747,8 +747,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-export-backup.html\ngmail-priority-inbox.html",
     "datePublished": "2025-09-07T00:00:00.000Z",
     "dateModified": "2025-09-07T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:30.906Z",
-    "sourceLastModified": 1786509570906.5857
+    "timestamp": "2026-08-13T04:43:03.515Z",
+    "sourceLastModified": 1786596183515.644
   },
   "gmail-priority-inbox": {
     "title": "Gmail Priority Inbox — Highlight Important Emails and Act Faster",
@@ -758,8 +758,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-priority-inbox.html",
     "datePublished": "2025-09-07T00:00:00.000Z",
     "dateModified": "2025-09-07T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:42.106Z",
-    "sourceLastModified": 1786509582106.8738
+    "timestamp": "2026-08-13T04:43:14.257Z",
+    "sourceLastModified": 1786596194257.6582
   },
   "gmail-smart-compose.html gmail-offline-mode": {
     "title": "gmail smart compose.html gmail offline mode",
@@ -782,8 +782,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-is-down-now.html",
     "datePublished": "2025-09-12T00:00:00.000Z",
     "dateModified": "2025-09-12T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:35.856Z",
-    "sourceLastModified": 1786509575856.7158
+    "timestamp": "2026-08-13T04:43:08.265Z",
+    "sourceLastModified": 1786596188265.6494
   },
   "gmail-tabs-organize": {
     "title": "Master Gmail Tabs — Organize Promotions & Social Today",
@@ -793,8 +793,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-tabs-organize.html",
     "datePublished": "2025-09-16T00:00:00.000Z",
     "dateModified": "2025-09-16T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:47.975Z",
-    "sourceLastModified": 1786509587975.0298
+    "timestamp": "2026-08-13T04:43:19.943Z",
+    "sourceLastModified": 1786596199943.6667
   },
   "gmail-track-sent-emails": {
     "title": "How to Track Sent Emails in Gmail — Start Tracking Opens Now",
@@ -804,8 +804,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-track-sent-emails.html",
     "datePublished": "2025-09-16T00:00:00.000Z",
     "dateModified": "2025-09-16T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:50.890Z",
-    "sourceLastModified": 1786509590890.1067
+    "timestamp": "2026-08-13T04:43:22.822Z",
+    "sourceLastModified": 1786596202822.6711
   },
   "gmail-create-signature-with-images-links": {
     "title": "Create a Gmail Signature With Images & Links — Start Now",
@@ -815,8 +815,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-create-signature-with-images-links.html",
     "datePublished": "2025-09-16T00:00:00.000Z",
     "dateModified": "2025-09-16T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:28.422Z",
-    "sourceLastModified": 1786509568422.5151
+    "timestamp": "2026-08-13T04:43:01.109Z",
+    "sourceLastModified": 1786596181109.6426
   },
   "gmail-outlook-migration": {
     "title": "Move from Outlook to Gmail — Start Your Migration Now",
@@ -826,8 +826,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-outlook-migration.html",
     "datePublished": "2025-09-18T00:00:00.000Z",
     "dateModified": "2025-09-18T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:40.485Z",
-    "sourceLastModified": 1786509580485.8323
+    "timestamp": "2026-08-13T04:43:12.746Z",
+    "sourceLastModified": 1786596192746.656
   },
   "gmail-promotions-tab-clean-inbox-guide": {
     "title": "Master Gmail Promotions & Social Tabs: Clean Your Inbox Today",
@@ -837,8 +837,8 @@ let postMetadata = {
     "canonical": "https://read.maxclickempire.com/posts/gmail-promotions-tab-clean-inbox-guide.html",
     "datePublished": "2025-10-14T00:00:00.000Z",
     "dateModified": "2025-10-14T00:00:00.000Z",
-    "timestamp": "2026-08-12T04:39:42.939Z",
-    "sourceLastModified": 1786509582939.896
+    "timestamp": "2026-08-13T04:43:15.041Z",
+    "sourceLastModified": 1786596195041.6594
   }
 };
 module.exports = { postMetadata };
