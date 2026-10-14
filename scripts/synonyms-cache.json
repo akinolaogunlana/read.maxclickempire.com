@@ -93,12 +93,12 @@
   "—": [],
   "+": [],
   "template|free": [],
-  "guide)": [],
   "guide:": [],
+  "guide)": [],
   "redirecting...": [],
   "backup,": [],
-  "email:": [],
   "emails": [],
+  "email:": [],
   "promotions": [],
   "links": [
     "links"
@@ -208,9 +208,6 @@
     "export",
     "exportation"
   ],
-  "label": [
-    "label"
-  ],
   "phone": [
     "earphone",
     "earpiece",
@@ -218,6 +215,9 @@
     "phone",
     "sound",
     "telephone"
+  ],
+  "label": [
+    "label"
   ],
   "save": [
     "save"
@@ -661,9 +661,9 @@
     "substantiation"
   ],
   "gmail shortcuts": [],
-  "gmail tips": [],
-  "gmail filters": [],
   "gmail templates": [],
+  "gmail filters": [],
+  "gmail tips": [],
   "interviews": [],
   "format)": [],
   "seating": [
@@ -756,8 +756,8 @@
     "organiser",
     "arranger"
   ],
-  "gmail labels vs categories": [],
   "gmail storage cleanup": [],
+  "gmail labels vs categories": [],
   "ai": [
     "ai"
   ],
